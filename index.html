@@ -191,7 +191,6 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">최초 총 계약 금액 (원)</label>
-                    <!-- 🚨 type="text" 로 변경하여 천단위 콤마 실시간 반영 -->
                     <input type="text" id="in-total" value="48,567,100" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 font-bold" oninput="formatInputField(this); updateDoc()">
                 </div>
                 
@@ -207,7 +206,6 @@
                                 <option value="80">80%</option>
                                 <option value="custom">직접입력 (기타)</option>
                             </select>
-                            <!-- 직접 입력 필드 (선택 시 등장) -->
                             <input type="number" id="in-rate-custom" class="w-1/3 hidden border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" placeholder="예: 45" oninput="updateDoc()">
                         </div>
                     </div>
@@ -228,7 +226,6 @@
                                 <input type="text" id="in-bus" class="w-2/3 border border-slate-300 rounded px-2 py-1 text-xs text-right" oninput="formatInputField(this); updateCustomPlanValidation()">
                             </div>
                         </div>
-                        <!-- 🚨 선금 배분 오류 경고창 -->
                         <div id="advance-warning" class="hidden mt-3 p-2 bg-red-50 border border-red-200 rounded text-[11px] text-red-600 font-bold leading-relaxed">
                             <!-- 경고 메시지 JS 주입 -->
                         </div>
@@ -612,7 +609,7 @@
                     <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
                 </div>
 
-                <!-- 2. 정산내역서 (동적 계산 & 비고란 자동 그룹화) -->
+                <!-- 2. 정산내역서 (동적 계산 & 항목/비고란 자동 그룹화) -->
                 <div class="a4-page flex flex-col justify-between" style="min-height: 297mm;">
                     <div class="flex-1 flex flex-col">
                         <h1 class="text-[20pt] font-black text-center tracking-[1rem] mb-2">정 산 내 역 서</h1>
@@ -650,22 +647,23 @@
 
                         <table class="calc-table" id="settlement-table">
                             <thead>
+                                <!-- 🚨 비율 최종 재조정: 내용 22%, 비고 12% (가독성 최적화) -->
                                 <tr class="bg-[#eef2f9] text-[8pt] text-[#334155]">
                                     <th class="w-[10%]">구분</th>
                                     <th class="w-[13%]">항목</th>
-                                    <th class="w-[26%]">내용</th>
+                                    <th class="w-[22%]">내용</th> 
                                     <th class="w-[7%]">수량</th>
                                     <th class="w-[10%]">외화단가<br><span class="text-[8px] text-slate-500 font-normal">(<span id="currency-code" contenteditable="true" class="text-blue-600 border-b border-dashed border-blue-300 cursor-text" title="클릭하여 JPY, USD, CNY 등 변경">JPY</span>)</span></th>
                                     <th class="w-[12%]">원화단가<br><span class="text-[8px] text-slate-500 font-normal">(KRW)</span></th>
                                     <th class="w-[14%]">총금액<br><span class="text-[8px] text-slate-500 font-normal">(KRW)</span></th>
-                                    <th class="w-[8%]">비고</th>
+                                    <th class="w-[12%]">비고</th>
                                 </tr>
                             </thead>
                             
                             <!-- 항공료 -->
                             <tbody id="tbody-flight" class="editable-group">
                                 <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white">에어부산</td>
+                                    <td contenteditable="true" class="bg-white item-name align-middle">에어부산</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">인천-오사카-인천</td>
                                     <td contenteditable="true" class="col-qty bg-white">38</td>
                                     <td class="bg-slate-50 text-slate-400 text-[9px]">-</td>
@@ -676,7 +674,7 @@
                                     </td>
                                 </tr>
                                 <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white">발권수수료</td>
+                                    <td contenteditable="true" class="bg-white item-name align-middle">발권수수료</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">항공 발권 대리점</td>
                                     <td contenteditable="true" class="col-qty bg-white">38</td>
                                     <td class="bg-slate-50 text-slate-400 text-[9px]">-</td>
@@ -701,7 +699,7 @@
                             <!-- 해외현지 발생경비 -->
                             <tbody id="tbody-local" class="editable-group">
                                 <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white">호텔</td>
+                                    <td contenteditable="true" class="bg-white item-name align-middle">호텔</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">(2인실) 3박요금</td>
                                     <td contenteditable="true" class="col-qty bg-white">20</td>
                                     <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">65,000</td>
@@ -712,7 +710,7 @@
                                     </td>
                                 </tr>
                                 <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white">차량비</td>
+                                    <td contenteditable="true" class="bg-white item-name align-middle">차량비</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">전용차량 1대</td>
                                     <td contenteditable="true" class="col-qty bg-white">1</td>
                                     <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">950,000</td>
@@ -723,7 +721,7 @@
                                     </td>
                                 </tr>
                                 <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white">식비</td>
+                                    <td contenteditable="true" class="bg-white item-name align-middle font-bold text-slate-700">식비</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">중식_1일차</td>
                                     <td contenteditable="true" class="col-qty bg-white">38</td>
                                     <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">2,000</td>
@@ -734,7 +732,7 @@
                                     </td>
                                 </tr>
                                 <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white">식비</td>
+                                    <td contenteditable="true" class="bg-white item-name align-middle font-bold text-slate-700">식비</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">중식_2일차</td>
                                     <td contenteditable="true" class="col-qty bg-white">38</td>
                                     <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">2,000</td>
@@ -745,7 +743,7 @@
                                     </td>
                                 </tr>
                                 <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white">식비</td>
+                                    <td contenteditable="true" class="bg-white item-name align-middle font-bold text-slate-700">식비</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">중식_3일차</td>
                                     <td contenteditable="true" class="col-qty bg-white">38</td>
                                     <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">2,000</td>
@@ -756,7 +754,7 @@
                                     </td>
                                 </tr>
                                 <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white">식비</td>
+                                    <td contenteditable="true" class="bg-white item-name align-middle font-bold text-slate-700">식비</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">석식_1일차</td>
                                     <td contenteditable="true" class="col-qty bg-white">38</td>
                                     <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">3,000</td>
@@ -767,7 +765,7 @@
                                     </td>
                                 </tr>
                                 <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white">식비</td>
+                                    <td contenteditable="true" class="bg-white item-name align-middle font-bold text-slate-700">식비</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">석식_2일차</td>
                                     <td contenteditable="true" class="col-qty bg-white">38</td>
                                     <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">3,000</td>
@@ -778,7 +776,7 @@
                                     </td>
                                 </tr>
                                 <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white">식비</td>
+                                    <td contenteditable="true" class="bg-white item-name align-middle font-bold text-slate-700">식비</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">석식_3일차</td>
                                     <td contenteditable="true" class="col-qty bg-white">38</td>
                                     <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">3,000</td>
@@ -789,7 +787,7 @@
                                     </td>
                                 </tr>
                                 <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white">관광지입장료</td>
+                                    <td contenteditable="true" class="bg-white item-name align-middle font-bold text-slate-700">관광지입장료</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">롯코산케이블카</td>
                                     <td contenteditable="true" class="col-qty bg-white">38</td>
                                     <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">1,300</td>
@@ -800,7 +798,7 @@
                                     </td>
                                 </tr>
                                 <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white">관광지입장료</td>
+                                    <td contenteditable="true" class="bg-white item-name align-middle font-bold text-slate-700">관광지입장료</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">청수사</td>
                                     <td contenteditable="true" class="col-qty bg-white">38</td>
                                     <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">600</td>
@@ -811,7 +809,7 @@
                                     </td>
                                 </tr>
                                 <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white">관광지입장료</td>
+                                    <td contenteditable="true" class="bg-white item-name align-middle font-bold text-slate-700">관광지입장료</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">하루카스전망대</td>
                                     <td contenteditable="true" class="col-qty bg-white">38</td>
                                     <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">2,200</td>
@@ -822,7 +820,7 @@
                                     </td>
                                 </tr>
                                 <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white">관광지입장료</td>
+                                    <td contenteditable="true" class="bg-white item-name align-middle font-bold text-slate-700">관광지입장료</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">동대사</td>
                                     <td contenteditable="true" class="col-qty bg-white">38</td>
                                     <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">800</td>
@@ -833,7 +831,7 @@
                                     </td>
                                 </tr>
                                 <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white">가이드비용</td>
+                                    <td contenteditable="true" class="bg-white item-name align-middle">가이드비용</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">전일정 가이드 동행</td>
                                     <td contenteditable="true" class="col-qty bg-white">1</td>
                                     <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">280,000</td>
@@ -858,7 +856,7 @@
                             <!-- 국내 발생비용 -->
                             <tbody id="tbody-domestic" class="editable-group">
                                 <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white">여행자보험</td>
+                                    <td contenteditable="true" class="bg-white item-name align-middle">여행자보험</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">해외여행자보험 1억원</td>
                                     <td contenteditable="true" class="col-qty bg-white">38</td>
                                     <td class="bg-slate-50 text-slate-400 text-[9px]">-</td>
@@ -869,7 +867,7 @@
                                     </td>
                                 </tr>
                                 <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white">알선수수료</td>
+                                    <td contenteditable="true" class="bg-white item-name align-middle">알선수수료</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">여행사 기획/운영 관리비</td>
                                     <td contenteditable="true" class="col-qty bg-white">1</td>
                                     <td class="bg-slate-50 text-slate-400 text-[9px]">-</td>
@@ -1074,7 +1072,7 @@
                 : ``;
 
             tr.innerHTML = `
-                <td contenteditable="true" class="bg-white">항목명</td>
+                <td contenteditable="true" class="bg-white item-name align-middle">항목명</td>
                 <td contenteditable="true" class="text-left pl-2 col-desc bg-white">상세내용</td>
                 <td contenteditable="true" class="col-qty bg-white">1</td>
                 ${foreignCell}
@@ -1106,13 +1104,15 @@
             calcTable();
         }
 
-        // 카테고리 병합(Rowspan) 및 비고란(별첨) 동적 조정
+        // 카테고리 병합(Rowspan) 및 항목명, 비고란 동적 조정 🚨 (업데이트됨)
         function updateRowspans(section) {
             const tbody = document.getElementById(`tbody-${section}`);
             const rows = tbody.querySelectorAll('tr.item-row');
             
+            let prevItemCell = null;
+
             rows.forEach((row, index) => {
-                // 1. 첫번째 컬럼 (구분) 병합
+                // 1. 구분 컬럼 병합
                 let catCell = row.querySelector('.group-category');
                 if(index === 0) {
                     if(!catCell) {
@@ -1128,13 +1128,27 @@
                     if(catCell) catCell.remove();
                 }
 
-                // 2. 마지막 컬럼 (비고/별첨 그룹화)
+                // 2. 항목 컬럼(item-name) 동적 텍스트 기반 병합 🚨
+                let itemCell = row.querySelector('.item-name');
+                if (itemCell) {
+                    itemCell.style.display = ''; // 일단 보이게 초기화
+                    itemCell.rowSpan = 1;
+                    
+                    if (prevItemCell && prevItemCell.innerText.trim() === itemCell.innerText.trim() && itemCell.innerText.trim() !== '') {
+                        itemCell.style.display = 'none'; // 이전 항목과 텍스트가 같으면 숨기고
+                        prevItemCell.rowSpan++;          // 이전 항목의 rowspan 증가
+                    } else {
+                        prevItemCell = itemCell;         // 다르면 새로운 기준점으로 설정
+                    }
+                }
+
+                // 3. 비고/별첨 컬럼 그룹화
                 let remarkCell = row.querySelector('.group-remark');
                 if(section === 'flight' || section === 'local' || section === 'domestic') {
                     if(index === 0) {
                         if(!remarkCell) {
                             remarkCell = document.createElement('td');
-                            remarkCell.className = 'font-bold text-slate-700 bg-white group-remark border-b-0 align-middle';
+                            remarkCell.className = 'font-bold text-slate-700 bg-white group-remark border-b-0 align-middle px-1';
                             row.appendChild(remarkCell);
                         } else {
                             remarkCell.classList.add('border-b-0');
@@ -1142,7 +1156,7 @@
                         remarkCell.rowSpan = rows.length;
 
                         if (section === 'flight') remarkCell.innerHTML = `별첨 1`;
-                        else if (section === 'local') remarkCell.innerHTML = `별첨 2<br><span id="local-foreign-total" class="text-[7.5pt] text-emerald-700 block mt-1"></span>`;
+                        else if (section === 'local') remarkCell.innerHTML = `별첨 2<br><span id="local-foreign-total" class="text-[7.5pt] text-emerald-700 block mt-1 leading-tight"></span>`;
                         else if (section === 'domestic' && remarkCell.innerText.trim() === '') remarkCell.innerHTML = `별첨 3`;
                         
                         if (section === 'domestic') remarkCell.contentEditable = "true";
@@ -1198,7 +1212,7 @@
             const foreignTotalEl = document.getElementById('local-foreign-total');
             if (foreignTotalEl) {
                 let currCode = document.getElementById('currency-code') ? document.getElementById('currency-code').innerText.trim() : 'JPY';
-                foreignTotalEl.innerText = totalLocalForeign > 0 ? `(총 외화합계: ${currCode} ${formatNum(totalLocalForeign)})` : '';
+                foreignTotalEl.innerText = totalLocalForeign > 0 ? `(총 외화합계:\n${currCode} ${formatNum(totalLocalForeign)})` : '';
             }
 
             document.querySelectorAll('#tbody-domestic tr.item-row').forEach(row => {
@@ -1266,14 +1280,40 @@
             }
         }
 
+        // 🚨 항목명(Merge Group) 동기화 로직 추가
         document.getElementById('settlement-table').addEventListener('input', function(e) {
             if(e.target.hasAttribute('contenteditable')) calcTable();
+            
+            // 만약 사용자가 '병합된 항목(예:식비)'의 텍스트를 수정 중이라면, 숨겨져 있는 자식 셀들도 동시에 텍스트 업데이트
+            if (e.target.classList.contains('item-name')) {
+                let rowspan = e.target.rowSpan;
+                if (rowspan > 1) {
+                    let tr = e.target.closest('tr');
+                    let text = e.target.innerText;
+                    for (let i = 1; i < rowspan; i++) {
+                        tr = tr.nextElementSibling;
+                        if (tr) {
+                            let hiddenItem = tr.querySelector('.item-name');
+                            if (hiddenItem && hiddenItem.style.display === 'none') {
+                                hiddenItem.innerText = text;
+                            }
+                        }
+                    }
+                }
+            }
         });
+
         document.getElementById('settlement-table').addEventListener('blur', function(e) {
             if(e.target.classList.contains('col-qty') || e.target.classList.contains('col-foreign') || e.target.classList.contains('col-krw') || e.target.id === 'manual-settle-input') {
                 let val = parseNum(e.target.innerText);
                 e.target.innerText = val > 0 ? formatNum(val) : '';
                 calcTable();
+            }
+            
+            // 항목명(item-name) 수정이 끝나고 커서를 벗어날 때 다시 한번 병합 로직 재계산
+            if (e.target.classList.contains('item-name')) {
+                const section = e.target.closest('tbody').id.replace('tbody-', '');
+                updateRowspans(section);
             }
         }, true);
 
