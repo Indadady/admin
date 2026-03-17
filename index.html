@@ -497,8 +497,9 @@
                         <div class="flex border-b border-slate-200 pb-4"><div class="w-32 font-bold">청구금액</div><div class="w-4">:</div><div class="flex-1 text-blue-700 font-bold">금 <span class="out-advance-korean"></span>원 (₩<span class="out-advance-num"></span>)</div></div>
                     </div>
                     
-                    <div class="flex text-[12pt] font-black mb-16 px-6 bg-slate-100 py-4 rounded">
-                        <div class="w-32">합 계</div><div class="w-4">:</div><div class="flex-1">금 <span class="out-advance-korean"></span>원 (₩<span class="out-advance-num"></span>)</div>
+                    <div class="flex text-[11.5pt] font-black mb-16 px-6 bg-slate-100 py-4 rounded items-center">
+                        <div class="w-32 whitespace-nowrap">합 계</div><div class="w-4">:</div>
+                        <div class="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">금 <span class="out-advance-korean"></span>원 (₩<span class="out-advance-num"></span>)</div>
                     </div>
                     
                     <p class="text-[11.5pt] mb-12 text-center font-bold">위와 같이 선금을 청구하오니 아래 계좌에 입금하여 주시기 바랍니다.</p>
@@ -562,7 +563,7 @@
             <!-- ========================================== -->
             <div id="final-docs">
                 <!-- 1. 정산 보고 공문 -->
-                <div class="a4-page flex flex-col justify-between">
+                <div class="a4-page flex flex-col justify-between" style="min-height: 297mm;">
                     <div>
                         <h1 class="doc-title text-left pl-4 border-b-2 border-slate-800 pb-2 mb-10">공 문</h1>
                         <div class="text-[11pt] space-y-2 mb-12 pb-6">
@@ -581,7 +582,7 @@
                             <p class="font-bold mb-4">붙임</p>
                             <p class="ml-8 mb-2">1. 정산 내역서 1부.</p>
                             <p class="ml-8 mb-2">2. 최종 청구서 1부.</p>
-                            <p class="ml-8">3. 관련 증빙자료(인보이스, 영수증 등) 일체. 끝.</p>
+                            <p class="ml-8">3. 관련 증빙자료(해외 인보이스, 영수증 등) 일체. 끝.</p>
                         </div>
                     </div>
 
@@ -596,280 +597,283 @@
                             <p class="out-rep-addr"></p>
                         </div>
                     </div>
+                    <!-- 정산 공문 로고 (유지) -->
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
                 </div>
 
                 <!-- 2. 정산내역서 (동적 계산 & 비고란 자동 그룹화) -->
-                <div class="a4-page px-8 py-8">
-                    <h1 class="text-[20pt] font-black text-center tracking-[1rem] mb-2">정 산 내 역 서</h1>
-                    <p class="text-center text-[10px] text-slate-500 font-bold tracking-[0.5rem] mb-4">SETTLEMENT DETAILS</p>
+                <div class="a4-page flex flex-col justify-between" style="min-height: 297mm;">
+                    <div class="flex-1 flex flex-col">
+                        <h1 class="text-[20pt] font-black text-center tracking-[1rem] mb-2">정 산 내 역 서</h1>
+                        <p class="text-center text-[10px] text-slate-500 font-bold tracking-[0.5rem] mb-4">SETTLEMENT DETAILS</p>
 
-                    <div class="flex justify-end mb-2 print-hidden">
-                        <p class="text-[11px] text-blue-600 bg-blue-50 px-3 py-1 rounded font-bold border border-blue-200 shadow-sm"><i class="fa-solid fa-pen-to-square"></i> 표 안의 항목과 숫자를 자유롭게 수정하세요.</p>
+                        <div class="flex justify-end mb-2 print-hidden">
+                            <p class="text-[11px] text-blue-600 bg-blue-50 px-3 py-1 rounded font-bold border border-blue-200 shadow-sm"><i class="fa-solid fa-pen-to-square"></i> 표 안의 항목과 숫자를 자유롭게 수정하세요.</p>
+                        </div>
+
+                        <table class="w-[55%] border-collapse border border-[#cbd5e1] text-[8.5pt] mb-3 text-left">
+                            <tr>
+                                <th class="border border-[#cbd5e1] bg-[#eef2f9] py-1 px-3 w-[30%] text-[#334155]">고객명</th>
+                                <td class="border border-[#cbd5e1] px-3 font-bold out-school" contenteditable="true"></td>
+                            </tr>
+                            <tr>
+                                <th class="border border-[#cbd5e1] bg-[#eef2f9] py-1 px-3 text-[#334155]">행사명</th>
+                                <td class="border border-[#cbd5e1] px-3 font-bold out-title leading-tight" contenteditable="true"></td>
+                            </tr>
+                            <tr>
+                                <th class="border border-[#cbd5e1] bg-[#eef2f9] py-1 px-3 text-[#334155]">여행일</th>
+                                <td class="border border-[#cbd5e1] px-3 font-bold out-period" contenteditable="true"></td>
+                            </tr>
+                            <tr>
+                                <th class="border border-[#cbd5e1] bg-[#eef2f9] py-1 px-3 text-[#334155]">여행인원</th>
+                                <td class="border border-[#cbd5e1] px-3 font-bold" contenteditable="true">38명기준(학생 33+ 교사5)</td>
+                            </tr>
+                            <tr>
+                                <th class="border border-[#cbd5e1] bg-[#eef2f9] py-1 px-3 text-[#334155]">발송일자/환율</th>
+                                <td class="border border-[#cbd5e1] px-3 text-red-600 font-bold" contenteditable="true"><span class="out-date-korean"></span> / 외화 9.5 기준</td>
+                            </tr>
+                        </table>
+
+                        <table class="calc-table" id="settlement-table">
+                            <thead>
+                                <tr class="bg-[#eef2f9] text-[8pt] text-[#334155]">
+                                    <th class="w-[10%]">구분</th>
+                                    <th class="w-[13%]">항목</th>
+                                    <th class="w-[24%]">내용</th>
+                                    <th class="w-[7%]">수량</th>
+                                    <th class="w-[10%]">외화단가<br><span class="text-[8px] text-slate-500 font-normal">(<span id="currency-code" contenteditable="true" class="text-blue-600 border-b border-dashed border-blue-300 cursor-text" title="클릭하여 JPY, USD, CNY 등 변경">JPY</span>)</span></th>
+                                    <th class="w-[12%]">원화단가<br><span class="text-[8px] text-slate-500 font-normal">(KRW)</span></th>
+                                    <th class="w-[14%]">총금액<br><span class="text-[8px] text-slate-500 font-normal">(KRW)</span></th>
+                                    <th class="w-[10%]">비고</th>
+                                </tr>
+                            </thead>
+                            
+                            <!-- 항공료 -->
+                            <tbody id="tbody-flight" class="editable-group">
+                                <tr class="item-row">
+                                    <td contenteditable="true" class="bg-white">에어부산</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">인천-오사카-인천</td>
+                                    <td contenteditable="true" class="col-qty bg-white">38</td>
+                                    <td class="bg-slate-50 text-slate-400 text-[9px]">-</td>
+                                    <td contenteditable="true" class="col-krw bg-white">326,900</td>
+                                    <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
+                                    <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
+                                </tr>
+                                <tr class="item-row">
+                                    <td contenteditable="true" class="bg-white">발권수수료</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">항공 발권 대리점</td>
+                                    <td contenteditable="true" class="col-qty bg-white">38</td>
+                                    <td class="bg-slate-50 text-slate-400 text-[9px]">-</td>
+                                    <td contenteditable="true" class="col-krw bg-white">22,000</td>
+                                    <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
+                                    <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
+                                </tr>
+                            </tbody>
+                            <tbody>
+                                <tr class="calc-subtotal">
+                                    <td colspan="6" class="py-1 text-blue-800 text-left pl-4">
+                                        <button onclick="addRow('flight')" class="print-hidden mr-2 text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded hover:bg-blue-200 transition"><i class="fa-solid fa-plus"></i> 항목추가</button>
+                                        (1) 합 계 - 항공료 
+                                    </td>
+                                    <td class="text-blue-800 text-right pr-2 text-[8.5pt]" id="subtotal-flight"></td>
+                                    <td class="bg-white border-l-0"></td>
+                                </tr>
+                            </tbody>
+
+                            <!-- 해외현지 발생경비 -->
+                            <tbody id="tbody-local" class="editable-group">
+                                <tr class="item-row">
+                                    <td contenteditable="true" class="bg-white">호텔</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">(2인실) 3박요금</td>
+                                    <td contenteditable="true" class="col-qty bg-white">20</td>
+                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">65,000</td>
+                                    <td contenteditable="true" class="col-krw bg-white">617,500</td>
+                                    <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
+                                    <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
+                                </tr>
+                                <tr class="item-row">
+                                    <td contenteditable="true" class="bg-white">차량비</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">전용차량 1대</td>
+                                    <td contenteditable="true" class="col-qty bg-white">1</td>
+                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">950,000</td>
+                                    <td contenteditable="true" class="col-krw bg-white">9,025,000</td>
+                                    <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
+                                    <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
+                                </tr>
+                                <tr class="item-row">
+                                    <td contenteditable="true" class="bg-white">식비</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">중식_1일차</td>
+                                    <td contenteditable="true" class="col-qty bg-white">38</td>
+                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">2,000</td>
+                                    <td contenteditable="true" class="col-krw bg-white">19,000</td>
+                                    <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
+                                    <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
+                                </tr>
+                                <tr class="item-row">
+                                    <td contenteditable="true" class="bg-white">식비</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">중식_2일차</td>
+                                    <td contenteditable="true" class="col-qty bg-white">38</td>
+                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">2,000</td>
+                                    <td contenteditable="true" class="col-krw bg-white">19,000</td>
+                                    <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
+                                    <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
+                                </tr>
+                                <tr class="item-row">
+                                    <td contenteditable="true" class="bg-white">식비</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">중식_3일차</td>
+                                    <td contenteditable="true" class="col-qty bg-white">38</td>
+                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">2,000</td>
+                                    <td contenteditable="true" class="col-krw bg-white">19,000</td>
+                                    <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
+                                    <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
+                                </tr>
+                                <tr class="item-row">
+                                    <td contenteditable="true" class="bg-white">식비</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">석식_1일차</td>
+                                    <td contenteditable="true" class="col-qty bg-white">38</td>
+                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">3,000</td>
+                                    <td contenteditable="true" class="col-krw bg-white">28,500</td>
+                                    <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
+                                    <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
+                                </tr>
+                                <tr class="item-row">
+                                    <td contenteditable="true" class="bg-white">식비</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">석식_2일차</td>
+                                    <td contenteditable="true" class="col-qty bg-white">38</td>
+                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">3,000</td>
+                                    <td contenteditable="true" class="col-krw bg-white">28,500</td>
+                                    <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
+                                    <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
+                                </tr>
+                                <tr class="item-row">
+                                    <td contenteditable="true" class="bg-white">식비</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">석식_3일차</td>
+                                    <td contenteditable="true" class="col-qty bg-white">38</td>
+                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">3,000</td>
+                                    <td contenteditable="true" class="col-krw bg-white">28,500</td>
+                                    <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
+                                    <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
+                                </tr>
+                                <tr class="item-row">
+                                    <td contenteditable="true" class="bg-white">관광지입장료</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">롯코산케이블카</td>
+                                    <td contenteditable="true" class="col-qty bg-white">38</td>
+                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">1,300</td>
+                                    <td contenteditable="true" class="col-krw bg-white">12,350</td>
+                                    <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
+                                    <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
+                                </tr>
+                                <tr class="item-row">
+                                    <td contenteditable="true" class="bg-white">관광지입장료</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">청수사</td>
+                                    <td contenteditable="true" class="col-qty bg-white">38</td>
+                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">600</td>
+                                    <td contenteditable="true" class="col-krw bg-white">5,700</td>
+                                    <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
+                                    <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
+                                </tr>
+                                <tr class="item-row">
+                                    <td contenteditable="true" class="bg-white">관광지입장료</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">하루카스전망대</td>
+                                    <td contenteditable="true" class="col-qty bg-white">38</td>
+                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">2,200</td>
+                                    <td contenteditable="true" class="col-krw bg-white">20,900</td>
+                                    <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
+                                    <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
+                                </tr>
+                                <tr class="item-row">
+                                    <td contenteditable="true" class="bg-white">관광지입장료</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">동대사</td>
+                                    <td contenteditable="true" class="col-qty bg-white">38</td>
+                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">800</td>
+                                    <td contenteditable="true" class="col-krw bg-white">7,600</td>
+                                    <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
+                                    <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
+                                </tr>
+                                <tr class="item-row">
+                                    <td contenteditable="true" class="bg-white">가이드비용</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">전일정 가이드 동행</td>
+                                    <td contenteditable="true" class="col-qty bg-white">1</td>
+                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">280,000</td>
+                                    <td contenteditable="true" class="col-krw bg-white">2,660,000</td>
+                                    <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
+                                    <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
+                                </tr>
+                            </tbody>
+                            <tbody>
+                                <tr class="calc-subtotal">
+                                    <td colspan="6" class="py-1 text-blue-800 text-left pl-4">
+                                        <button onclick="addRow('local')" class="print-hidden mr-2 text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded hover:bg-blue-200 transition"><i class="fa-solid fa-plus"></i> 항목추가</button>
+                                        (2) 합 계 - 해외현지 발생 경비 
+                                    </td>
+                                    <td class="text-blue-800 text-right pr-2 text-[8.5pt]" id="subtotal-local-krw"></td>
+                                    <td class="bg-white border-l-0"></td>
+                                </tr>
+                            </tbody>
+
+                            <!-- 국내 발생비용 -->
+                            <tbody id="tbody-domestic" class="editable-group">
+                                <tr class="item-row">
+                                    <td contenteditable="true" class="bg-white">여행자보험</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">해외여행자보험 1억원</td>
+                                    <td contenteditable="true" class="col-qty bg-white">38</td>
+                                    <td class="bg-slate-50 text-slate-400 text-[9px]">-</td>
+                                    <td contenteditable="true" class="col-krw bg-white">5,000</td>
+                                    <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
+                                    <td contenteditable="true" class="bg-white text-[7.5pt] font-bold group-remark">주민번호 필요</td>
+                                    <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
+                                </tr>
+                                <tr class="item-row">
+                                    <td contenteditable="true" class="bg-white">알선수수료</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">여행사 기획/운영 관리비</td>
+                                    <td contenteditable="true" class="col-qty bg-white">1</td>
+                                    <td class="bg-slate-50 text-slate-400 text-[9px]">-</td>
+                                    <td contenteditable="true" class="col-krw bg-white">3,900,000</td>
+                                    <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
+                                    <td contenteditable="true" class="bg-white text-[7.5pt] font-bold group-remark">별첨 3</td>
+                                    <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
+                                </tr>
+                            </tbody>
+                            <tbody>
+                                <tr class="calc-subtotal">
+                                    <td colspan="6" class="py-1 text-blue-800 text-left pl-4">
+                                        <button onclick="addRow('domestic')" class="print-hidden mr-2 text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded hover:bg-blue-200 transition"><i class="fa-solid fa-plus"></i> 항목추가</button>
+                                        (3) 합 계 - 국내 발생 비용
+                                    </td>
+                                    <td class="text-blue-800 text-right pr-2 text-[8.5pt]" id="subtotal-domestic"></td>
+                                    <td class="bg-white border-l-0"></td>
+                                </tr>
+                            </tbody>
+
+                            <!-- 총 합계 -->
+                            <tbody>
+                                <tr class="bg-[#eef2f9] font-bold text-[9pt]">
+                                    <td colspan="6" class="py-1.5 text-left pl-4 text-slate-700">(1) + (2) + (3) 전체 합계 산출액</td>
+                                    <td colspan="2" class="py-1.5 text-right pr-6 text-slate-700 text-[9.5pt] border-l-0">₩ <span id="grand-total-exact"></span></td>
+                                </tr>
+                                <tr class="bg-[#fefce8] font-bold text-[10pt] border-t-2 border-slate-800" id="row-adjustment">
+                                    <td colspan="6" class="py-2.5 text-left pl-4 text-indigo-900">
+                                        최종 청구 (정산) 금액 <span class="text-[8px] font-normal text-slate-500 ml-2">백단위 절사 등 조정액</span>
+                                    </td>
+                                    <td colspan="2" class="py-2.5 font-black text-red-600 tracking-wider text-right pr-6 bg-yellow-50 text-[11pt] relative border-l-0">
+                                        ₩ <span class="out-settle-num" contenteditable="true" id="manual-settle-input"></span>
+                                        <button onclick="document.getElementById('row-adjustment').style.display='none'; document.getElementById('manual-settle-input').innerText=''; calcTable();" class="absolute right-1 top-1/2 -translate-y-1/2 text-red-400 hover:text-red-600 print-hidden" title="이 행 삭제하기"><i class="fa-solid fa-xmark"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-
-                    <table class="w-[55%] border-collapse border border-[#cbd5e1] text-[8.5pt] mb-3 text-left">
-                        <tr>
-                            <th class="border border-[#cbd5e1] bg-[#eef2f9] py-1 px-3 w-[30%] text-[#334155]">고객명</th>
-                            <td class="border border-[#cbd5e1] px-3 font-bold out-school" contenteditable="true"></td>
-                        </tr>
-                        <tr>
-                            <th class="border border-[#cbd5e1] bg-[#eef2f9] py-1 px-3 text-[#334155]">행사명</th>
-                            <td class="border border-[#cbd5e1] px-3 font-bold out-title leading-tight" contenteditable="true"></td>
-                        </tr>
-                        <tr>
-                            <th class="border border-[#cbd5e1] bg-[#eef2f9] py-1 px-3 text-[#334155]">여행일</th>
-                            <td class="border border-[#cbd5e1] px-3 font-bold out-period" contenteditable="true"></td>
-                        </tr>
-                        <tr>
-                            <th class="border border-[#cbd5e1] bg-[#eef2f9] py-1 px-3 text-[#334155]">여행인원</th>
-                            <td class="border border-[#cbd5e1] px-3 font-bold" contenteditable="true">38명기준(학생 33+ 교사5)</td>
-                        </tr>
-                        <tr>
-                            <th class="border border-[#cbd5e1] bg-[#eef2f9] py-1 px-3 text-[#334155]">발송일자/환율</th>
-                            <td class="border border-[#cbd5e1] px-3 text-red-600 font-bold" contenteditable="true"><span class="out-date-korean"></span> / 외화 9.5 기준</td>
-                        </tr>
-                    </table>
-
-                    <table class="calc-table" id="settlement-table">
-                        <thead>
-                            <tr class="bg-[#eef2f9] text-[8pt] text-[#334155]">
-                                <th class="w-[10%]">구분</th>
-                                <th class="w-[13%]">항목</th>
-                                <th class="w-[24%]">내용</th>
-                                <th class="w-[7%]">수량</th>
-                                <th class="w-[10%]">외화단가</th>
-                                <th class="w-[12%]">원화단가<br><span class="text-[8px] text-slate-500 font-normal">(KRW)</span></th>
-                                <th class="w-[14%]">총금액<br><span class="text-[8px] text-slate-500 font-normal">(KRW)</span></th>
-                                <th class="w-[10%]">비고</th>
-                            </tr>
-                        </thead>
-                        
-                        <!-- 항공료 -->
-                        <tbody id="tbody-flight" class="editable-group">
-                            <tr class="item-row">
-                                <td contenteditable="true" class="bg-white">에어부산</td>
-                                <td contenteditable="true" class="text-left pl-2 col-desc bg-white">인천-오사카-인천</td>
-                                <td contenteditable="true" class="col-qty bg-white">38</td>
-                                <td class="bg-slate-50 text-slate-400 text-[9px]">-</td>
-                                <td contenteditable="true" class="col-krw bg-white">326,900</td>
-                                <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
-                                <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
-                            </tr>
-                            <tr class="item-row">
-                                <td contenteditable="true" class="bg-white">발권수수료</td>
-                                <td contenteditable="true" class="text-left pl-2 col-desc bg-white">항공 발권 대리점</td>
-                                <td contenteditable="true" class="col-qty bg-white">38</td>
-                                <td class="bg-slate-50 text-slate-400 text-[9px]">-</td>
-                                <td contenteditable="true" class="col-krw bg-white">22,000</td>
-                                <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
-                                <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
-                            </tr>
-                        </tbody>
-                        <tbody>
-                            <tr class="calc-subtotal">
-                                <td colspan="6" class="py-1 text-blue-800 text-left pl-4">
-                                    <button onclick="addRow('flight')" class="print-hidden mr-2 text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded hover:bg-blue-200 transition"><i class="fa-solid fa-plus"></i> 항목추가</button>
-                                    (1) 합 계 - 항공료 
-                                </td>
-                                <td class="text-blue-800 text-right pr-2 text-[8.5pt]" id="subtotal-flight"></td>
-                                <td class="bg-white border-l-0"></td>
-                            </tr>
-                        </tbody>
-
-                        <!-- 해외현지 발생경비 -->
-                        <tbody id="tbody-local" class="editable-group">
-                            <tr class="item-row">
-                                <td contenteditable="true" class="bg-white">호텔</td>
-                                <td contenteditable="true" class="text-left pl-2 col-desc bg-white">(2인실) 3박요금</td>
-                                <td contenteditable="true" class="col-qty bg-white">20</td>
-                                <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">65,000</td>
-                                <td contenteditable="true" class="col-krw bg-white">617,500</td>
-                                <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
-                                <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
-                            </tr>
-                            <tr class="item-row">
-                                <td contenteditable="true" class="bg-white">차량비</td>
-                                <td contenteditable="true" class="text-left pl-2 col-desc bg-white">전용차량 1대</td>
-                                <td contenteditable="true" class="col-qty bg-white">1</td>
-                                <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">950,000</td>
-                                <td contenteditable="true" class="col-krw bg-white">9,025,000</td>
-                                <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
-                                <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
-                            </tr>
-                            <tr class="item-row">
-                                <td contenteditable="true" class="bg-white">식비</td>
-                                <td contenteditable="true" class="text-left pl-2 col-desc bg-white">중식_1일차</td>
-                                <td contenteditable="true" class="col-qty bg-white">38</td>
-                                <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">2,000</td>
-                                <td contenteditable="true" class="col-krw bg-white">19,000</td>
-                                <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
-                                <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
-                            </tr>
-                            <tr class="item-row">
-                                <td contenteditable="true" class="bg-white">식비</td>
-                                <td contenteditable="true" class="text-left pl-2 col-desc bg-white">중식_2일차</td>
-                                <td contenteditable="true" class="col-qty bg-white">38</td>
-                                <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">2,000</td>
-                                <td contenteditable="true" class="col-krw bg-white">19,000</td>
-                                <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
-                                <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
-                            </tr>
-                            <tr class="item-row">
-                                <td contenteditable="true" class="bg-white">식비</td>
-                                <td contenteditable="true" class="text-left pl-2 col-desc bg-white">중식_3일차</td>
-                                <td contenteditable="true" class="col-qty bg-white">38</td>
-                                <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">2,000</td>
-                                <td contenteditable="true" class="col-krw bg-white">19,000</td>
-                                <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
-                                <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
-                            </tr>
-                            <tr class="item-row">
-                                <td contenteditable="true" class="bg-white">식비</td>
-                                <td contenteditable="true" class="text-left pl-2 col-desc bg-white">석식_1일차</td>
-                                <td contenteditable="true" class="col-qty bg-white">38</td>
-                                <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">3,000</td>
-                                <td contenteditable="true" class="col-krw bg-white">28,500</td>
-                                <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
-                                <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
-                            </tr>
-                            <tr class="item-row">
-                                <td contenteditable="true" class="bg-white">식비</td>
-                                <td contenteditable="true" class="text-left pl-2 col-desc bg-white">석식_2일차</td>
-                                <td contenteditable="true" class="col-qty bg-white">38</td>
-                                <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">3,000</td>
-                                <td contenteditable="true" class="col-krw bg-white">28,500</td>
-                                <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
-                                <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
-                            </tr>
-                            <tr class="item-row">
-                                <td contenteditable="true" class="bg-white">식비</td>
-                                <td contenteditable="true" class="text-left pl-2 col-desc bg-white">석식_3일차</td>
-                                <td contenteditable="true" class="col-qty bg-white">38</td>
-                                <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">3,000</td>
-                                <td contenteditable="true" class="col-krw bg-white">28,500</td>
-                                <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
-                                <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
-                            </tr>
-                            <tr class="item-row">
-                                <td contenteditable="true" class="bg-white">관광지입장료</td>
-                                <td contenteditable="true" class="text-left pl-2 col-desc bg-white">롯코산케이블카</td>
-                                <td contenteditable="true" class="col-qty bg-white">38</td>
-                                <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">1,300</td>
-                                <td contenteditable="true" class="col-krw bg-white">12,350</td>
-                                <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
-                                <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
-                            </tr>
-                            <tr class="item-row">
-                                <td contenteditable="true" class="bg-white">관광지입장료</td>
-                                <td contenteditable="true" class="text-left pl-2 col-desc bg-white">청수사</td>
-                                <td contenteditable="true" class="col-qty bg-white">38</td>
-                                <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">600</td>
-                                <td contenteditable="true" class="col-krw bg-white">5,700</td>
-                                <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
-                                <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
-                            </tr>
-                            <tr class="item-row">
-                                <td contenteditable="true" class="bg-white">관광지입장료</td>
-                                <td contenteditable="true" class="text-left pl-2 col-desc bg-white">하루카스전망대</td>
-                                <td contenteditable="true" class="col-qty bg-white">38</td>
-                                <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">2,200</td>
-                                <td contenteditable="true" class="col-krw bg-white">20,900</td>
-                                <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
-                                <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
-                            </tr>
-                            <tr class="item-row">
-                                <td contenteditable="true" class="bg-white">관광지입장료</td>
-                                <td contenteditable="true" class="text-left pl-2 col-desc bg-white">동대사</td>
-                                <td contenteditable="true" class="col-qty bg-white">38</td>
-                                <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">800</td>
-                                <td contenteditable="true" class="col-krw bg-white">7,600</td>
-                                <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
-                                <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
-                            </tr>
-                            <tr class="item-row">
-                                <td contenteditable="true" class="bg-white">가이드비용</td>
-                                <td contenteditable="true" class="text-left pl-2 col-desc bg-white">전일정 가이드 동행</td>
-                                <td contenteditable="true" class="col-qty bg-white">1</td>
-                                <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">280,000</td>
-                                <td contenteditable="true" class="col-krw bg-white">2,660,000</td>
-                                <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
-                                <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
-                            </tr>
-                        </tbody>
-                        <tbody>
-                            <tr class="calc-subtotal">
-                                <td colspan="6" class="py-1 text-blue-800 text-left pl-4">
-                                    <button onclick="addRow('local')" class="print-hidden mr-2 text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded hover:bg-blue-200 transition"><i class="fa-solid fa-plus"></i> 항목추가</button>
-                                    (2) 합 계 - 해외현지 발생 경비 
-                                </td>
-                                <td class="text-blue-800 text-right pr-2 text-[8.5pt]" id="subtotal-local-krw"></td>
-                                <td class="bg-white border-l-0"></td>
-                            </tr>
-                        </tbody>
-
-                        <!-- 국내 발생비용 -->
-                        <tbody id="tbody-domestic" class="editable-group">
-                            <tr class="item-row">
-                                <td contenteditable="true" class="bg-white">여행자보험</td>
-                                <td contenteditable="true" class="text-left pl-2 col-desc bg-white">해외여행자보험 1억원</td>
-                                <td contenteditable="true" class="col-qty bg-white">38</td>
-                                <td class="bg-slate-50 text-slate-400 text-[9px]">-</td>
-                                <td contenteditable="true" class="col-krw bg-white">5,000</td>
-                                <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
-                                <td contenteditable="true" class="bg-white text-[7.5pt] font-bold group-remark">주민번호 필요</td>
-                                <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
-                            </tr>
-                            <tr class="item-row">
-                                <td contenteditable="true" class="bg-white">알선수수료</td>
-                                <td contenteditable="true" class="text-left pl-2 col-desc bg-white">여행사 기획/운영 관리비</td>
-                                <td contenteditable="true" class="col-qty bg-white">1</td>
-                                <td class="bg-slate-50 text-slate-400 text-[9px]">-</td>
-                                <td contenteditable="true" class="col-krw bg-white">3,900,000</td>
-                                <td class="font-bold col-sum text-right pr-2 text-[8.5pt]"></td>
-                                <td contenteditable="true" class="bg-white text-[7.5pt] font-bold group-remark">별첨 3</td>
-                                <td class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></td>
-                            </tr>
-                        </tbody>
-                        <tbody>
-                            <tr class="calc-subtotal">
-                                <td colspan="6" class="py-1 text-blue-800 text-left pl-4">
-                                    <button onclick="addRow('domestic')" class="print-hidden mr-2 text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded hover:bg-blue-200 transition"><i class="fa-solid fa-plus"></i> 항목추가</button>
-                                    (3) 합 계 - 국내 발생 비용
-                                </td>
-                                <td class="text-blue-800 text-right pr-2 text-[8.5pt]" id="subtotal-domestic"></td>
-                                <td class="bg-white border-l-0"></td>
-                            </tr>
-                        </tbody>
-
-                        <!-- 총 합계 -->
-                        <tbody>
-                            <tr class="bg-[#eef2f9] font-bold text-[9pt]">
-                                <td colspan="6" class="py-1.5 text-left pl-4 text-slate-700">(1) + (2) + (3) 전체 합계 산출액</td>
-                                <td class="py-1.5 text-right pr-2 text-slate-700 text-[9pt]">₩ <span id="grand-total-exact"></span></td>
-                                <td class="bg-white border-l-0"></td>
-                            </tr>
-                            <tr class="bg-[#fefce8] font-bold text-[10pt] border-t-2 border-slate-800" id="row-adjustment">
-                                <td colspan="6" class="py-2 text-left pl-4 text-indigo-900">
-                                    최종 청구 (정산) 금액 <span class="text-[8px] font-normal text-slate-500 ml-2">백단위 절사 등 조정액</span>
-                                </td>
-                                <td class="py-2 font-black text-red-600 tracking-wider text-right pr-2 bg-yellow-50 text-[10.5pt]">
-                                    ₩ <span class="out-settle-num" contenteditable="true" id="manual-settle-input"></span>
-                                </td>
-                                <td class="bg-white border-l-0 text-center">
-                                    <button onclick="document.getElementById('row-adjustment').style.display='none'; document.getElementById('manual-settle-input').innerText=''; calcTable();" class="text-red-400 hover:text-red-600 print-hidden" title="이 행 삭제하기"><i class="fa-solid fa-xmark"></i></button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
                     
-                    <div class="mt-2 text-[7.5pt] text-slate-600 leading-relaxed text-left border border-[#cbd5e1] p-1.5 bg-white">
-                        <p class="font-bold text-black mb-0.5">1. 세금계산서 발행 관련 안내문</p>
-                        <p>* 본 위탁용역의 특성상 항공권, 숙박비, 현지교통비 등은 당사가 직접 제공하는 서비스가 아닌, 제 3자와의 거래를 통한 수탁 대행 처리 항목으로 분류됩니다. 따라서, 당사는 전체 계약금액 기준의 세금계산서 발행이 불가하며, 국내 과세 대상 경비 중 <strong>알선수수료</strong> 등 자체수익에 대해서만 세금계산서를 발행함을 사전 안내드립니다.</p>
+                    <div class="mt-4 relative pb-2">
+                        <div class="text-[7.5pt] text-slate-600 leading-relaxed text-left border border-[#cbd5e1] p-1.5 bg-white">
+                            <p class="font-bold text-black mb-0.5">1. 세금계산서 발행 관련 안내문</p>
+                            <p>* 본 위탁용역의 특성상 항공권, 숙박비, 현지교통비 등은 당사가 직접 제공하는 서비스가 아닌, 제 3자와의 거래를 통한 수탁 대행 처리 항목으로 분류됩니다. 따라서, 당사는 전체 계약금액 기준의 세금계산서 발행이 불가하며, 국내 과세 대상 경비 중 <strong>알선수수료</strong> 등 자체수익에 대해서만 세금계산서를 발행함을 사전 안내드립니다.</p>
+                        </div>
                     </div>
                 </div>
 
                 <!-- 3. 최종 청구서 -->
-                <div class="a4-page">
+                <div class="a4-page flex flex-col">
                     <h1 class="text-3xl font-black text-center mb-16 tracking-[1.5rem]">청 구 서</h1>
                     
                     <div class="flex mb-16 text-[11pt] font-bold justify-end pr-10">
@@ -911,8 +915,9 @@
                         <div class="flex"><div class="w-32 text-blue-700">기수령 선금액</div><div class="w-4 text-blue-700">:</div><div class="flex-1 text-blue-700 font-bold">- 금 <span class="out-advance-korean"></span>원 (₩<span class="out-advance-num"></span>)</div></div>
                     </div>
                     
-                    <div class="flex text-[12pt] font-bold mb-12 bg-indigo-50 p-5 border border-indigo-200 rounded-lg">
-                        <div class="w-32 text-indigo-900 font-black">최종 청구금액</div><div class="w-4">:</div><div class="flex-1 text-indigo-700 tracking-wide font-black">금 <span class="out-final-korean"></span>원 (₩<span class="out-final-num"></span>)</div>
+                    <div class="flex text-[12pt] font-bold mb-12 bg-indigo-50 p-5 border border-indigo-200 rounded-lg items-center">
+                        <div class="w-32 text-indigo-900 font-black whitespace-nowrap">최종 청구금액</div><div class="w-4">:</div>
+                        <div class="flex-1 text-indigo-700 font-black whitespace-nowrap overflow-hidden text-ellipsis">금 <span class="out-final-korean"></span>원 (₩<span class="out-final-num"></span>)</div>
                     </div>
 
                     <p class="text-[11.5pt] mb-8 font-bold text-center">위와 같이 최종 잔금을 청구하오니 아래 계좌에 입금하여 주시기 바랍니다.</p>
@@ -1055,6 +1060,7 @@
                 // 2. 마지막 컬럼 (비고/별첨 그룹화) - 항공 및 해외현지에만 적용
                 if(section === 'flight' || section === 'local') {
                     let remarkCell = row.querySelector('.group-remark');
+                    let currCode = document.getElementById('currency-code') ? document.getElementById('currency-code').innerText.trim() : 'JPY';
                     if(index === 0) {
                         if(!remarkCell) {
                             remarkCell = document.createElement('td');
@@ -1110,7 +1116,8 @@
             // 외화 총합 업데이트 (별첨2 아래)
             const foreignTotalEl = document.getElementById('local-foreign-total');
             if (foreignTotalEl) {
-                foreignTotalEl.innerText = totalLocalForeign > 0 ? `(총 외화합계: ${formatNum(totalLocalForeign)})` : '';
+                let currCode = document.getElementById('currency-code') ? document.getElementById('currency-code').innerText.trim() : 'JPY';
+                foreignTotalEl.innerText = totalLocalForeign > 0 ? `(총 외화합계: ${currCode} ${formatNum(totalLocalForeign)})` : '';
             }
 
             document.querySelectorAll('#tbody-domestic tr.item-row').forEach(row => {
@@ -1259,6 +1266,7 @@
                 date: document.getElementById('in-date').value,
                 settle: settleEl ? settleEl.value : '',
                 rep: currentRep,
+                currencyCode: document.getElementById('currency-code') ? document.getElementById('currency-code').innerText : 'JPY',
                 tblFlight: document.getElementById('tbody-flight').innerHTML,
                 tblLocal: document.getElementById('tbody-local').innerHTML,
                 tblDomestic: document.getElementById('tbody-domestic').innerHTML
@@ -1285,6 +1293,10 @@
                 document.getElementById('in-total').value = data.total || '';
                 document.getElementById('in-rate').value = data.rate || '50';
                 document.getElementById('in-date').value = data.date || '';
+                
+                if(data.currencyCode && document.getElementById('currency-code')) {
+                    document.getElementById('currency-code').innerText = data.currencyCode;
+                }
                 
                 const settleEl = document.getElementById('in-settle');
                 if (settleEl) settleEl.value = data.settle || '';
