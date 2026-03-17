@@ -47,15 +47,37 @@
         .doc-item-label { font-weight: bold; width: 120px; flex-shrink: 0; }
         .doc-item-content { flex-grow: 1; }
         
-        /* 🔴 실제 인감 이미지 스타일링 (종이에 잉크가 스며드는 효과) */
-        .stamp-img {
+        /* 🔴 전자도장 고정 박스 시스템 (여백 및 크기 통일 완벽 해결) */
+        .stamp-box {
             position: absolute;
-            width: 55px; 
-            height: auto;
-            mix-blend-mode: multiply; 
-            opacity: 0.95;
+            width: 60px;
+            height: 60px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: visible;
             z-index: 10;
             pointer-events: none;
+        }
+
+        /* 박스 안 이미지 (진짜 인주처럼 스며들기) */
+        .stamp-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            mix-blend-mode: multiply;
+            opacity: 0.95;
+            transform-origin: center center;
+            display: block;
+        }
+
+        /* ⭐ 대표자별 도장 여백 미세 보정 (CSS 스케일링) */
+        .stamp-box[data-rep="lee"] .stamp-img {
+            transform: scale(1.0); 
+        }
+        .stamp-box[data-rep="heo"] .stamp-img {
+            /* 허나연 대표 도장은 여백이 넓으므로 1.3배 확대하여 시각적 크기 일치 */
+            transform: scale(1.3) translateY(1px); 
         }
 
         /* 산출내역서/정산내역서 전용 테이블 스타일 */
@@ -65,7 +87,7 @@
         .calc-subtotal { background-color: #f1f5f9; font-weight: bold; color: #1e293b; }
         .editable-cell:hover { background-color: #fefce8; cursor: text; outline: 1px dashed #eab308; }
 
-        /* 하단 고정 요소 (발주처 및 로고) */
+        /* 하단 고정 요소 (발주처 및 로고 통일) */
         .footer-recipient { position: absolute; bottom: 30mm; left: 20mm; font-weight: bold; font-size: 12pt; }
         .footer-logo { position: absolute; bottom: 25mm; right: 20mm; width: 120px; opacity: 0.9; }
 
@@ -116,7 +138,7 @@
         <!-- 좌측: 데이터 입력 패널 (제어부) -->
         <aside id="sidebar" class="w-full md:w-80 lg:w-[400px] bg-white border-r border-slate-200 p-6 overflow-y-auto flex flex-col gap-6 shadow-[10px_0_15px_-3px_rgba(0,0,0,0.05)] z-10 shrink-0">
             
-            <!-- 💾 템플릿 보관함 (JSON 연동) -->
+            <!-- 💾 템플릿 보관함 -->
             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
                 <div class="flex justify-between items-center mb-3 border-b border-slate-200 pb-2">
                     <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-floppy-disk text-slate-500 mr-1"></i> 문서 기본 설정 및 템플릿</h3>
@@ -149,10 +171,10 @@
 
             <!-- 대표자 선택 -->
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">법인 대표자 선택 (서명 및 직인 자동변경)</label>
+                <label class="block text-xs font-bold text-slate-700 mb-1">법인 및 대표자 선택</label>
                 <div class="grid grid-cols-2 gap-2">
-                    <button onclick="setRep('lee')" id="btn-rep-lee" class="bg-blue-100 text-blue-800 font-bold py-2 rounded-lg border border-blue-300 transition text-sm">이재명 대표</button>
-                    <button onclick="setRep('heo')" id="btn-rep-heo" class="bg-white text-slate-600 font-bold py-2 rounded-lg border border-slate-300 hover:bg-slate-50 transition text-sm">허나연 대표</button>
+                    <button onclick="setRep('lee')" id="btn-rep-lee" class="bg-blue-100 text-blue-800 font-bold py-2 rounded-lg border border-blue-300 transition text-sm">주)투어메이커<br><span class="text-xs font-normal">이재명 대표</span></button>
+                    <button onclick="setRep('heo')" id="btn-rep-heo" class="bg-white text-slate-600 font-bold py-2 rounded-lg border border-slate-300 hover:bg-slate-50 transition text-sm">투어메이커<br><span class="text-xs font-normal">허나연 대표</span></button>
                 </div>
             </div>
 
@@ -160,7 +182,7 @@
             <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">서류 생성 모드</label>
                 <div class="grid grid-cols-2 gap-2">
-                    <button onclick="setMode('advance')" id="btn-advance" class="bg-blue-600 text-white font-bold py-2.5 rounded-lg border border-blue-600 transition shadow-sm">1. 선금 신청 (6종)</button>
+                    <button onclick="setMode('advance')" id="btn-advance" class="bg-blue-600 text-white font-bold py-2.5 rounded-lg border border-blue-600 transition shadow-sm">1. 선금 신청 (5종)</button>
                     <button onclick="setMode('final')" id="btn-final" class="bg-white text-slate-600 font-bold py-2.5 rounded-lg border border-slate-300 hover:bg-slate-50 transition">2. 잔금/정산 (3종)</button>
                 </div>
             </div>
@@ -230,7 +252,7 @@
                     <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
                         <label class="block text-xs font-bold text-indigo-800 mb-1">최종 정산 금액 (원)</label>
                         <input type="number" id="in-settle" value="28284000" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500" oninput="updateDoc()">
-                        <p class="text-[10px] text-indigo-600 mt-1">※ 우측 정산내역서의 하단 합계 금액과 동일하게 맞추세요.</p>
+                        <p class="text-[10px] text-indigo-600 mt-1">※ 우측 정산내역서 하단의 합계 금액과 일치시켜 주세요.</p>
                     </div>
                 </div>
 
@@ -245,9 +267,10 @@
         <main class="flex-1 bg-[#e2e8f0] p-4 md:p-8 overflow-y-auto" id="doc-container">
             
             <!-- ========================================== -->
-            <!-- 1. 선금 신청 서류 모음 (6종 - 확약서 제거됨) -->
+            <!-- 1. 선금 신청 서류 모음 (5종) -->
             <!-- ========================================== -->
             <div id="advance-docs">
+                
                 <!-- 1. 선금 지급의뢰 공문 -->
                 <div class="a4-page">
                     <h1 class="doc-title text-left pl-4 border-b-2 border-slate-800 pb-2 mb-10">공 문</h1>
@@ -274,18 +297,16 @@
                     </div>
 
                     <div class="text-[11pt] leading-relaxed relative">
-                        <p class="font-bold">투어메이커</p>
-                        <p class="font-bold">대 표  <span class="out-rep-name">이 재 명</span></p>
-                        <img src="" class="stamp-img out-rep-stamp" style="right: auto; left: 110px; top: 15px;" alt="직인">
+                        <p class="font-bold out-rep-company"></p>
+                        <p class="font-bold">대 표  <span class="out-rep-name"></span></p>
                         
                         <div class="mt-8 text-[10pt] text-slate-600">
                             <p>[연락처]</p>
                             <p>이메일: jmlojm@nate.com</p>
                             <p>전화번호: 033-562-2551, 010-9443-7881</p>
-                            <p>주소: 강원도 정선군 정선읍 봉양3길 22-10, 3층</p>
+                            <p class="out-rep-addr"></p>
                         </div>
                     </div>
-                    
                     <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
                 </div>
 
@@ -325,31 +346,34 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td class="py-3 font-bold">담당자 이름 / 연락처</td>
-                                <td class="py-3">이재명 / 033-562-2551</td>
+                                <td class="py-3 font-bold">담당자 연락처</td>
+                                <td class="py-3"><span class="out-rep-name"></span> / 033-562-2551</td>
                             </tr>
                         </tbody>
                     </table>
                     
                     <p class="text-center font-bold text-[11pt] mb-12">위 항목에 대해 정확히 작성하여 제출합니다.</p>
-                    
-                    <p class="text-[10pt] leading-relaxed mb-32 text-slate-600">
-                        ※ 국세청 부가가치세 집행기준 38-0-5 와 관련하여 알선수수료에 대해서 세금계산서를 발행하며<br>
-                        기타 금액에 대해서는 청구서로 갈음함
+                    <p class="text-[10pt] leading-relaxed mb-20 text-slate-600 text-center">
+                        ※ 국세청 부가가치세 집행기준 38-0-5 와 관련하여 알선수수료에 대해서만 세금계산서를 발행하며<br>
+                        기타 수탁 대행 금액에 대해서는 청구서로 갈음함
                     </p>
                     
-                    <div class="text-right text-[11.5pt] leading-loose pr-12 mb-10">
-                        <p>회사명 : 투어메이커</p>
-                        <div class="relative inline-block mt-2">
-                            대표자 : <span class="out-rep-name font-bold tracking-widest">이 재 명</span> (인)
-                            <img src="" class="stamp-img out-rep-stamp" style="right: -20px; top: 50%; transform: translateY(-50%);" alt="직인">
+                    <div class="text-right text-[11.5pt] leading-loose pr-12 mb-20">
+                        <p>회사명 : <span class="font-bold out-rep-company"></span></p>
+                        <div class="mt-2">
+                            대표자 : <span class="out-rep-name font-bold tracking-widest ml-2"></span> 
+                            <span class="relative inline-block w-10 text-center">
+                                (인)
+                                <div class="stamp-box out-rep-stamp-box" style="left: 50%; top: 50%; transform: translate(-50%, -50%);">
+                                    <img src="" class="stamp-img out-rep-stamp" alt="직인">
+                                </div>
+                            </span>
                         </div>
                     </div>
                     
                     <div class="footer-recipient">
                         <span class="out-school"></span> (분임)재무관 귀하
                     </div>
-                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
                 </div>
 
                 <!-- 3. 선금 사용계획서 -->
@@ -387,22 +411,26 @@
                         </tbody>
                     </table>
                     
-                    <p class="text-[11pt] leading-relaxed mb-32 text-center font-bold">
+                    <p class="text-[11pt] leading-relaxed mb-24 text-center font-bold">
                         요청 선금은 계획된 용도에 맞게 집행할 예정이며, 정산 시 관련 영수증 및 증빙자료를<br>제출할 것을 확약합니다.
                     </p>
                     
-                    <div class="text-right text-[11.5pt] leading-loose pr-12 mb-10">
-                        <p>회사명 : 투어메이커</p>
-                        <div class="relative inline-block mt-2">
-                            대표자 : <span class="out-rep-name font-bold tracking-widest">이 재 명</span> (인)
-                            <img src="" class="stamp-img out-rep-stamp" style="right: -20px; top: 50%; transform: translateY(-50%);" alt="직인">
+                    <div class="text-right text-[11.5pt] leading-loose pr-12 mb-20">
+                        <p>회사명 : <span class="font-bold out-rep-company"></span></p>
+                        <div class="mt-2">
+                            대표자 : <span class="out-rep-name font-bold tracking-widest ml-2"></span> 
+                            <span class="relative inline-block w-10 text-center">
+                                (인)
+                                <div class="stamp-box out-rep-stamp-box" style="left: 50%; top: 50%; transform: translate(-50%, -50%);">
+                                    <img src="" class="stamp-img out-rep-stamp" alt="직인">
+                                </div>
+                            </span>
                         </div>
                     </div>
                     
                     <div class="footer-recipient">
                         <span class="out-school"></span> (분임)재무관 귀하
                     </div>
-                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
                 </div>
 
                 <!-- 4. 선금 사용 각서 -->
@@ -428,19 +456,21 @@
                         </tr>
                         <tr>
                             <td class="font-bold text-left pl-10">회사명 / 대표자명</td>
-                            <td class="text-left font-bold">투어메이커 / <span class="out-rep-name">이 재 명</span></td>
+                            <td class="text-left font-bold"><span class="out-rep-company"></span> / <span class="out-rep-name"></span></td>
                         </tr>
                         <tr>
                             <td class="font-bold text-left pl-10">서명 또는 직인</td>
-                            <td class="relative text-left">
-                                (인감)
-                                <img src="" class="stamp-img out-rep-stamp" style="right: auto; left: 60px; top: 50%; transform: translateY(-50%);" alt="직인">
+                            <td class="text-left pl-10">
+                                <span class="relative inline-block px-4 py-2">
+                                    (인감)
+                                    <div class="stamp-box out-rep-stamp-box" style="left: 50%; top: 50%; transform: translate(-50%, -50%);">
+                                        <img src="" class="stamp-img out-rep-stamp" alt="직인">
+                                    </div>
+                                </span>
                             </td>
                         </tr>
                     </table>
                     <div class="w-[80%] mx-auto border-t-2 border-slate-800 mb-10 mt-4"></div>
-                    
-                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
                 </div>
 
                 <!-- 5. 선금 청구서 -->
@@ -464,10 +494,17 @@
                         <!-- 발신 -->
                         <div class="w-[48%] flex h-full">
                             <div class="w-20 flex items-center justify-center font-bold border-l border-r border-slate-300 bg-slate-50">발 신</div>
-                            <div class="flex-1 pl-4 flex flex-col justify-center space-y-2 relative">
-                                <div class="font-bold text-[12pt]">투어메이커</div>
-                                <div class="font-bold text-[11pt] tracking-widest">대 표 : <span class="out-rep-name">이 재 명</span> (인)</div>
-                                <img src="" class="stamp-img out-rep-stamp" style="right: 30px; top: 50%; transform: translateY(-50%);" alt="직인">
+                            <div class="flex-1 pl-4 flex flex-col justify-center space-y-2">
+                                <div class="font-bold text-[12pt] out-rep-company"></div>
+                                <div class="font-bold text-[11pt] tracking-widest mt-1">
+                                    대 표 : <span class="out-rep-name"></span> 
+                                    <span class="relative inline-block w-10 text-center ml-1">
+                                        (인)
+                                        <div class="stamp-box out-rep-stamp-box" style="left: 50%; top: 50%; transform: translate(-50%, -50%);">
+                                            <img src="" class="stamp-img out-rep-stamp" alt="직인">
+                                        </div>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -486,20 +523,18 @@
                     <div class="border border-slate-800 rounded-lg p-6 w-[80%] mx-auto relative">
                         <div class="absolute -top-3 left-6 bg-white px-2 font-bold text-slate-600 text-sm">입금 계좌 정보</div>
                         <div class="space-y-4 text-[11pt]">
-                            <div class="flex"><div class="w-32 font-bold">은 행 명</div><div class="w-4">:</div><div class="flex-1 font-bold">농협은행</div></div>
-                            <div class="flex"><div class="w-32 font-bold">계좌번호</div><div class="w-4">:</div><div class="flex-1 font-bold tracking-widest text-lg text-blue-700">301-1234-5678-91</div></div>
-                            <div class="flex"><div class="w-32 font-bold">예 금 주</div><div class="w-4">:</div><div class="flex-1 font-bold">투어메이커</div></div>
+                            <div class="flex"><div class="w-32 font-bold pl-4">은 행 명</div><div class="w-4">:</div><div class="flex-1 font-bold out-rep-bank"></div></div>
+                            <div class="flex"><div class="w-32 font-bold pl-4">계좌번호</div><div class="w-4">:</div><div class="flex-1 font-bold tracking-widest text-lg text-blue-700 out-rep-account"></div></div>
+                            <div class="flex"><div class="w-32 font-bold pl-4">예 금 주</div><div class="w-4">:</div><div class="flex-1 font-bold out-rep-holder"></div></div>
                         </div>
                     </div>
-                    
-                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
                 </div>
 
                 <!-- 6. 계좌입금의뢰서 -->
                 <div class="a4-page">
-                    <h2 class="text-2xl font-black mb-8 text-center border-b-2 border-slate-800 pb-4">계좌입금의뢰서</h2>
+                    <h2 class="text-2xl font-black mb-12 text-center border-b-2 border-slate-800 pb-4">계좌입금의뢰서</h2>
                     
-                    <table class="w-[90%] mx-auto text-left text-[11.5pt] leading-[3.5rem] mb-12 border-collapse border-y-2 border-slate-800">
+                    <table class="w-[90%] mx-auto text-left text-[11.5pt] leading-[3.5rem] mb-20 border-collapse border-y-2 border-slate-800">
                         <tr class="font-bold border-b border-slate-300 bg-slate-50">
                             <td class="w-[30%] text-center">항목</td>
                             <td class="text-center border-l border-slate-200">내용</td>
@@ -514,11 +549,11 @@
                         </tr>
                         <tr class="border-b border-slate-200">
                             <td class="font-bold text-center">금 융 기 관</td>
-                            <td class="pl-6 font-bold border-l border-slate-200">농협은행</td>
+                            <td class="pl-6 font-bold border-l border-slate-200 out-rep-bank"></td>
                         </tr>
                         <tr class="border-b border-slate-200">
                             <td class="font-bold text-center">계 좌 번 호</td>
-                            <td class="pl-6 font-bold tracking-widest text-lg border-l border-slate-200">301-1234-5678-91</td>
+                            <td class="pl-6 font-bold tracking-widest text-lg border-l border-slate-200 text-blue-700 out-rep-account"></td>
                         </tr>
                         <tr class="border-b border-slate-200">
                             <td class="font-bold text-center">입금요청일자</td>
@@ -530,22 +565,8 @@
                         </tr>
                     </table>
 
-                    <p class="font-bold text-[12pt] mb-12 text-center">위 대금을 당사 계좌로 입금 조치하여 주시기 바랍니다.</p>
+                    <p class="font-bold text-[12pt] mb-24 text-center">위 대금을 당사 계좌로 입금 조치하여 주시기 바랍니다.</p>
                     
-                    <div class="w-[90%] mx-auto bg-slate-50 border border-slate-300 rounded p-8 relative">
-                        <h3 class="text-lg font-bold mb-6 border-b border-slate-300 pb-2">입금 의뢰 기관 정보</h3>
-                        <ul class="space-y-5 text-[11pt] pl-4">
-                            <li class="flex items-center"><span class="font-bold w-32">상 호</span> : 투어메이커</li>
-                            <li class="flex items-center"><span class="font-bold w-32">주 소</span> : 강원특별자치도 정선군 정선읍 봉양3길 22-10, 3층</li>
-                            <li class="flex items-center relative">
-                                <span class="font-bold w-32">대표자명</span> : <span class="out-rep-name tracking-widest font-bold">이 재 명</span>
-                                <img src="" class="stamp-img out-rep-stamp" style="right: auto; left: 240px; top: 50%; transform: translateY(-50%);" alt="직인">
-                            </li>
-                            <li class="flex items-center"><span class="font-bold w-32">사업자등록번호</span> : 473-81-03183</li>
-                            <li class="flex items-center"><span class="font-bold w-32">연락처</span> : 033-562-2551</li>
-                        </ul>
-                    </div>
-
                     <div class="footer-recipient">
                         <span class="out-school"></span> (분임)재무관 귀하
                     </div>
@@ -580,15 +601,14 @@
                     </div>
 
                     <div class="text-[11pt] leading-relaxed relative">
-                        <p class="font-bold">투어메이커</p>
-                        <p class="font-bold">대 표  <span class="out-rep-name">이 재 명</span></p>
-                        <img src="" class="stamp-img out-rep-stamp" style="right: auto; left: 110px; top: 15px;" alt="직인">
+                        <p class="font-bold out-rep-company"></p>
+                        <p class="font-bold">대 표  <span class="out-rep-name"></span></p>
                         
                         <div class="mt-8 text-[10pt] text-slate-600">
                             <p>[연락처]</p>
                             <p>이메일: jmlojm@nate.com</p>
                             <p>전화번호: 033-562-2551, 010-9443-7881</p>
-                            <p>주소: 강원도 정선군 정선읍 봉양3길 22-10, 3층</p>
+                            <p class="out-rep-addr"></p>
                         </div>
                     </div>
                     <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
@@ -764,10 +784,17 @@
                         <!-- 발신 -->
                         <div class="w-[48%] flex h-full">
                             <div class="w-20 flex items-center justify-center font-bold border-l border-r border-slate-300 bg-slate-50">발 신</div>
-                            <div class="flex-1 pl-4 flex flex-col justify-center space-y-2 relative">
-                                <div class="font-bold text-[12pt]">투어메이커</div>
-                                <div class="font-bold text-[11pt] tracking-widest">대 표 : <span class="out-rep-name">이 재 명</span> (인)</div>
-                                <img src="" class="stamp-img out-rep-stamp" style="right: 30px; top: 50%; transform: translateY(-50%);" alt="직인">
+                            <div class="flex-1 pl-4 flex flex-col justify-center space-y-2">
+                                <div class="font-bold text-[12pt] out-rep-company"></div>
+                                <div class="font-bold text-[11pt] tracking-widest mt-1">
+                                    대 표 : <span class="out-rep-name"></span> 
+                                    <span class="relative inline-block w-10 text-center ml-1">
+                                        (인)
+                                        <div class="stamp-box out-rep-stamp-box" style="left: 50%; top: 50%; transform: translate(-50%, -50%);">
+                                            <img src="" class="stamp-img out-rep-stamp" alt="직인">
+                                        </div>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -788,12 +815,11 @@
                     <div class="border border-slate-800 rounded-lg p-6 w-[85%] mx-auto relative bg-white">
                         <div class="absolute -top-3 left-6 bg-white px-2 font-bold text-slate-600 text-sm">입금 계좌 정보</div>
                         <div class="space-y-4 text-[11pt]">
-                            <div class="flex"><div class="w-32 font-bold pl-4">은 행 명</div><div class="w-4">:</div><div class="flex-1 font-bold">농협은행</div></div>
-                            <div class="flex"><div class="w-32 font-bold pl-4">계좌번호</div><div class="w-4">:</div><div class="flex-1 font-bold tracking-widest text-lg text-blue-700">301-1234-5678-91</div></div>
-                            <div class="flex"><div class="w-32 font-bold pl-4">예 금 주</div><div class="w-4">:</div><div class="flex-1 font-bold">투어메이커</div></div>
+                            <div class="flex"><div class="w-32 font-bold pl-4">은 행 명</div><div class="w-4">:</div><div class="flex-1 font-bold out-rep-bank"></div></div>
+                            <div class="flex"><div class="w-32 font-bold pl-4">계좌번호</div><div class="w-4">:</div><div class="flex-1 font-bold tracking-widest text-lg text-blue-700 out-rep-account"></div></div>
+                            <div class="flex"><div class="w-32 font-bold pl-4">예 금 주</div><div class="w-4">:</div><div class="flex-1 font-bold out-rep-holder"></div></div>
                         </div>
                     </div>
-                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
                 </div>
             </div>
             
@@ -803,8 +829,24 @@
     <script>
         // --- 대표자 설정 ---
         const reps = {
-            lee: { name: '이 재 명', stamp: 'https://blogger.googleusercontent.com/img/a/AVvXsEiweUsH71be_Y3skDUBOVzZE0M4HnXmgllJq7c1JgatYy5eROHYdkvE9rMIcqVl0DQ2ypgr8fkZSQclgQjWOk8yZA5wiF326Ldf4KTrfd_YEsD2zZjyqsRLS65uv50SLZcLFqIvwZly49lEN3sheIMq4HV_VWLs1irf4o8g3-ajXCA7CaOlSvpKCT4Q2XA=w200-h200' },
-            heo: { name: '허 나 연', stamp: 'https://blogger.googleusercontent.com/img/a/AVvXsEhaeZ9zwjTzPpbIrnTc1ByxZm6_3p_KEVnbrXQOGpsB5siQDZ-9dbtEceldUpwqPBMvVcRcZiFymvYPqb9CIB-N_G-_jHz0cUHOmDuj_ooirThNY_DlHu3mC6_mXaz7qyx4pjcq721ggwvO4ZuyNIfR5KbKrGEgxJiJ2OCCNohQ1OsW_Fnflub-AoPqz3Y=w320-h292' }
+            lee: { 
+                name: '이 재 명', 
+                company: '주식회사 투어메이커',
+                stamp: 'https://blogger.googleusercontent.com/img/a/AVvXsEiweUsH71be_Y3skDUBOVzZE0M4HnXmgllJq7c1JgatYy5eROHYdkvE9rMIcqVl0DQ2ypgr8fkZSQclgQjWOk8yZA5wiF326Ldf4KTrfd_YEsD2zZjyqsRLS65uv50SLZcLFqIvwZly49lEN3sheIMq4HV_VWLs1irf4o8g3-ajXCA7CaOlSvpKCT4Q2XA=s0',
+                addr: '강원특별자치도 정선군 정선읍 봉양3길 22-10, 3층',
+                bank: '신협',
+                account: '131-022-382094',
+                holder: '주식회사 투어메이커'
+            },
+            heo: { 
+                name: '허 나 연', 
+                company: '투어메이커',
+                stamp: 'https://blogger.googleusercontent.com/img/a/AVvXsEhaeZ9zwjTzPpbIrnTc1ByxZm6_3p_KEVnbrXQOGpsB5siQDZ-9dbtEceldUpwqPBMvVcRcZiFymvYPqb9CIB-N_G-_jHz0cUHOmDuj_ooirThNY_DlHu3mC6_mXaz7qyx4pjcq721ggwvO4ZuyNIfR5KbKrGEgxJiJ2OCCNohQ1OsW_Fnflub-AoPqz3Y=s0',
+                addr: '강원도 태백시 광장로 17, 2층',
+                bank: '카카오뱅크',
+                account: '3333-30-1606566',
+                holder: '허나연(투어메이커)'
+            }
         };
         let currentRep = 'lee';
 
@@ -813,8 +855,22 @@
             document.getElementById('btn-rep-lee').className = rep === 'lee' ? 'bg-blue-100 text-blue-800 font-bold py-2 rounded-lg border border-blue-300 transition text-sm' : 'bg-white text-slate-600 font-bold py-2 rounded-lg border border-slate-300 hover:bg-slate-50 transition text-sm';
             document.getElementById('btn-rep-heo').className = rep === 'heo' ? 'bg-blue-100 text-blue-800 font-bold py-2 rounded-lg border border-blue-300 transition text-sm' : 'bg-white text-slate-600 font-bold py-2 rounded-lg border border-slate-300 hover:bg-slate-50 transition text-sm';
             
+            document.querySelectorAll('.out-rep-company').forEach(el => el.innerText = reps[rep].company);
             document.querySelectorAll('.out-rep-name').forEach(el => el.innerText = reps[rep].name);
-            document.querySelectorAll('.out-rep-stamp').forEach(el => el.src = reps[rep].stamp);
+            document.querySelectorAll('.out-rep-addr').forEach(el => el.innerHTML = reps[rep].addr.replace(', ', '<br>'));
+            document.querySelectorAll('.out-rep-bank').forEach(el => el.innerText = reps[rep].bank);
+            document.querySelectorAll('.out-rep-account').forEach(el => el.innerText = reps[rep].account);
+            document.querySelectorAll('.out-rep-holder').forEach(el => el.innerText = reps[rep].holder);
+            
+            // 직인 일괄 교체
+            document.querySelectorAll('.out-rep-stamp').forEach(el => {
+                el.src = reps[rep].stamp;
+            });
+
+            // ⭐ 박스에 data-rep 속성 부여하여 CSS 확대/축소 자동 적용
+            document.querySelectorAll('.out-rep-stamp-box').forEach(el => {
+                el.setAttribute('data-rep', rep);
+            });
         }
 
         // --- 💾 JSON 템플릿 관리 시스템 ---
@@ -923,7 +979,7 @@
                     const merged = { ...existing, ...imported };
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
                     updateTemplateSelect();
-                    alert('조혁 이사님의 데이터가 성공적으로 업로드되었습니다!');
+                    alert('데이터가 성공적으로 업로드되었습니다!');
                 } catch (err) {
                     alert('유효하지 않은 파일입니다. JSON 파일을 선택해주세요.');
                 }
@@ -938,7 +994,7 @@
         document.getElementById('in-date').valueAsDate = new Date();
         document.addEventListener('DOMContentLoaded', () => {
             updateTemplateSelect();
-            setRep('lee'); // 초기 인감 세팅
+            setRep('lee'); // 초기 인감/회사명 세팅
         });
 
         function setMode(mode) {
@@ -1067,8 +1123,6 @@
                 document.querySelectorAll('.out-date-mmdd').forEach(el => el.innerText = `${mm}${dd}`);
             }
         }
-
-        updateDoc();
     </script>
 </body>
 </html>
