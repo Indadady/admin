@@ -50,8 +50,8 @@
         /* 🔴 전자도장 고정 박스 시스템 (여백 및 크기 통일 완벽 해결) */
         .stamp-box {
             position: absolute;
-            width: 60px;
-            height: 60px;
+            width: 65px; /* 모든 서류 동일 크기 기준 */
+            height: 65px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -76,8 +76,8 @@
             transform: scale(1.0); 
         }
         .stamp-box[data-rep="heo"] .stamp-img {
-            /* 허나연 대표 도장은 여백이 넓으므로 1.3배 확대하여 시각적 크기 일치 */
-            transform: scale(1.3) translateY(1px); 
+            /* 허나연 대표 도장은 여백이 넓으므로 기존 대비 2배(2.6배) 확대하여 시각적 크기 일치 */
+            transform: scale(2.6) translateY(1px); 
         }
 
         /* 산출내역서/정산내역서 전용 테이블 스타일 */
@@ -361,8 +361,8 @@
                     <div class="text-right text-[11.5pt] leading-loose pr-12 mb-20">
                         <p>회사명 : <span class="font-bold out-rep-company"></span></p>
                         <div class="mt-2">
-                            대표자 : <span class="out-rep-name font-bold tracking-widest ml-2"></span> 
-                            <span class="relative inline-block w-10 text-center">
+                            대표자 : <span class="out-rep-name font-bold tracking-widest"></span> 
+                            <span class="relative inline-block ml-1">
                                 (인)
                                 <div class="stamp-box out-rep-stamp-box" style="left: 50%; top: 50%; transform: translate(-50%, -50%);">
                                     <img src="" class="stamp-img out-rep-stamp" alt="직인">
@@ -418,8 +418,8 @@
                     <div class="text-right text-[11.5pt] leading-loose pr-12 mb-20">
                         <p>회사명 : <span class="font-bold out-rep-company"></span></p>
                         <div class="mt-2">
-                            대표자 : <span class="out-rep-name font-bold tracking-widest ml-2"></span> 
-                            <span class="relative inline-block w-10 text-center">
+                            대표자 : <span class="out-rep-name font-bold tracking-widest"></span> 
+                            <span class="relative inline-block ml-1">
                                 (인)
                                 <div class="stamp-box out-rep-stamp-box" style="left: 50%; top: 50%; transform: translate(-50%, -50%);">
                                     <img src="" class="stamp-img out-rep-stamp" alt="직인">
@@ -498,7 +498,7 @@
                                 <div class="font-bold text-[12pt] out-rep-company"></div>
                                 <div class="font-bold text-[11pt] tracking-widest mt-1">
                                     대 표 : <span class="out-rep-name"></span> 
-                                    <span class="relative inline-block w-10 text-center ml-1">
+                                    <span class="relative inline-block ml-1 w-10 text-center">
                                         (인)
                                         <div class="stamp-box out-rep-stamp-box" style="left: 50%; top: 50%; transform: translate(-50%, -50%);">
                                             <img src="" class="stamp-img out-rep-stamp" alt="직인">
@@ -788,7 +788,7 @@
                                 <div class="font-bold text-[12pt] out-rep-company"></div>
                                 <div class="font-bold text-[11pt] tracking-widest mt-1">
                                     대 표 : <span class="out-rep-name"></span> 
-                                    <span class="relative inline-block w-10 text-center ml-1">
+                                    <span class="relative inline-block ml-1 w-10 text-center">
                                         (인)
                                         <div class="stamp-box out-rep-stamp-box" style="left: 50%; top: 50%; transform: translate(-50%, -50%);">
                                             <img src="" class="stamp-img out-rep-stamp" alt="직인">
@@ -827,7 +827,7 @@
     </div>
 
     <script>
-        // --- 대표자 설정 ---
+        // --- 대표자 설정 (이미지 주소 =s0 적용하여 원본 초고화질 유지) ---
         const reps = {
             lee: { 
                 name: '이 재 명', 
