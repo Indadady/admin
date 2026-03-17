@@ -38,14 +38,10 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             position: relative;
             box-sizing: border-box;
-            background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png');
-            background-repeat: no-repeat;
-            background-position: calc(100% - 20mm) calc(100% - 20mm);
-            background-size: 120px;
         }
 
         /* 공통 서류 스타일 */
-        .doc-title { font-size: 24pt; font-weight: 900; color: #333; margin-bottom: 30mm; }
+        .doc-title { font-size: 22pt; font-weight: 900; color: #1e293b; margin-bottom: 25mm; text-align: center;}
         .doc-text { font-size: 11pt; line-height: 1.8; color: #222; }
         .doc-item { display: flex; margin-bottom: 15px; font-size: 11pt; }
         .doc-item-label { font-weight: bold; width: 120px; flex-shrink: 0; }
@@ -54,22 +50,24 @@
         /* 🔴 실제 인감 이미지 스타일링 (종이에 잉크가 스며드는 효과) */
         .stamp-img {
             position: absolute;
-            width: 55px; /* 도장 실제 크기와 비슷하게 맞춤 */
+            width: 55px; 
             height: auto;
-            mix-blend-mode: multiply; /* 하단 텍스트와 잉크가 겹쳐 보이도록 설정 */
+            mix-blend-mode: multiply; 
             opacity: 0.95;
             z-index: 10;
             pointer-events: none;
         }
 
-        /* 정산내역서 전용 테이블 스타일 */
-        .calc-table { width: 100%; border-collapse: collapse; font-size: 9pt; text-align: center; border: 1px solid #cbd5e1; }
-        .calc-table th { padding: 6px 4px; border: 1px solid #cbd5e1; font-weight: bold; }
-        .calc-table td { padding: 6px 4px; border: 1px solid #cbd5e1; }
-        .calc-th-blue { background-color: #67b5b7; color: white; }
-        .calc-th-gray { background-color: #e2e8f0; color: #333; }
-        .calc-th-yellow { background-color: #fef08a; font-weight: bold; }
-        .editable-cell:hover { background-color: #f1f5f9; cursor: text; outline: 1px dashed #3b82f6; }
+        /* 산출내역서/정산내역서 전용 테이블 스타일 */
+        .calc-table { width: 100%; border-collapse: collapse; font-size: 9pt; text-align: center; border-top: 2px solid #1e293b; border-bottom: 2px solid #1e293b; }
+        .calc-table th { padding: 8px 4px; border: 1px solid #cbd5e1; font-weight: bold; background-color: #f8fafc; color: #334155; }
+        .calc-table td { padding: 8px 4px; border: 1px solid #cbd5e1; }
+        .calc-subtotal { background-color: #f1f5f9; font-weight: bold; color: #1e293b; }
+        .editable-cell:hover { background-color: #fefce8; cursor: text; outline: 1px dashed #eab308; }
+
+        /* 하단 고정 요소 (발주처 및 로고) */
+        .footer-recipient { position: absolute; bottom: 30mm; left: 20mm; font-weight: bold; font-size: 12pt; }
+        .footer-logo { position: absolute; bottom: 25mm; right: 20mm; width: 120px; opacity: 0.9; }
 
         /* 인쇄 최적화 */
         @media print {
@@ -87,6 +85,7 @@
                 page-break-after: always;
                 -webkit-print-color-adjust: exact !important; 
                 print-color-adjust: exact !important; 
+                overflow: hidden;
             }
             .a4-page:last-child { page-break-after: auto; }
         }
@@ -94,7 +93,7 @@
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <!-- Header (산출내역 시스템과 동일한 UI) -->
+    <!-- Header -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
         <div class="container mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center">
@@ -148,17 +147,26 @@
                 </div>
             </div>
 
+            <!-- 대표자 선택 -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">법인 대표자 선택 (서명 및 직인 자동변경)</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="setRep('lee')" id="btn-rep-lee" class="bg-blue-100 text-blue-800 font-bold py-2 rounded-lg border border-blue-300 transition text-sm">이재명 대표</button>
+                    <button onclick="setRep('heo')" id="btn-rep-heo" class="bg-white text-slate-600 font-bold py-2 rounded-lg border border-slate-300 hover:bg-slate-50 transition text-sm">허나연 대표</button>
+                </div>
+            </div>
+
             <!-- 모드 전환 버튼 -->
             <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">서류 생성 모드</label>
                 <div class="grid grid-cols-2 gap-2">
-                    <button onclick="setMode('advance')" id="btn-advance" class="bg-blue-600 text-white font-bold py-2.5 rounded-lg border border-blue-600 transition shadow-sm">1. 선금 신청 (7종)</button>
+                    <button onclick="setMode('advance')" id="btn-advance" class="bg-blue-600 text-white font-bold py-2.5 rounded-lg border border-blue-600 transition shadow-sm">1. 선금 신청 (6종)</button>
                     <button onclick="setMode('final')" id="btn-final" class="bg-white text-slate-600 font-bold py-2.5 rounded-lg border border-slate-300 hover:bg-slate-50 transition">2. 잔금/정산 (3종)</button>
                 </div>
             </div>
 
             <!-- 공통 입력 폼 -->
-            <div class="space-y-4">
+            <div class="space-y-4 border-t border-slate-200 pt-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">발주처 (학교명)</label>
                     <input type="text" id="in-school" value="남평초등학교" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" oninput="updateDoc()">
@@ -222,7 +230,7 @@
                     <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
                         <label class="block text-xs font-bold text-indigo-800 mb-1">최종 정산 금액 (원)</label>
                         <input type="number" id="in-settle" value="28284000" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500" oninput="updateDoc()">
-                        <p class="text-[10px] text-indigo-600 mt-1">※ 우측 정산내역서의 하단 합계 금액과 동일해야 합니다.</p>
+                        <p class="text-[10px] text-indigo-600 mt-1">※ 우측 정산내역서의 하단 합계 금액과 동일하게 맞추세요.</p>
                     </div>
                 </div>
 
@@ -237,327 +245,311 @@
         <main class="flex-1 bg-[#e2e8f0] p-4 md:p-8 overflow-y-auto" id="doc-container">
             
             <!-- ========================================== -->
-            <!-- 1. 선금 신청 서류 모음 (7종) -->
+            <!-- 1. 선금 신청 서류 모음 (6종 - 확약서 제거됨) -->
             <!-- ========================================== -->
             <div id="advance-docs">
                 <!-- 1. 선금 지급의뢰 공문 -->
                 <div class="a4-page">
-                    <h1 class="doc-title">1. 선금 지급의뢰 공문</h1>
-                    <div class="doc-item mt-10">
-                        <div class="doc-item-label">▶ 공문 제목 :</div>
-                        <div class="doc-item-content"><span class="out-title"></span> 선금 관련건</div>
+                    <h1 class="doc-title text-left pl-4 border-b-2 border-slate-800 pb-2 mb-10">공 문</h1>
+                    
+                    <div class="text-[11pt] space-y-2 mb-12 pb-6">
+                        <div class="flex"><div class="w-24">문서번호:</div><div>투어-2026-<span class="out-date-mmdd"></span></div></div>
+                        <div class="flex"><div class="w-24">시행일자:</div><div class="out-date-korean"></div></div>
+                        <div class="flex"><div class="w-24">수 신:</div><div>계약관리 담당자 귀하</div></div>
+                        <div class="flex"><div class="w-24">제 목:</div><div class="font-bold">「<span class="out-title"></span>」 선금 지급의뢰</div></div>
                     </div>
-                    <div class="doc-item">
-                        <div class="doc-item-label">▶ 목<span class="ml-6"></span>적 :</div>
-                        <div class="doc-item-content">계약 이행을 위한 선금 지급 요청</div>
+                    
+                    <div class="text-[11pt] space-y-6 leading-relaxed mb-20 px-4">
+                        <p>1. 귀교의 무궁한 발전을 기원합니다.</p>
+                        <p>2. 당사는 귀교와 계약한 「<span class="out-title font-bold"></span>」건과 관련하여, 행사 준비 및 진행을 위한 선금 지급을 아래와 같이 요청하오니 검토 후 처리하여 주시기 바랍니다.</p>
                     </div>
-                    <div class="doc-item">
-                        <div class="doc-item-label">▶ 의뢰 금액 :</div>
-                        <div class="doc-item-content">계약서 기준 각 항목별 선금 요청 금액</div>
+
+                    <div class="text-[11pt] mb-32 border-b border-slate-300 pb-10">
+                        <p class="font-bold mb-4">붙임</p>
+                        <p class="ml-8 mb-2">1. 선금지급신청서 1부.</p>
+                        <p class="ml-8 mb-2">2. 선금사용계획서 1부.</p>
+                        <p class="ml-8 mb-2">3. 각서 1부.</p>
+                        <p class="ml-8 mb-2">4. 선금 청구서 1부.</p>
+                        <p class="ml-8">5. 계좌입금의뢰서 및 보증보험증권 각 1부. 끝.</p>
                     </div>
-                    <div class="doc-item">
-                        <div class="doc-item-label">▶ 의뢰 사유 :</div>
-                        <div class="doc-item-content">행사(여행) 진행을 위한 준비 자금 확보 등</div>
+
+                    <div class="text-[11pt] leading-relaxed relative">
+                        <p class="font-bold">투어메이커</p>
+                        <p class="font-bold">대 표  <span class="out-rep-name">이 재 명</span></p>
+                        <img src="" class="stamp-img out-rep-stamp" style="right: auto; left: 110px; top: 15px;" alt="직인">
+                        
+                        <div class="mt-8 text-[10pt] text-slate-600">
+                            <p>[연락처]</p>
+                            <p>이메일: jmlojm@nate.com</p>
+                            <p>전화번호: 033-562-2551, 010-9443-7881</p>
+                            <p>주소: 강원도 정선군 정선읍 봉양3길 22-10, 3층</p>
+                        </div>
                     </div>
-                    <div class="doc-item">
-                        <div class="doc-item-label">▶ 의<span class="ml-3"></span>뢰<span class="ml-3"></span>인 :</div>
-                        <div class="doc-item-content">투어메이커</div>
-                    </div>
-                    <div class="doc-item">
-                        <div class="doc-item-label">▶ 특이사항 :</div>
-                    </div>
-                    <p class="doc-text mt-2">
-                        귀 기관과 체결한 계약에 따라, 본 행사 준비를 위한 선금 지급을 다음과 같이 요청드립니다.<br>
-                        사용 용도 및 정산 절차는 추후 관련 자료 제출을 통해 명확히 진행할 예정입니다.
-                    </p>
-                    <div class="mt-16 text-11pt leading-relaxed">
-                        <p>별첨 1. 선금지급신청서 1부.</p>
-                        <p class="ml-8">2. 선금사용계획서 1부.</p>
-                        <p class="ml-8">3. 각서 1부.</p>
-                        <p class="ml-8">4. 선금지급에 대한 확약서 1부.</p>
-                        <p class="ml-8">5. 선금보증보험 1부 . 끝 .</p>
-                    </div>
+                    
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
                 </div>
 
                 <!-- 2. 선금 지급신청서 -->
                 <div class="a4-page">
-                    <h1 class="doc-title">2. 선금 지급신청서</h1>
-                    <table class="w-full text-center mt-12 mb-16 text-[11pt]">
+                    <h1 class="doc-title text-center">선금 지급신청서</h1>
+                    <table class="w-full text-center mt-12 mb-16 text-[11pt] border-collapse border-y-2 border-slate-800">
                         <thead>
-                            <tr class="font-bold border-b border-white">
-                                <td class="pb-6 w-[30%]">항목</td>
-                                <td class="pb-6">내용</td>
+                            <tr class="font-bold border-b border-slate-300 bg-slate-50">
+                                <th class="py-4 w-[30%]">항목</th>
+                                <th class="py-4">내용</th>
                             </tr>
                         </thead>
-                        <tbody class="leading-[3rem]">
-                            <tr>
-                                <td>행사명</td>
-                                <td class="font-bold out-title"></td>
+                        <tbody class="leading-[2.5rem]">
+                            <tr class="border-b border-slate-200">
+                                <td class="py-3 font-bold">행사명</td>
+                                <td class="py-3 font-bold out-title"></td>
                             </tr>
-                            <tr>
-                                <td>행사일정</td>
-                                <td class="out-period"></td>
+                            <tr class="border-b border-slate-200">
+                                <td class="py-3 font-bold">행사일정</td>
+                                <td class="py-3 out-period"></td>
                             </tr>
-                            <tr>
-                                <td>계약 금액</td>
-                                <td class="out-total-num"></td>
+                            <tr class="border-b border-slate-200">
+                                <td class="py-3 font-bold">계약 금액</td>
+                                <td class="py-3 font-bold">금 <span class="out-total-korean"></span>원 (₩<span class="out-total-num"></span>)</td>
                             </tr>
-                            <tr>
-                                <td>지급 요청 금액(원)</td>
-                                <td><span class="out-advance-num"></span> - 계약금액의 <span class="out-rate"></span>%</td>
+                            <tr class="border-b border-slate-200">
+                                <td class="py-3 font-bold">지급 요청 금액(원)</td>
+                                <td class="py-3 font-bold text-blue-700">금 <span class="out-advance-korean"></span>원 (₩<span class="out-advance-num"></span>)<br><span class="text-[10pt] text-slate-500 font-normal">(계약금액의 <span class="out-rate"></span>%)</span></td>
                             </tr>
-                            <tr>
-                                <td class="align-top leading-tight pt-3">요청 사유</td>
-                                <td class="leading-relaxed py-3 text-[10.5pt]">
-                                    계약조건을 성실히 이행할 것이며, 의무불이행에 따른 귀기관의<br>
-                                    결정에 이의없이 순응할 것을 확약하며 상기와 같이 선금 지급을<br>
+                            <tr class="border-b border-slate-200">
+                                <td class="align-middle font-bold py-4">요청 사유</td>
+                                <td class="leading-relaxed py-4 text-[10.5pt] text-left px-8">
+                                    계약조건을 성실히 이행할 것이며, 의무불이행에 따른 귀기관의
+                                    결정에 이의없이 순응할 것을 확약하며 상기와 같이 선금 지급을
                                     신청합니다.
                                 </td>
                             </tr>
                             <tr>
-                                <td>담당자 이름 / 연락처</td>
-                                <td>이재명 / 033-562-2551</td>
+                                <td class="py-3 font-bold">담당자 이름 / 연락처</td>
+                                <td class="py-3">이재명 / 033-562-2551</td>
                             </tr>
                         </tbody>
                     </table>
+                    
                     <p class="text-center font-bold text-[11pt] mb-12">위 항목에 대해 정확히 작성하여 제출합니다.</p>
-                    <p class="text-[10pt] leading-relaxed mb-32">
+                    
+                    <p class="text-[10pt] leading-relaxed mb-32 text-slate-600">
                         ※ 국세청 부가가치세 집행기준 38-0-5 와 관련하여 알선수수료에 대해서 세금계산서를 발행하며<br>
                         기타 금액에 대해서는 청구서로 갈음함
                     </p>
-                    <div class="text-right text-[11pt] leading-loose pr-8 mb-32">
+                    
+                    <div class="text-right text-[11.5pt] leading-loose pr-12 mb-10">
                         <p>회사명 : 투어메이커</p>
-                        <div class="relative inline-block pr-12 mt-1">
-                            대표자 : 이 재 명 (인)
-                            <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiweUsH71be_Y3skDUBOVzZE0M4HnXmgllJq7c1JgatYy5eROHYdkvE9rMIcqVl0DQ2ypgr8fkZSQclgQjWOk8yZA5wiF326Ldf4KTrfd_YEsD2zZjyqsRLS65uv50SLZcLFqIvwZly49lEN3sheIMq4HV_VWLs1irf4o8g3-ajXCA7CaOlSvpKCT4Q2XA=w200-h200" class="stamp-img" style="right: -10px; top: 50%; transform: translateY(-50%);" alt="직인">
+                        <div class="relative inline-block mt-2">
+                            대표자 : <span class="out-rep-name font-bold tracking-widest">이 재 명</span> (인)
+                            <img src="" class="stamp-img out-rep-stamp" style="right: -20px; top: 50%; transform: translateY(-50%);" alt="직인">
                         </div>
                     </div>
-                    <div class="border-b-2 border-black pb-2 font-bold text-[12pt]">
+                    
+                    <div class="footer-recipient">
                         <span class="out-school"></span> (분임)재무관 귀하
                     </div>
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
                 </div>
 
                 <!-- 3. 선금 사용계획서 -->
                 <div class="a4-page">
-                    <h1 class="doc-title">3. 선금 사용계획서</h1>
-                    <table class="w-full text-center mt-12 mb-16 text-[11pt]">
+                    <h1 class="doc-title text-center">선금 사용계획서</h1>
+                    <table class="w-full text-center mt-12 mb-16 text-[11pt] border-collapse border-y-2 border-slate-800">
                         <thead>
-                            <tr class="font-bold">
-                                <td class="pb-6 w-[30%]">항목</td>
-                                <td class="pb-6">내용</td>
+                            <tr class="font-bold border-b border-slate-300 bg-slate-50">
+                                <th class="py-4 w-[30%]">항목</th>
+                                <th class="py-4">내용</th>
                             </tr>
                         </thead>
-                        <tbody class="leading-[3rem]">
-                            <tr>
-                                <td>행사명</td>
-                                <td class="out-title"></td>
+                        <tbody class="leading-[2.5rem]">
+                            <tr class="border-b border-slate-200">
+                                <td class="py-3 font-bold">행사명</td>
+                                <td class="py-3 font-bold out-title"></td>
                             </tr>
-                            <tr>
-                                <td>계획 사용 금액(원)</td>
-                                <td><span class="out-advance-num"></span> - 계약금액의 <span class="out-rate"></span>%</td>
+                            <tr class="border-b border-slate-200">
+                                <td class="py-3 font-bold">계획 사용 금액(원)</td>
+                                <td class="py-3 font-bold text-blue-700">금 <span class="out-advance-korean"></span>원 (₩<span class="out-advance-num"></span>)</td>
                             </tr>
-                            <tr>
-                                <td class="align-top pt-2">세부 사용 항목 및 내역</td>
-                                <td class="py-2">
-                                    <div class="inline-block text-left w-48">
-                                        <div class="flex justify-between"><span>항공료 등</span> <span class="out-flight"></span></div>
-                                        <div class="flex justify-between"><span>숙박료 등</span> <span class="out-hotel"></span></div>
-                                        <div class="flex justify-between"><span>기타경비</span> <span class="out-bus"></span></div>
-                                        <div class="flex justify-between mt-4 font-bold"><span>합 계</span> <span class="out-advance-num"></span></div>
-                                    </div>
+                            <tr class="border-b border-slate-200">
+                                <td class="align-middle font-bold py-4">세부 사용 항목 및 내역</td>
+                                <td class="py-6 px-16">
+                                    <div class="flex justify-between border-b border-slate-100 pb-2 mb-2"><span>항공료 등</span> <span class="font-bold">₩ <span class="out-flight"></span></span></div>
+                                    <div class="flex justify-between border-b border-slate-100 pb-2 mb-2"><span>숙박료 등</span> <span class="font-bold">₩ <span class="out-hotel"></span></span></div>
+                                    <div class="flex justify-between border-b border-slate-300 pb-2 mb-2"><span>기타경비</span> <span class="font-bold">₩ <span class="out-bus"></span></span></div>
+                                    <div class="flex justify-between mt-4 font-bold text-[12pt] text-blue-800"><span>합 계</span> <span>₩ <span class="out-advance-num"></span></span></div>
                                 </td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 font-bold">비고</td>
+                                <td class="py-3 text-[10pt] text-slate-600">본 내역은 예상 기준이며, 행사 상황에 따라 소액 변동 가능함.</td>
                             </tr>
                         </tbody>
                     </table>
-                    <p class="text-[11pt] leading-relaxed mb-32">
-                        요청 선금은 계획된 용도에 맞게 집행할 예정이며, 정산 시 관련 영수증 및 증빙자료를<br>
-                        제출할 것을 확약합니다.
+                    
+                    <p class="text-[11pt] leading-relaxed mb-32 text-center font-bold">
+                        요청 선금은 계획된 용도에 맞게 집행할 예정이며, 정산 시 관련 영수증 및 증빙자료를<br>제출할 것을 확약합니다.
                     </p>
-                    <div class="text-right text-[11pt] leading-loose pr-8 mb-32">
+                    
+                    <div class="text-right text-[11.5pt] leading-loose pr-12 mb-10">
                         <p>회사명 : 투어메이커</p>
-                        <div class="relative inline-block pr-12 mt-1">
-                            대표자 : 이 재 명 (인)
-                            <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiweUsH71be_Y3skDUBOVzZE0M4HnXmgllJq7c1JgatYy5eROHYdkvE9rMIcqVl0DQ2ypgr8fkZSQclgQjWOk8yZA5wiF326Ldf4KTrfd_YEsD2zZjyqsRLS65uv50SLZcLFqIvwZly49lEN3sheIMq4HV_VWLs1irf4o8g3-ajXCA7CaOlSvpKCT4Q2XA=w200-h200" class="stamp-img" style="right: -10px; top: 50%; transform: translateY(-50%);" alt="직인">
+                        <div class="relative inline-block mt-2">
+                            대표자 : <span class="out-rep-name font-bold tracking-widest">이 재 명</span> (인)
+                            <img src="" class="stamp-img out-rep-stamp" style="right: -20px; top: 50%; transform: translateY(-50%);" alt="직인">
                         </div>
                     </div>
-                    <div class="border-b-2 border-black pb-2 font-bold text-[12pt]">
+                    
+                    <div class="footer-recipient">
                         <span class="out-school"></span> (분임)재무관 귀하
                     </div>
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
                 </div>
 
                 <!-- 4. 선금 사용 각서 -->
                 <div class="a4-page">
-                    <h1 class="doc-title">4. 선금 사용 각서</h1>
-                    <p class="doc-text mb-8">
-                        본인은 귀기관으로부터 지급받은 선금을 아래와 같은 조건에 따라 성실히 사용하고, 정산 완료까지<br>관련 의무를 준수할 것을 엄숙히 서약합니다.
+                    <h1 class="doc-title text-center">선금 사용 각서</h1>
+                    <p class="text-[11.5pt] leading-[1.8] mb-8 text-justify">
+                        본인은 귀기관으로부터 지급받은 선금을 아래와 같은 조건에 따라 성실히 사용하고, 정산 완료까지 관련 의무를 준수할 것을 엄숙히 서약합니다.
                     </p>
-                    <ol class="list-decimal pl-5 space-y-6 text-[11pt] text-[#222] mb-32">
+                    
+                    <ol class="list-decimal pl-6 space-y-6 text-[11.5pt] text-[#222] mb-32 leading-relaxed text-justify pr-4">
                         <li>지급받은 선금은 본 행사 준비 및 진행에 필요한 경비로만 사용합니다.</li>
                         <li>선금 사용 시 발생하는 모든 지출 내역에 대해 영수증 및 증빙자료를 수집·보관합니다.</li>
                         <li>행사 종료 후 7일 이내에 사용 내역 및 잔액 정산서를 작성하여 귀기관에 제출합니다.</li>
-                        <li>선금의 일부라도 타 목적에 사용하거나, 사용 후 정산을 이행하지 않을 경우 법적 책임을<br>부담하며, 귀기관의 환수 요구에 즉시 응합니다.</li>
-                        <li>행사 취소 또는 주요 계획 변경 시, 선금 사용 내역을 포함한 전액 정산을 진행하며, 미사용<br>금액은 즉시 반환합니다.</li>
+                        <li>선금의 일부라도 타 목적에 사용하거나, 사용 후 정산을 이행하지 않을 경우 법적 책임을 부담하며, 귀기관의 환수 요구에 즉시 응합니다.</li>
+                        <li>행사 취소 또는 주요 계획 변경 시, 선금 사용 내역을 포함한 전액 정산을 진행하며, 미사용 금액은 즉시 반환합니다.</li>
+                        <li>기타 본 각서에 명시되지 않은 사항은 귀기관과 상호 협의하여 처리합니다.</li>
                     </ol>
-                    <table class="w-[70%] mx-auto text-center text-[11pt] leading-[3rem]">
+                    
+                    <table class="w-[75%] mx-auto text-center text-[11.5pt] leading-[3rem]">
                         <tr>
-                            <td class="font-bold w-[40%]">작성 일자</td>
-                            <td class="font-bold out-date-korean"></td>
+                            <td class="font-bold w-[40%] text-left pl-10">작성 일자</td>
+                            <td class="font-bold out-date-korean text-left"></td>
                         </tr>
                         <tr>
-                            <td class="font-bold">회사명 / 대표자명</td>
-                            <td>투어메이커 / 이재명</td>
+                            <td class="font-bold text-left pl-10">회사명 / 대표자명</td>
+                            <td class="text-left font-bold">투어메이커 / <span class="out-rep-name">이 재 명</span></td>
                         </tr>
                         <tr>
-                            <td class="font-bold">서명 또는 직인</td>
-                            <td class="relative">
+                            <td class="font-bold text-left pl-10">서명 또는 직인</td>
+                            <td class="relative text-left">
                                 (인감)
-                                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiweUsH71be_Y3skDUBOVzZE0M4HnXmgllJq7c1JgatYy5eROHYdkvE9rMIcqVl0DQ2ypgr8fkZSQclgQjWOk8yZA5wiF326Ldf4KTrfd_YEsD2zZjyqsRLS65uv50SLZcLFqIvwZly49lEN3sheIMq4HV_VWLs1irf4o8g3-ajXCA7CaOlSvpKCT4Q2XA=w200-h200" class="stamp-img" style="right: auto; left: 50%; top: 50%; transform: translate(-50%, -50%);" alt="직인">
+                                <img src="" class="stamp-img out-rep-stamp" style="right: auto; left: 60px; top: 50%; transform: translateY(-50%);" alt="직인">
                             </td>
                         </tr>
                     </table>
-                    <div class="w-[70%] mx-auto border-t border-black mb-10 mt-2"></div>
-                </div>
-
-                <!-- 5. 선금지급에 대한 확약서 (옵션 서류) -->
-                <div class="a4-page">
-                    <h1 class="text-2xl font-black text-center mt-10 mb-16">선금지급에 대한 확약서</h1>
-                    <p class="text-center text-sm text-slate-400 mb-8">(※ 발주처 미요청 시 제외 가능한 선택 서류입니다)</p>
+                    <div class="w-[80%] mx-auto border-t-2 border-slate-800 mb-10 mt-4"></div>
                     
-                    <div class="text-[11.5pt] mb-12">
-                        [계약건명 : <span class="out-title"></span>]
-                    </div>
-                    <p class="text-[11.5pt] leading-[2.5] mb-20 text-justify indent-4">
-                        상기 용역의 선금지급과 관련 붙임 ‘선금지급 특수조건’ 및 ‘지방자치단체 입찰 및 계약집행기준 제1장 입찰 및 계약 일반기준 제2절 선금 및 대가 지급(행정안전부 예규)’을 종람 숙독하고 이를 준수할 것을 확약함.
-                    </p>
-                    <div class="text-[11pt] leading-loose mb-32 flex">
-                        <div class="w-16">붙임</div>
-                        <div class="flex-1">
-                            1. 선금지급 특수조건 1부.<br>
-                            2. 지방자치단체 입찰 및 계약집행기준 제1장 입찰 및 계약 일반기준 제2절<br>
-                            <span class="pl-4">선금 및 대가 지급(행정안전부 예규) 1부.</span>
-                        </div>
-                    </div>
-                    <div class="text-center text-[12pt] mb-32 out-date-korean-spaced font-bold"></div>
-                    <div class="w-[80%] mx-auto text-[11.5pt] leading-[2.5]">
-                        <div class="flex"><div class="w-32 tracking-[1rem]">주소</div><div class="w-4">:</div><div>강원특별자치도 정선군 정선읍 봉양3길 22-10</div></div>
-                        <div class="flex"><div class="w-32 tracking-[1rem]">상호</div><div class="w-4">:</div><div>투어메이커</div></div>
-                        <div class="flex"><div class="w-32">사업자등록번호</div><div class="w-4">:</div><div>473-81-03183</div></div>
-                        <div class="flex relative"><div class="w-32 tracking-[1rem]">대표</div><div class="w-4">:</div><div>이 재 명 (인)</div>
-                            <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiweUsH71be_Y3skDUBOVzZE0M4HnXmgllJq7c1JgatYy5eROHYdkvE9rMIcqVl0DQ2ypgr8fkZSQclgQjWOk8yZA5wiF326Ldf4KTrfd_YEsD2zZjyqsRLS65uv50SLZcLFqIvwZly49lEN3sheIMq4HV_VWLs1irf4o8g3-ajXCA7CaOlSvpKCT4Q2XA=w200-h200" class="stamp-img" style="right: auto; left: 280px; top: 50%; transform: translateY(-50%);" alt="직인">
-                        </div>
-                    </div>
-                    <div class="absolute bottom-20 left-20 font-bold text-[13pt]">
-                        <span class="out-school"></span> (분임)재무관 귀하
-                    </div>
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
                 </div>
 
-                <!-- 6. 선금 청구서 -->
+                <!-- 5. 선금 청구서 -->
                 <div class="a4-page">
-                    <h1 class="text-4xl font-black text-center mb-16 tracking-[1.5rem]">
-                        선 금 청 구 서
-                    </h1>
-                    <div class="flex mb-16 text-[10.5pt]">
-                        <div class="w-16 pt-2">날짜</div>
-                        <div class="w-4 pt-2">:</div>
-                        <div class="flex-1 pt-2 out-date-korean-ym"></div>
+                    <h1 class="text-3xl font-black text-center mb-16 tracking-[1rem]">선 금 청 구 서</h1>
+                    
+                    <div class="flex mb-16 text-[11pt] font-bold justify-end pr-10">
+                        <div class="w-16">날 짜 :</div>
+                        <div class="out-date-korean-spaced"></div>
                     </div>
-                    <div class="flex justify-between mb-16 text-[10.5pt] h-32">
+                    
+                    <div class="flex justify-between mb-16 text-[11pt] h-32 border-y-2 border-slate-800 py-4 px-2">
                         <!-- 수신 -->
                         <div class="w-[48%] flex h-full">
-                            <div class="w-24 bg-[#f2ebd9] flex items-center justify-center font-bold">수신</div>
-                            <div class="flex-1 pl-4 flex flex-col justify-between py-1">
-                                <div class="flex border-b border-black pb-1"><span class="w-4">:</span><span class="out-school text-center flex-1 font-bold"></span></div>
-                                <div class="flex border-b border-black pb-1 items-center h-10"><span class="w-4">:</span><span class="text-center flex-1 leading-tight"><span class="out-school-city"></span><br><span class="out-school-addr"></span></span></div>
-                                <div class="flex border-b border-black pb-1"><span class="w-4">:</span><span class="text-center flex-1">T.033-562-3007 (담당자)</span></div>
-                                <div class="flex border-b border-black pb-1"><span class="w-4">:</span><span class="text-center flex-1">계약 담당자 님</span></div>
+                            <div class="w-20 flex items-center justify-center font-bold border-r border-slate-300">수 신</div>
+                            <div class="flex-1 pl-4 flex flex-col justify-center space-y-2">
+                                <div class="font-bold text-[12pt]"><span class="out-school"></span> (재무관) 귀하</div>
+                                <div class="text-sm text-slate-600"><span class="out-school-city"></span> <span class="out-school-addr"></span></div>
                             </div>
                         </div>
                         <!-- 발신 -->
                         <div class="w-[48%] flex h-full">
-                            <div class="w-24 bg-[#f2ebd9] flex items-center justify-center font-bold">발신</div>
-                            <div class="flex-1 pl-4 flex flex-col justify-between py-1">
-                                <div class="flex border-b border-black pb-1"><span class="w-4">:</span><span class="text-center flex-1 font-bold">투어메이커</span></div>
-                                <div class="flex border-b border-black pb-1 items-center h-10"><span class="w-4">:</span><span class="text-center flex-1 leading-tight">강원특별자치도 정선군 정선읍<br>봉양3길 22-10, 3층</span></div>
-                                <div class="flex border-b border-black pb-1"><span class="w-4">:</span><span class="text-center flex-1">T.033-562-2551</span></div>
-                                <div class="flex border-b border-black pb-1 relative"><span class="w-4">:</span><span class="text-center flex-1 font-bold tracking-widest">이 재 명 (인)</span>
-                                    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiweUsH71be_Y3skDUBOVzZE0M4HnXmgllJq7c1JgatYy5eROHYdkvE9rMIcqVl0DQ2ypgr8fkZSQclgQjWOk8yZA5wiF326Ldf4KTrfd_YEsD2zZjyqsRLS65uv50SLZcLFqIvwZly49lEN3sheIMq4HV_VWLs1irf4o8g3-ajXCA7CaOlSvpKCT4Q2XA=w200-h200" class="stamp-img" style="right: 15px; top: 50%; transform: translateY(-50%);" alt="직인">
-                                </div>
+                            <div class="w-20 flex items-center justify-center font-bold border-l border-r border-slate-300 bg-slate-50">발 신</div>
+                            <div class="flex-1 pl-4 flex flex-col justify-center space-y-2 relative">
+                                <div class="font-bold text-[12pt]">투어메이커</div>
+                                <div class="font-bold text-[11pt] tracking-widest">대 표 : <span class="out-rep-name">이 재 명</span> (인)</div>
+                                <img src="" class="stamp-img out-rep-stamp" style="right: 30px; top: 50%; transform: translateY(-50%);" alt="직인">
                             </div>
                         </div>
                     </div>
-                    <div class="space-y-6 text-[10.5pt] mb-12">
-                        <div class="flex"><div class="w-24">용역명</div><div class="w-4">:</div><div class="flex-1 font-bold out-title"></div></div>
-                        <div class="flex"><div class="w-24">청구금액</div><div class="w-4">:</div><div class="flex-1">금 <span class="out-advance-korean"></span>원 (₩<span class="out-advance-num"></span>)</div></div>
+                    
+                    <div class="space-y-6 text-[11.5pt] mb-12 px-6">
+                        <div class="flex border-b border-slate-200 pb-4"><div class="w-32 font-bold">용 역 명</div><div class="w-4">:</div><div class="flex-1 font-bold out-title"></div></div>
+                        <div class="flex border-b border-slate-200 pb-4"><div class="w-32 font-bold">청구금액</div><div class="w-4">:</div><div class="flex-1 text-blue-700 font-bold">금 <span class="out-advance-korean"></span>원 (₩<span class="out-advance-num"></span>)</div></div>
                     </div>
-                    <div class="flex text-[11pt] font-bold mb-10">
-                        <div class="w-24">합계</div><div class="w-4">:</div><div class="flex-1">금 <span class="out-advance-korean"></span>원 (₩<span class="out-advance-num"></span>)</div>
+                    
+                    <div class="flex text-[12pt] font-black mb-16 px-6 bg-slate-100 py-4 rounded">
+                        <div class="w-32">합 계</div><div class="w-4">:</div><div class="flex-1">금 <span class="out-advance-korean"></span>원 (₩<span class="out-advance-num"></span>)</div>
                     </div>
-                    <p class="text-[10.5pt] mb-16">위와 같이 청구하오니 아래 계좌에 입금 주시기 바랍니다.</p>
-                    <p class="text-[10.5pt] mb-6">입금 계좌 정보 ( Make All check payable to :)</p>
-                    <div class="space-y-3 text-[10.5pt] mb-32">
-                        <div class="flex"><div class="w-52">은행 (Bank)</div><div class="w-4">:</div><div class="flex-1 text-center w-64">신협</div><div class="flex-1"></div></div>
-                        <div class="flex"><div class="w-52">계좌번호 (Bank Account)</div><div class="w-4">:</div><div class="flex-1 text-center font-bold tracking-widest text-lg">131-022-382094</div><div class="flex-1"></div></div>
-                        <div class="flex"><div class="w-52">소유자 (Holder Name)</div><div class="w-4">:</div><div class="flex-1 text-center font-bold">투어메이커</div><div class="flex-1"></div></div>
-                        <div class="flex"><div class="w-52">입금 기한 (By Due)</div><div class="w-4">:</div><div class="flex-1 text-center out-date-korean-ym-dash"></div><div class="flex-1"></div></div>
+                    
+                    <p class="text-[11.5pt] mb-12 text-center font-bold">위와 같이 선금을 청구하오니 아래 계좌에 입금하여 주시기 바랍니다.</p>
+                    
+                    <div class="border border-slate-800 rounded-lg p-6 w-[80%] mx-auto relative">
+                        <div class="absolute -top-3 left-6 bg-white px-2 font-bold text-slate-600 text-sm">입금 계좌 정보</div>
+                        <div class="space-y-4 text-[11pt]">
+                            <div class="flex"><div class="w-32 font-bold">은 행 명</div><div class="w-4">:</div><div class="flex-1 font-bold">농협은행</div></div>
+                            <div class="flex"><div class="w-32 font-bold">계좌번호</div><div class="w-4">:</div><div class="flex-1 font-bold tracking-widest text-lg text-blue-700">301-1234-5678-91</div></div>
+                            <div class="flex"><div class="w-32 font-bold">예 금 주</div><div class="w-4">:</div><div class="flex-1 font-bold">투어메이커</div></div>
+                        </div>
                     </div>
-                    <div class="h-6 bg-[#d9d9d9] w-full mt-auto"></div>
+                    
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
                 </div>
 
-                <!-- 7. 계좌입금의뢰서 -->
+                <!-- 6. 계좌입금의뢰서 -->
                 <div class="a4-page">
-                    <h2 class="text-xl font-bold mb-4">계좌입금의뢰서</h2>
-                    <div class="border-t-2 border-slate-300 mb-6"></div>
-
-                    <table class="w-full text-left text-[11pt] leading-[3.5rem] mb-6">
+                    <h2 class="text-2xl font-black mb-8 text-center border-b-2 border-slate-800 pb-4">계좌입금의뢰서</h2>
+                    
+                    <table class="w-[90%] mx-auto text-left text-[11.5pt] leading-[3.5rem] mb-12 border-collapse border-y-2 border-slate-800">
                         <tr class="font-bold border-b border-slate-300 bg-slate-50">
                             <td class="w-[30%] text-center">항목</td>
-                            <td class="text-center">내용</td>
+                            <td class="text-center border-l border-slate-200">내용</td>
                         </tr>
-                        <tr class="border-b border-slate-100">
-                            <td class="font-bold pl-8">건 명</td>
-                            <td class="out-title"></td>
+                        <tr class="border-b border-slate-200">
+                            <td class="font-bold text-center">건 명</td>
+                            <td class="pl-6 font-bold out-title border-l border-slate-200 leading-tight py-2"></td>
                         </tr>
-                        <tr class="border-b border-slate-100">
-                            <td class="font-bold pl-8">금 액</td>
-                            <td class="font-bold"><span class="out-advance-korean"></span> 원 (₩<span class="out-advance-num"></span>)</td>
+                        <tr class="border-b border-slate-200">
+                            <td class="font-bold text-center">청 구 금 액</td>
+                            <td class="pl-6 font-bold text-blue-700 border-l border-slate-200">금 <span class="out-advance-korean"></span>원 (₩<span class="out-advance-num"></span>)</td>
                         </tr>
-                        <tr class="border-b border-slate-100">
-                            <td class="font-bold pl-8">금융기관</td>
-                            <td>신협</td>
+                        <tr class="border-b border-slate-200">
+                            <td class="font-bold text-center">금 융 기 관</td>
+                            <td class="pl-6 font-bold border-l border-slate-200">농협은행</td>
                         </tr>
-                        <tr class="border-b border-slate-100">
-                            <td class="font-bold pl-8">계좌번호</td>
-                            <td class="font-bold tracking-widest text-lg">131-022-382094</td>
+                        <tr class="border-b border-slate-200">
+                            <td class="font-bold text-center">계 좌 번 호</td>
+                            <td class="pl-6 font-bold tracking-widest text-lg border-l border-slate-200">301-1234-5678-91</td>
                         </tr>
-                        <tr class="border-b border-slate-100">
-                            <td class="font-bold pl-8">입금요청일자</td>
-                            <td class="out-date-korean-spaced"></td>
+                        <tr class="border-b border-slate-200">
+                            <td class="font-bold text-center">입금요청일자</td>
+                            <td class="pl-6 out-date-korean-spaced border-l border-slate-200"></td>
                         </tr>
-                        <tr class="border-b border-slate-300">
-                            <td class="font-bold pl-8">비 고</td>
-                            <td></td>
+                        <tr>
+                            <td class="font-bold text-center">비 고</td>
+                            <td class="pl-6 border-l border-slate-200">선금 청구 건</td>
                         </tr>
                     </table>
 
-                    <p class="font-bold text-[11pt] mb-12">위 대금을 당사 계좌로 입금 조치하여 주시기 바랍니다.</p>
-                    <div class="border-t border-slate-300 mb-8"></div>
-
-                    <h3 class="text-lg font-bold mb-6">입금 의뢰 기관 정보</h3>
+                    <p class="font-bold text-[12pt] mb-12 text-center">위 대금을 당사 계좌로 입금 조치하여 주시기 바랍니다.</p>
                     
-                    <ul class="space-y-6 text-[11pt] pl-4 mb-20">
-                        <li class="flex items-center"><span class="font-bold w-32">상 호</span> : 투어메이커</li>
-                        <li class="flex items-center"><span class="font-bold w-32">주 소</span> : 강원특별자치도 정선군 정선읍 봉양3길 22-10, 3층</li>
-                        <li class="flex items-center relative">
-                            <span class="font-bold w-32">대표자명</span> : 이 재 명
-                            <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiweUsH71be_Y3skDUBOVzZE0M4HnXmgllJq7c1JgatYy5eROHYdkvE9rMIcqVl0DQ2ypgr8fkZSQclgQjWOk8yZA5wiF326Ldf4KTrfd_YEsD2zZjyqsRLS65uv50SLZcLFqIvwZly49lEN3sheIMq4HV_VWLs1irf4o8g3-ajXCA7CaOlSvpKCT4Q2XA=w200-h200" class="stamp-img" style="right: auto; left: 190px; top: 50%; transform: translateY(-50%);" alt="직인">
-                        </li>
-                        <li class="flex items-center"><span class="font-bold w-32">사업자등록번호</span> : 473-81-03183</li>
-                        <li class="flex items-center"><span class="font-bold w-32">연락처</span> : 033-562-2551</li>
-                    </ul>
-
-                    <div class="border-t border-slate-300 pt-6 font-bold text-[12pt]">
-                        수신처: <span class="out-school"></span> (분임)재무관 귀하
+                    <div class="w-[90%] mx-auto bg-slate-50 border border-slate-300 rounded p-8 relative">
+                        <h3 class="text-lg font-bold mb-6 border-b border-slate-300 pb-2">입금 의뢰 기관 정보</h3>
+                        <ul class="space-y-5 text-[11pt] pl-4">
+                            <li class="flex items-center"><span class="font-bold w-32">상 호</span> : 투어메이커</li>
+                            <li class="flex items-center"><span class="font-bold w-32">주 소</span> : 강원특별자치도 정선군 정선읍 봉양3길 22-10, 3층</li>
+                            <li class="flex items-center relative">
+                                <span class="font-bold w-32">대표자명</span> : <span class="out-rep-name tracking-widest font-bold">이 재 명</span>
+                                <img src="" class="stamp-img out-rep-stamp" style="right: auto; left: 240px; top: 50%; transform: translateY(-50%);" alt="직인">
+                            </li>
+                            <li class="flex items-center"><span class="font-bold w-32">사업자등록번호</span> : 473-81-03183</li>
+                            <li class="flex items-center"><span class="font-bold w-32">연락처</span> : 033-562-2551</li>
+                        </ul>
                     </div>
+
+                    <div class="footer-recipient">
+                        <span class="out-school"></span> (분임)재무관 귀하
+                    </div>
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
                 </div>
             </div>
 
@@ -567,29 +559,30 @@
             <div id="final-docs" class="hidden">
                 <!-- 1. 정산 보고 공문 -->
                 <div class="a4-page">
-                    <h1 class="text-2xl font-bold mb-10">공 문</h1>
-                    <div class="text-[11pt] space-y-2 mb-12 border-b border-slate-300 pb-6">
+                    <h1 class="doc-title text-left pl-4 border-b-2 border-slate-800 pb-2 mb-10">공 문</h1>
+                    <div class="text-[11pt] space-y-2 mb-12 pb-6">
                         <div class="flex"><div class="w-24">문서번호:</div><div>투어-2026-<span class="out-date-mmdd"></span></div></div>
                         <div class="flex"><div class="w-24">시행일자:</div><div class="out-date-korean"></div></div>
                         <div class="flex"><div class="w-24">수 신:</div><div>계약관리 담당자 귀하</div></div>
-                        <div class="flex"><div class="w-24">제 목:</div><div class="font-bold">「<span class="out-title"></span>」 정산서 및 청구서 제출</div></div>
+                        <div class="flex"><div class="w-24">제 목:</div><div class="font-bold text-blue-800">「<span class="out-title"></span>」 정산서 및 청구서 제출</div></div>
                     </div>
                     
-                    <div class="text-[11pt] space-y-6 leading-relaxed mb-20 px-4">
+                    <div class="text-[11pt] space-y-6 leading-relaxed mb-20 px-4 text-justify">
                         <p>1. 귀교의 무궁한 발전을 기원합니다.</p>
-                        <p>2. 당사는 귀교와 계약한 「<span class="out-title font-bold"></span>」에 대한 정산서 및 최종 청구서를 아래와 같이 제출하오니, 업무에 참고하여 주시기 바랍니다.</p>
+                        <p>2. 당사는 귀교와 계약한 「<span class="out-title font-bold"></span>」에 대한 행사를 성공적으로 완료하였으며, 이에 따른 <strong>최종 정산서 및 잔금 청구서</strong>를 아래와 같이 제출하오니 검토 후 처리하여 주시기 바랍니다.</p>
                     </div>
 
                     <div class="text-[11pt] mb-32 border-b border-slate-300 pb-10">
                         <p class="font-bold mb-4">붙임</p>
-                        <p class="ml-8 mb-2">1. 정산 내역서 ........................................ 1부.</p>
-                        <p class="ml-8">2. 청구서 ................................................ 1부. 끝.</p>
+                        <p class="ml-8 mb-2">1. 정산 내역서 1부.</p>
+                        <p class="ml-8 mb-2">2. 최종 청구서 1부.</p>
+                        <p class="ml-8">3. 관련 증빙자료 일체. 끝.</p>
                     </div>
 
                     <div class="text-[11pt] leading-relaxed relative">
                         <p class="font-bold">투어메이커</p>
-                        <p class="font-bold">대 표  이 재 명</p>
-                        <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiweUsH71be_Y3skDUBOVzZE0M4HnXmgllJq7c1JgatYy5eROHYdkvE9rMIcqVl0DQ2ypgr8fkZSQclgQjWOk8yZA5wiF326Ldf4KTrfd_YEsD2zZjyqsRLS65uv50SLZcLFqIvwZly49lEN3sheIMq4HV_VWLs1irf4o8g3-ajXCA7CaOlSvpKCT4Q2XA=w200-h200" class="stamp-img" style="right: auto; left: 110px; top: 25px;" alt="직인">
+                        <p class="font-bold">대 표  <span class="out-rep-name">이 재 명</span></p>
+                        <img src="" class="stamp-img out-rep-stamp" style="right: auto; left: 110px; top: 15px;" alt="직인">
                         
                         <div class="mt-8 text-[10pt] text-slate-600">
                             <p>[연락처]</p>
@@ -598,33 +591,34 @@
                             <p>주소: 강원도 정선군 정선읍 봉양3길 22-10, 3층</p>
                         </div>
                     </div>
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
                 </div>
 
                 <!-- 2. 정산내역서 -->
-                <div class="a4-page">
+                <div class="a4-page px-10">
                     <h1 class="text-3xl font-black text-center tracking-[1rem] mb-2">정 산 내 역 서</h1>
-                    <p class="text-center text-xs text-slate-500 font-bold tracking-[0.5rem] mb-8">SETTLEMENT DETAILS</p>
+                    <p class="text-center text-[10px] text-slate-500 font-bold tracking-[0.5rem] mb-8">SETTLEMENT DETAILS</p>
 
-                    <p class="text-xs text-blue-600 mb-2 print:hidden font-bold"><i class="fa-solid fa-circle-info"></i> 표 안의 금액이나 텍스트를 클릭하시면 자유롭게 수정 가능합니다.</p>
+                    <p class="text-xs text-blue-600 mb-2 print:hidden font-bold text-right"><i class="fa-solid fa-circle-info"></i> 표 클릭 후 글자 수정가능</p>
 
-                    <table class="w-[60%] border-collapse border border-slate-400 text-[10pt] mb-6">
+                    <table class="w-[65%] border-collapse border border-[#cbd5e1] text-[9pt] mb-6">
                         <tr>
-                            <th class="border border-slate-400 bg-[#f0f4f8] py-1.5 w-[30%]">고객명</th>
-                            <td class="border border-slate-400 text-center font-bold out-school" contenteditable="true"></td>
+                            <th class="border border-[#cbd5e1] bg-[#eef2f9] py-1.5 w-[30%] text-[#334155]">고객명</th>
+                            <td class="border border-[#cbd5e1] text-center font-bold out-school" contenteditable="true"></td>
                         </tr>
                         <tr>
-                            <th class="border border-slate-400 bg-[#f0f4f8] py-1.5">행사명</th>
-                            <td class="border border-slate-400 text-center out-title" contenteditable="true"></td>
+                            <th class="border border-[#cbd5e1] bg-[#eef2f9] py-1.5 text-[#334155]">행사명</th>
+                            <td class="border border-[#cbd5e1] text-center font-bold out-title leading-tight px-1" contenteditable="true"></td>
                         </tr>
                         <tr>
-                            <th class="border border-slate-400 bg-[#f0f4f8] py-1.5">발송일자</th>
-                            <td class="border border-slate-400 text-center text-red-600 font-bold out-date-korean" contenteditable="true"></td>
+                            <th class="border border-[#cbd5e1] bg-[#eef2f9] py-1.5 text-[#334155]">발송일자</th>
+                            <td class="border border-[#cbd5e1] text-center text-red-600 font-bold out-date-korean" contenteditable="true"></td>
                         </tr>
                     </table>
 
                     <table class="calc-table">
                         <thead>
-                            <tr class="calc-th-blue text-xs">
+                            <tr class="bg-[#eef2f9] text-[9pt] text-[#334155]">
                                 <th class="w-[10%]">구분</th>
                                 <th class="w-[12%]">항목</th>
                                 <th class="w-[30%]">내용</th>
@@ -634,12 +628,12 @@
                                 <th class="w-[12%]">비고</th>
                             </tr>
                         </thead>
-                        <tbody contenteditable="true" class="editable-cell text-[9.5pt]">
+                        <tbody contenteditable="true" class="editable-cell text-[9pt]">
                             <!-- 항공료 -->
                             <tr>
-                                <td rowspan="2" class="font-bold text-slate-700 bg-slate-50">항공료</td>
+                                <td rowspan="2" class="font-bold text-slate-700 bg-[#f8fafc]">항공료</td>
                                 <td>항공권</td>
-                                <td class="text-left pl-2">에어로케이 왕복 항공권</td>
+                                <td class="text-left pl-2">청주-오사카 왕복 항공권</td>
                                 <td>27</td>
                                 <td>294,600</td>
                                 <td class="font-bold">7,954,200</td>
@@ -653,9 +647,11 @@
                                 <td class="font-bold">594,000</td>
                                 <td class="text-[8pt]"></td>
                             </tr>
+                            <tr class="calc-subtotal"><td colspan="5" class="py-1.5 text-blue-800">(1) 합 계 - 항공료</td><td class="text-blue-800">8,548,200</td><td></td></tr>
+                            
                             <!-- 해외 지상비 -->
                             <tr>
-                                <td rowspan="6" class="font-bold text-slate-700 bg-slate-50">해외현지<br>발생비용</td>
+                                <td rowspan="6" class="font-bold text-slate-700 bg-[#f8fafc]">해외현지<br>발생경비</td>
                                 <td>호텔</td>
                                 <td class="text-left pl-2">사라사 호텔 (2인실) 3박</td>
                                 <td>14</td>
@@ -665,7 +661,7 @@
                             </tr>
                             <tr>
                                 <td>차량비</td>
-                                <td class="text-left pl-2">현지 전용차량 (대형)</td>
+                                <td class="text-left pl-2">현지 전용차량 (대형) 1대</td>
                                 <td>1</td>
                                 <td>6,365,000</td>
                                 <td class="font-bold">6,365,000</td>
@@ -680,7 +676,7 @@
                                 <td class="text-[8pt]"></td>
                             </tr>
                             <tr>
-                                <td>입장료</td>
+                                <td>관광지입장료</td>
                                 <td class="text-left pl-2">유니버셜 스튜디오 (1DAY)</td>
                                 <td>27</td>
                                 <td>76,000</td>
@@ -688,7 +684,7 @@
                                 <td class="text-[8pt]"></td>
                             </tr>
                             <tr>
-                                <td>입장료</td>
+                                <td>관광지입장료</td>
                                 <td class="text-left pl-2">교토 청수사 등</td>
                                 <td>27</td>
                                 <td>4,750</td>
@@ -696,102 +692,108 @@
                                 <td class="text-[8pt]"></td>
                             </tr>
                             <tr>
-                                <td>가이드</td>
-                                <td class="text-left pl-2">전일정 스루가이드</td>
+                                <td>가이드비용</td>
+                                <td class="text-left pl-2">전일정 스루가이드 동행</td>
                                 <td>1</td>
                                 <td>1,567,500</td>
                                 <td class="font-bold">1,567,500</td>
                                 <td class="text-[8pt]">노쇼핑</td>
                             </tr>
+                            <tr class="calc-subtotal"><td colspan="5" class="py-1.5 text-blue-800">(2) 합 계 - 해외현지 발생 경비</td><td class="text-blue-800">21,557,250</td><td></td></tr>
+
                             <!-- 국내 비용 -->
                             <tr>
-                                <td rowspan="2" class="font-bold text-slate-700 bg-slate-50">국내<br>발생비용</td>
+                                <td rowspan="2" class="font-bold text-slate-700 bg-[#f8fafc]">국내<br>발생비용</td>
                                 <td>여행자보험</td>
                                 <td class="text-left pl-2">해외여행자보험 1억원</td>
                                 <td>27</td>
                                 <td>3,000</td>
                                 <td class="font-bold">81,000</td>
-                                <td class="text-[8pt]"></td>
+                                <td class="text-[8pt]">주민번호 필요</td>
                             </tr>
                             <tr>
-                                <td>수수료</td>
-                                <td class="text-left pl-2">여행사 알선 수수료</td>
+                                <td>알선수수료</td>
+                                <td class="text-left pl-2">여행사 알선 수수료(운영비)</td>
                                 <td>1</td>
                                 <td>2,105,550</td>
                                 <td class="font-bold">2,105,550</td>
                                 <td class="text-[8pt]"></td>
                             </tr>
+                            <tr class="calc-subtotal"><td colspan="5" class="py-1.5 text-blue-800">(3) 합 계 - 국내 발생 비용</td><td class="text-blue-800">2,186,550</td><td></td></tr>
                         </tbody>
                         <!-- 합계 -->
                         <tbody>
-                            <tr class="calc-th-yellow text-[11pt]">
-                                <td colspan="5" class="py-3">최종 정산 합계 금액</td>
-                                <td class="py-3 font-black text-red-600">₩ <span class="out-settle-num"></span></td>
+                            <tr class="bg-[#eef2f9] font-bold text-[10pt]">
+                                <td colspan="5" class="py-2.5">(1) + (2) + (3) 전체 합계 금액</td>
+                                <td class="py-2.5">₩ <span class="out-settle-num"></span></td>
+                                <td></td>
+                            </tr>
+                            <tr class="bg-[#fef08a] font-bold text-[11pt]">
+                                <td colspan="5" class="py-3">최종 정산 청구 금액 (백단위 절사 등)</td>
+                                <td class="py-3 font-black text-red-600 tracking-wider">₩ <span class="out-settle-num"></span></td>
                                 <td></td>
                             </tr>
                         </tbody>
                     </table>
                     
-                    <div class="mt-4 text-[9pt] text-slate-600">
-                        <p class="font-bold text-black mb-1">*특이사항</p>
-                        <p>계약 업체의 부가가치세는 국세청 부가가치세법 기본통칙[여행업의 매입세액 공제범위]에 의해 <strong>알선수수료</strong>에 대해서만 발행합니다.</p>
+                    <div class="mt-4 text-[8.5pt] text-slate-600 leading-relaxed text-left border border-[#cbd5e1] p-2">
+                        <p class="font-bold text-black mb-1">1. 세금계산서 발행 관련 안내문</p>
+                        <p>* 본 위탁용역의 특성상 항공권, 숙박비, 현지교통비 등은 당사가 직접 제공하는 서비스가 아닌, 제 3자와의 거래를 통한 수탁 대행 처리 항목으로 분류됩니다. 따라서, 당사는 전체 계약금액 기준의 세금계산서 발행이 불가하며, 국내 과세 대상 경비 중 <strong>알선수수료</strong> 등 자체수익에 대해서만 세금계산서를 발행함을 사전 안내드립니다.</p>
                     </div>
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="absolute top-10 right-20 w-32" alt="Tourmaker Logo">
                 </div>
 
                 <!-- 3. 최종 청구서 -->
                 <div class="a4-page">
-                    <h1 class="text-4xl font-black text-center mb-16 tracking-[1.5rem]">
-                        청 구 서
-                    </h1>
-                    <div class="flex mb-16 text-[10.5pt]">
-                        <div class="w-16 pt-2">날짜</div>
-                        <div class="w-4 pt-2">:</div>
-                        <div class="flex-1 pt-2 out-date-korean-ym"></div>
+                    <h1 class="text-3xl font-black text-center mb-16 tracking-[1.5rem]">청 구 서</h1>
+                    
+                    <div class="flex mb-16 text-[11pt] font-bold justify-end pr-10">
+                        <div class="w-16">날 짜 :</div>
+                        <div class="out-date-korean-spaced"></div>
                     </div>
-                    <div class="flex justify-between mb-16 text-[10.5pt] h-32">
+                    
+                    <div class="flex justify-between mb-16 text-[11pt] h-32 border-y-2 border-slate-800 py-4 px-2">
                         <!-- 수신 -->
                         <div class="w-[48%] flex h-full">
-                            <div class="w-24 bg-[#f2ebd9] flex items-center justify-center font-bold">수신</div>
-                            <div class="flex-1 pl-4 flex flex-col justify-between py-1">
-                                <div class="flex border-b border-black pb-1"><span class="w-4">:</span><span class="out-school text-center flex-1 font-bold"></span></div>
-                                <div class="flex border-b border-black pb-1 items-center h-10"><span class="w-4">:</span><span class="text-center flex-1 leading-tight"><span class="out-school-city"></span><br><span class="out-school-addr"></span></span></div>
-                                <div class="flex border-b border-black pb-1"><span class="w-4">:</span><span class="text-center flex-1">T.033-562-3007 (담당자)</span></div>
-                                <div class="flex border-b border-black pb-1"><span class="w-4">:</span><span class="text-center flex-1">계약 담당자 님</span></div>
+                            <div class="w-20 flex items-center justify-center font-bold border-r border-slate-300">수 신</div>
+                            <div class="flex-1 pl-4 flex flex-col justify-center space-y-2">
+                                <div class="font-bold text-[12pt]"><span class="out-school"></span> (재무관) 귀하</div>
+                                <div class="text-sm text-slate-600"><span class="out-school-city"></span> <span class="out-school-addr"></span></div>
                             </div>
                         </div>
                         <!-- 발신 -->
                         <div class="w-[48%] flex h-full">
-                            <div class="w-24 bg-[#f2ebd9] flex items-center justify-center font-bold">발신</div>
-                            <div class="flex-1 pl-4 flex flex-col justify-between py-1">
-                                <div class="flex border-b border-black pb-1"><span class="w-4">:</span><span class="text-center flex-1 font-bold">투어메이커</span></div>
-                                <div class="flex border-b border-black pb-1 items-center h-10"><span class="w-4">:</span><span class="text-center flex-1 leading-tight">강원특별자치도 정선군 정선읍<br>봉양3길 22-10, 3층</span></div>
-                                <div class="flex border-b border-black pb-1"><span class="w-4">:</span><span class="text-center flex-1">T.033-562-2551</span></div>
-                                <div class="flex border-b border-black pb-1 relative"><span class="w-4">:</span><span class="text-center flex-1 font-bold tracking-widest">이 재 명 (인)</span>
-                                    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiweUsH71be_Y3skDUBOVzZE0M4HnXmgllJq7c1JgatYy5eROHYdkvE9rMIcqVl0DQ2ypgr8fkZSQclgQjWOk8yZA5wiF326Ldf4KTrfd_YEsD2zZjyqsRLS65uv50SLZcLFqIvwZly49lEN3sheIMq4HV_VWLs1irf4o8g3-ajXCA7CaOlSvpKCT4Q2XA=w200-h200" class="stamp-img" style="right: 15px; top: 50%; transform: translateY(-50%);" alt="직인">
-                                </div>
+                            <div class="w-20 flex items-center justify-center font-bold border-l border-r border-slate-300 bg-slate-50">발 신</div>
+                            <div class="flex-1 pl-4 flex flex-col justify-center space-y-2 relative">
+                                <div class="font-bold text-[12pt]">투어메이커</div>
+                                <div class="font-bold text-[11pt] tracking-widest">대 표 : <span class="out-rep-name">이 재 명</span> (인)</div>
+                                <img src="" class="stamp-img out-rep-stamp" style="right: 30px; top: 50%; transform: translateY(-50%);" alt="직인">
                             </div>
                         </div>
                     </div>
                     
                     <div class="space-y-4 text-[11pt] mb-12 border border-slate-300 p-6 rounded bg-slate-50">
-                        <div class="flex"><div class="w-32 font-bold">용역명</div><div class="w-4">:</div><div class="flex-1 font-bold out-title"></div></div>
-                        <div class="flex mt-4"><div class="w-32">최초 계약금액</div><div class="w-4">:</div><div class="flex-1 text-slate-500">금 <span class="out-total-korean"></span>원 (₩<span class="out-total-num"></span>)</div></div>
-                        <div class="flex"><div class="w-32 font-bold">최종 정산금액</div><div class="w-4">:</div><div class="flex-1 font-bold text-blue-700">금 <span class="out-settle-korean"></span>원 (₩<span class="out-settle-num"></span>)</div></div>
-                        <div class="flex"><div class="w-32">기수령 선금액</div><div class="w-4">:</div><div class="flex-1 text-slate-500">금 <span class="out-advance-korean"></span>원 (₩<span class="out-advance-num"></span>)</div></div>
+                        <div class="flex"><div class="w-32 font-bold">용 역 명</div><div class="w-4">:</div><div class="flex-1 font-bold out-title leading-tight pt-1"></div></div>
+                        <div class="flex mt-6"><div class="w-32">최초 계약금액</div><div class="w-4">:</div><div class="flex-1 text-slate-600">금 <span class="out-total-korean"></span>원 (₩<span class="out-total-num"></span>)</div></div>
+                        <div class="flex"><div class="w-32 font-bold">최종 정산금액</div><div class="w-4">:</div><div class="flex-1 font-bold text-slate-800">금 <span class="out-settle-korean"></span>원 (₩<span class="out-settle-num"></span>)</div></div>
+                        <div class="flex"><div class="w-32 text-blue-700">기수령 선금액</div><div class="w-4 text-blue-700">:</div><div class="flex-1 text-blue-700 font-bold">- 금 <span class="out-advance-korean"></span>원 (₩<span class="out-advance-num"></span>)</div></div>
                     </div>
                     
-                    <div class="flex text-[12pt] font-bold mb-10 bg-indigo-50 p-4 border border-indigo-200 rounded">
-                        <div class="w-32 text-indigo-900">최종 청구금액</div><div class="w-4">:</div><div class="flex-1 text-indigo-700 tracking-wide">금 <span class="out-final-korean"></span>원 (₩<span class="out-final-num"></span>)</div>
+                    <div class="flex text-[12pt] font-bold mb-12 bg-indigo-50 p-5 border border-indigo-200 rounded-lg">
+                        <div class="w-32 text-indigo-900 font-black">최종 청구금액</div><div class="w-4">:</div><div class="flex-1 text-indigo-700 tracking-wide font-black">금 <span class="out-final-korean"></span>원 (₩<span class="out-final-num"></span>)</div>
                     </div>
 
-                    <p class="text-[10.5pt] mb-12">위와 같이 최종 잔금을 청구하오니 아래 계좌에 입금 주시기 바랍니다.</p>
+                    <p class="text-[11.5pt] mb-8 font-bold text-center">위와 같이 최종 잔금을 청구하오니 아래 계좌에 입금하여 주시기 바랍니다.</p>
                     
-                    <div class="space-y-3 text-[10.5pt] mb-32">
-                        <div class="flex"><div class="w-52">은행 (Bank)</div><div class="w-4">:</div><div class="flex-1 text-center w-64">신협</div><div class="flex-1"></div></div>
-                        <div class="flex"><div class="w-52">계좌번호 (Bank Account)</div><div class="w-4">:</div><div class="flex-1 text-center font-bold tracking-widest text-lg">131-022-382094</div><div class="flex-1"></div></div>
-                        <div class="flex"><div class="w-52">소유자 (Holder Name)</div><div class="w-4">:</div><div class="flex-1 text-center font-bold">투어메이커</div><div class="flex-1"></div></div>
+                    <div class="border border-slate-800 rounded-lg p-6 w-[85%] mx-auto relative bg-white">
+                        <div class="absolute -top-3 left-6 bg-white px-2 font-bold text-slate-600 text-sm">입금 계좌 정보</div>
+                        <div class="space-y-4 text-[11pt]">
+                            <div class="flex"><div class="w-32 font-bold pl-4">은 행 명</div><div class="w-4">:</div><div class="flex-1 font-bold">농협은행</div></div>
+                            <div class="flex"><div class="w-32 font-bold pl-4">계좌번호</div><div class="w-4">:</div><div class="flex-1 font-bold tracking-widest text-lg text-blue-700">301-1234-5678-91</div></div>
+                            <div class="flex"><div class="w-32 font-bold pl-4">예 금 주</div><div class="w-4">:</div><div class="flex-1 font-bold">투어메이커</div></div>
+                        </div>
                     </div>
-                    <div class="h-6 bg-[#d9d9d9] w-full mt-auto"></div>
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
                 </div>
             </div>
             
@@ -799,6 +801,22 @@
     </div>
 
     <script>
+        // --- 대표자 설정 ---
+        const reps = {
+            lee: { name: '이 재 명', stamp: 'https://blogger.googleusercontent.com/img/a/AVvXsEiweUsH71be_Y3skDUBOVzZE0M4HnXmgllJq7c1JgatYy5eROHYdkvE9rMIcqVl0DQ2ypgr8fkZSQclgQjWOk8yZA5wiF326Ldf4KTrfd_YEsD2zZjyqsRLS65uv50SLZcLFqIvwZly49lEN3sheIMq4HV_VWLs1irf4o8g3-ajXCA7CaOlSvpKCT4Q2XA=w200-h200' },
+            heo: { name: '허 나 연', stamp: 'https://blogger.googleusercontent.com/img/a/AVvXsEhaeZ9zwjTzPpbIrnTc1ByxZm6_3p_KEVnbrXQOGpsB5siQDZ-9dbtEceldUpwqPBMvVcRcZiFymvYPqb9CIB-N_G-_jHz0cUHOmDuj_ooirThNY_DlHu3mC6_mXaz7qyx4pjcq721ggwvO4ZuyNIfR5KbKrGEgxJiJ2OCCNohQ1OsW_Fnflub-AoPqz3Y=w320-h292' }
+        };
+        let currentRep = 'lee';
+
+        function setRep(rep) {
+            currentRep = rep;
+            document.getElementById('btn-rep-lee').className = rep === 'lee' ? 'bg-blue-100 text-blue-800 font-bold py-2 rounded-lg border border-blue-300 transition text-sm' : 'bg-white text-slate-600 font-bold py-2 rounded-lg border border-slate-300 hover:bg-slate-50 transition text-sm';
+            document.getElementById('btn-rep-heo').className = rep === 'heo' ? 'bg-blue-100 text-blue-800 font-bold py-2 rounded-lg border border-blue-300 transition text-sm' : 'bg-white text-slate-600 font-bold py-2 rounded-lg border border-slate-300 hover:bg-slate-50 transition text-sm';
+            
+            document.querySelectorAll('.out-rep-name').forEach(el => el.innerText = reps[rep].name);
+            document.querySelectorAll('.out-rep-stamp').forEach(el => el.src = reps[rep].stamp);
+        }
+
         // --- 💾 JSON 템플릿 관리 시스템 ---
         const STORAGE_KEY = 'tourmaker_backoffice_templates';
 
@@ -822,7 +840,8 @@
                 flight: document.getElementById('in-flight').value,
                 hotel: document.getElementById('in-hotel').value,
                 bus: document.getElementById('in-bus').value,
-                date: document.getElementById('in-date').value
+                date: document.getElementById('in-date').value,
+                rep: currentRep
             };
 
             const templates = getTemplates();
@@ -851,6 +870,7 @@
                 document.getElementById('in-hotel').value = data.hotel || '';
                 document.getElementById('in-bus').value = data.bus || '';
                 document.getElementById('in-date').value = data.date || '';
+                if(data.rep) setRep(data.rep);
                 
                 updateDoc();
             }
@@ -912,12 +932,14 @@
             reader.readAsText(file);
         }
 
-
         // --- 📝 서류 생성 및 연산 시스템 ---
         let currentMode = 'advance'; 
         
         document.getElementById('in-date').valueAsDate = new Date();
-        document.addEventListener('DOMContentLoaded', updateTemplateSelect);
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTemplateSelect();
+            setRep('lee'); // 초기 인감 세팅
+        });
 
         function setMode(mode) {
             currentMode = mode;
