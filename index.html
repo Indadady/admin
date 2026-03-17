@@ -28,7 +28,7 @@
             color: #1e293b; 
         }
 
-        /* 🖨️ A4 용지 규격 설정 */
+        /* 🖨️ A4 용지 규격 설정 (한 장에 꽉 차게 여백 최적화) */
         .a4-page {
             background-color: white;
             width: 210mm;
@@ -66,7 +66,7 @@
         .stamp-box[data-rep="lee"] .stamp-img { transform: scale(1.0); }
         .stamp-box[data-rep="heo"] .stamp-img { transform: scale(2.6) translateY(1px); }
 
-        /* 자동계산 테이블 스타일 */
+        /* 자동계산 테이블 스타일 (A4 맞춤 콤팩트 사이즈) */
         .calc-table { width: 100%; border-collapse: collapse; font-size: 8pt; text-align: center; border-top: 2px solid #1e293b; border-bottom: 2px solid #1e293b; table-layout: fixed; }
         .calc-table th { padding: 5px 3px; border: 1px solid #cbd5e1; font-weight: bold; background-color: #f8fafc; color: #334155; }
         .calc-table td { padding: 5px 3px; border: 1px solid #cbd5e1; position: relative; line-height: 1.2; word-break: break-word; }
@@ -161,8 +161,8 @@
             <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">서류 생성 모드</label>
                 <div class="grid grid-cols-2 gap-2">
-                    <button onclick="setMode('advance')" id="btn-advance" class="bg-white text-slate-600 font-bold py-2.5 rounded-lg border border-slate-300 hover:bg-slate-50 transition shadow-sm">1. 선금 신청 (5종)</button>
-                    <button onclick="setMode('final')" id="btn-final" class="bg-blue-600 text-white font-bold py-2.5 rounded-lg border border-blue-600 transition">2. 최종 정산 (3종)</button>
+                    <button onclick="setMode('advance')" id="btn-advance" class="bg-blue-600 text-white font-bold py-2.5 rounded-lg border border-blue-600 transition shadow-sm">1. 선금 신청 (5종)</button>
+                    <button onclick="setMode('final')" id="btn-final" class="bg-white text-slate-600 font-bold py-2.5 rounded-lg border border-slate-300 hover:bg-slate-50 transition">2. 최종 정산 (3종)</button>
                 </div>
             </div>
 
@@ -191,48 +191,58 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">최초 총 계약 금액 (원)</label>
-                    <input type="number" id="in-total" value="48567100" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" oninput="updateDoc()">
+                    <!-- 🚨 type="text" 로 변경하여 천단위 콤마 실시간 반영 -->
+                    <input type="text" id="in-total" value="48,567,100" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 font-bold" oninput="formatInputField(this); updateDoc()">
                 </div>
                 
                 <!-- 선금 모드 전용 입력 -->
-                <div id="advance-inputs" class="space-y-4 hidden">
+                <div id="advance-inputs" class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">선금 청구 비율 (%)</label>
-                        <select id="in-rate" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" onchange="updateDoc()">
-                            <option value="30">30%</option>
-                            <option value="50">50%</option>
-                            <option value="70" selected>70%</option>
-                            <option value="80">80%</option>
-                        </select>
+                        <div class="flex gap-2">
+                            <select id="in-rate" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" onchange="updateDoc()">
+                                <option value="30">30%</option>
+                                <option value="50">50%</option>
+                                <option value="70" selected>70%</option>
+                                <option value="80">80%</option>
+                                <option value="custom">직접입력 (기타)</option>
+                            </select>
+                            <!-- 직접 입력 필드 (선택 시 등장) -->
+                            <input type="number" id="in-rate-custom" class="w-1/3 hidden border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" placeholder="예: 45" oninput="updateDoc()">
+                        </div>
                     </div>
 
                     <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
-                        <label class="block text-xs font-bold text-slate-700 mb-2">선금 사용계획 (비율 자동 배분)</label>
+                        <label class="block text-xs font-bold text-slate-700 mb-2">선금 사용계획 (수동 배분 가능)</label>
                         <div class="space-y-2">
                             <div class="flex items-center justify-between">
                                 <span class="text-xs text-slate-600">항공료 등</span>
-                                <input type="number" id="in-flight" class="w-2/3 border border-slate-300 rounded px-2 py-1 text-xs text-right" oninput="updateCustomPlan()">
+                                <input type="text" id="in-flight" class="w-2/3 border border-slate-300 rounded px-2 py-1 text-xs text-right" oninput="formatInputField(this); updateCustomPlanValidation()">
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="text-xs text-slate-600">숙박료 등</span>
-                                <input type="number" id="in-hotel" class="w-2/3 border border-slate-300 rounded px-2 py-1 text-xs text-right" oninput="updateCustomPlan()">
+                                <input type="text" id="in-hotel" class="w-2/3 border border-slate-300 rounded px-2 py-1 text-xs text-right" oninput="formatInputField(this); updateCustomPlanValidation()">
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="text-xs text-slate-600">기타경비</span>
-                                <input type="number" id="in-bus" class="w-2/3 border border-slate-300 rounded px-2 py-1 text-xs text-right" oninput="updateCustomPlan()">
+                                <input type="text" id="in-bus" class="w-2/3 border border-slate-300 rounded px-2 py-1 text-xs text-right" oninput="formatInputField(this); updateCustomPlanValidation()">
                             </div>
+                        </div>
+                        <!-- 🚨 선금 배분 오류 경고창 -->
+                        <div id="advance-warning" class="hidden mt-3 p-2 bg-red-50 border border-red-200 rounded text-[11px] text-red-600 font-bold leading-relaxed">
+                            <!-- 경고 메시지 JS 주입 -->
                         </div>
                     </div>
                 </div>
 
                 <!-- 정산 모드 전용 입력 -->
-                <div id="final-inputs" class="space-y-4">
+                <div id="final-inputs" class="space-y-4 hidden">
                     <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
                         <label class="block text-[11px] font-bold text-indigo-800 mb-2"><i class="fa-solid fa-calculator"></i> 자동 정산 제어</label>
                         <p class="text-[10px] text-indigo-600 mb-2">※ 우측 화면의 [정산내역서] 표에서 숫자와 내용을 직접 입력하시면 청구서 잔금까지 <b>모두 자동 연산</b>됩니다.</p>
                         <div class="mt-2 border-t border-indigo-200 pt-2">
                             <label class="block text-[10px] font-bold text-slate-600 mb-1">기 수령 선금액 수동 보정 (선택)</label>
-                            <input type="number" id="in-received-manual" placeholder="비워두면 최초계약액 기준 자동계산" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-indigo-500" oninput="triggerCalc()">
+                            <input type="text" id="in-received-manual" placeholder="비워두면 최초계약액 기준 자동계산" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-indigo-500" oninput="formatInputField(this); triggerCalc()">
                         </div>
                     </div>
                     <!-- JS 연산용 숨김 필드 -->
@@ -252,7 +262,7 @@
             <!-- ========================================== -->
             <!-- 1. 선금 신청 서류 모음 (5종) -->
             <!-- ========================================== -->
-            <div id="advance-docs" class="hidden">
+            <div id="advance-docs">
                 <!-- 1. 선금 지급의뢰 공문 -->
                 <div class="a4-page flex flex-col justify-between">
                     <div>
@@ -291,6 +301,7 @@
                             <p class="out-rep-addr"></p>
                         </div>
                     </div>
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
                 </div>
 
                 <!-- 2. 선금 지급신청서 -->
@@ -481,7 +492,7 @@
                                 <div class="font-bold text-[12pt] out-rep-company"></div>
                                 <div class="font-bold text-[11pt] tracking-widest mt-1">
                                     대 표 : <span class="out-rep-name"></span> 
-                                    <span class="relative inline-block w-10 text-center ml-1">
+                                    <span class="relative inline-block ml-1 w-10 text-center">
                                         (인)
                                         <div class="stamp-box out-rep-stamp-box" style="left: 50%; top: 50%; transform: translate(-50%, -50%);">
                                             <img src="" class="stamp-img out-rep-stamp" alt="직인">
@@ -513,12 +524,55 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 6. 계좌입금의뢰서 -->
+                <div class="a4-page">
+                    <h2 class="text-2xl font-black mb-12 text-center border-b-2 border-slate-800 pb-4">계좌입금의뢰서</h2>
+                    
+                    <table class="w-[90%] mx-auto text-left text-[11.5pt] leading-[3.5rem] mb-20 border-collapse border-y-2 border-slate-800">
+                        <tr class="font-bold border-b border-slate-300 bg-slate-50">
+                            <td class="w-[30%] text-center">항목</td>
+                            <td class="text-center border-l border-slate-200">내용</td>
+                        </tr>
+                        <tr class="border-b border-slate-200">
+                            <td class="font-bold text-center">건 명</td>
+                            <td class="pl-6 font-bold out-title border-l border-slate-200 leading-tight py-2"></td>
+                        </tr>
+                        <tr class="border-b border-slate-200">
+                            <td class="font-bold text-center">청 구 금 액</td>
+                            <td class="pl-6 font-bold text-blue-700 border-l border-slate-200">금 <span class="out-advance-korean"></span>원 (₩<span class="out-advance-num"></span>)</td>
+                        </tr>
+                        <tr class="border-b border-slate-200">
+                            <td class="font-bold text-center">금 융 기 관</td>
+                            <td class="pl-6 font-bold border-l border-slate-200 out-rep-bank"></td>
+                        </tr>
+                        <tr class="border-b border-slate-200">
+                            <td class="font-bold text-center">계 좌 번 호</td>
+                            <td class="pl-6 font-bold tracking-widest text-lg border-l border-slate-200 text-blue-700 out-rep-account"></td>
+                        </tr>
+                        <tr class="border-b border-slate-200">
+                            <td class="font-bold text-center">입금요청일자</td>
+                            <td class="pl-6 out-date-korean-spaced border-l border-slate-200"></td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold text-center">비 고</td>
+                            <td class="pl-6 border-l border-slate-200">선금 청구 건</td>
+                        </tr>
+                    </table>
+
+                    <p class="font-bold text-[12pt] mb-24 text-center">위 대금을 당사 계좌로 입금 조치하여 주시기 바랍니다.</p>
+                    
+                    <div class="footer-recipient">
+                        <span class="out-school"></span> (분임)재무관 귀하
+                    </div>
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
+                </div>
             </div>
 
             <!-- ========================================== -->
             <!-- 2. 정산/잔금 청구 서류 모음 (3종) -->
             <!-- ========================================== -->
-            <div id="final-docs">
+            <div id="final-docs" class="hidden">
                 <!-- 1. 정산 보고 공문 -->
                 <div class="a4-page flex flex-col justify-between" style="min-height: 297mm;">
                     <div>
@@ -554,10 +608,11 @@
                             <p class="out-rep-addr"></p>
                         </div>
                     </div>
+                    <!-- 정산 공문 로고 (유지) -->
                     <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
                 </div>
 
-                <!-- 2. 정산내역서 -->
+                <!-- 2. 정산내역서 (동적 계산 & 비고란 자동 그룹화) -->
                 <div class="a4-page flex flex-col justify-between" style="min-height: 297mm;">
                     <div class="flex-1 flex flex-col">
                         <h1 class="text-[20pt] font-black text-center tracking-[1rem] mb-2">정 산 내 역 서</h1>
@@ -855,9 +910,11 @@
                         </table>
                     </div>
                     
-                    <div class="mt-2 text-[7.5pt] text-slate-600 leading-relaxed text-left border border-[#cbd5e1] p-1.5 bg-white">
-                        <p class="font-bold text-black mb-0.5">1. 세금계산서 발행 관련 안내문</p>
-                        <p>* 본 위탁용역의 특성상 항공권, 숙박비, 현지교통비 등은 당사가 직접 제공하는 서비스가 아닌, 제 3자와의 거래를 통한 수탁 대행 처리 항목으로 분류됩니다. 따라서, 당사는 전체 계약금액 기준의 세금계산서 발행이 불가하며, 국내 과세 대상 경비 중 <strong>알선수수료</strong> 등 자체수익에 대해서만 세금계산서를 발행함을 사전 안내드립니다.</p>
+                    <div class="mt-4 relative pb-2">
+                        <div class="text-[7.5pt] text-slate-600 leading-relaxed text-left border border-[#cbd5e1] p-1.5 bg-white">
+                            <p class="font-bold text-black mb-0.5">1. 세금계산서 발행 관련 안내문</p>
+                            <p>* 본 위탁용역의 특성상 항공권, 숙박비, 현지교통비 등은 당사가 직접 제공하는 서비스가 아닌, 제 3자와의 거래를 통한 수탁 대행 처리 항목으로 분류됩니다. 따라서, 당사는 전체 계약금액 기준의 세금계산서 발행이 불가하며, 국내 과세 대상 경비 중 <strong>알선수수료</strong> 등 자체수익에 대해서만 세금계산서를 발행함을 사전 안내드립니다.</p>
+                        </div>
                     </div>
                 </div>
 
@@ -979,7 +1036,17 @@
             return new Intl.NumberFormat('ko-KR').format(num);
         }
 
-        // 붙여넣기 시 태그 오염 방지
+        // 입력 필드 포맷터 (천단위 콤마)
+        function formatInputField(input) {
+            let val = input.value.replace(/[^0-9]/g, '');
+            if (val) {
+                input.value = new Intl.NumberFormat('ko-KR').format(parseInt(val, 10));
+            } else {
+                input.value = '';
+            }
+        }
+
+        // 붙여넣기 시 태그 오염 방지 (순수 텍스트만)
         document.addEventListener('paste', function(e) {
             const target = e.target;
             if (target.hasAttribute('contenteditable')) {
@@ -1081,7 +1148,7 @@
                         if (section === 'domestic') remarkCell.contentEditable = "true";
 
                     } else {
-                        if(remarkCell) remarkCell.remove();
+                        if(remarkCell && section !== 'domestic') remarkCell.remove();
                     }
                 }
             });
@@ -1165,11 +1232,18 @@
         }
 
         function updateFinalSettlementValues(settle) {
-            const total = parseInt(document.getElementById('in-total').value) || 0;
-            const rate = parseInt(document.getElementById('in-rate').value) || 50;
+            const total = parseNum(document.getElementById('in-total').value);
+            
+            let rateVal = document.getElementById('in-rate').value;
+            let rate = 50;
+            if (rateVal === 'custom') {
+                rate = parseFloat(document.getElementById('in-rate-custom').value) || 0;
+            } else {
+                rate = parseFloat(rateVal) || 50;
+            }
             
             let manualAdvance = document.getElementById('in-received-manual').value;
-            let advanceAmount = manualAdvance !== "" ? parseInt(manualAdvance) : Math.floor(total * (rate / 100));
+            let advanceAmount = manualAdvance !== "" ? parseNum(manualAdvance) : Math.floor(total * (rate / 100));
             
             const finalClaim = settle - advanceAmount;
 
@@ -1203,7 +1277,7 @@
             }
         }, true);
 
-        // 한글 금액 표기 개선 로직 (금융권 표준 적용)
+        // 한글 금액 표기 로직 (금융권 표준 적용)
         function numberToKorean(number) {
             if (!number || number === 0) return '영';
             const numStr = String(number);
@@ -1232,14 +1306,59 @@
             calcTable();
         }
 
+        function updateCustomPlanValidation() {
+            const total = parseNum(document.getElementById('in-total').value);
+            
+            let rateVal = document.getElementById('in-rate').value;
+            let rate = 50;
+            if (rateVal === 'custom') {
+                rate = parseFloat(document.getElementById('in-rate-custom').value) || 0;
+            } else {
+                rate = parseFloat(rateVal) || 50;
+            }
+            
+            const advanceAmount = Math.floor(total * (rate / 100));
+
+            const flight = parseNum(document.getElementById('in-flight').value);
+            const hotel = parseNum(document.getElementById('in-hotel').value);
+            const bus = parseNum(document.getElementById('in-bus').value);
+
+            const sum = flight + hotel + bus;
+            const diff = advanceAmount - sum;
+
+            const warningEl = document.getElementById('advance-warning');
+            if (diff !== 0) {
+                warningEl.classList.remove('hidden');
+                warningEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> 배분액 합계가 선금액과 일치하지 않습니다.<br>차액: ${diff > 0 ? '+' : ''}${formatNum(diff)}원`;
+            } else {
+                warningEl.classList.add('hidden');
+            }
+
+            document.querySelectorAll('.out-flight').forEach(el => el.innerText = formatNum(flight));
+            document.querySelectorAll('.out-hotel').forEach(el => el.innerText = formatNum(hotel));
+            document.querySelectorAll('.out-bus').forEach(el => el.innerText = formatNum(bus));
+        }
+
         function updateDoc() {
             const school = document.getElementById('in-school').value;
             const schoolCity = document.getElementById('in-school-city').value;
             const schoolAddr = document.getElementById('in-school-addr').value;
             const title = document.getElementById('in-title').value;
             const period = document.getElementById('in-period').value;
-            const total = parseInt(document.getElementById('in-total').value) || 0;
+            const total = parseNum(document.getElementById('in-total').value);
             const dateStr = document.getElementById('in-date').value;
+
+            let rateVal = document.getElementById('in-rate').value;
+            let rate = 50;
+            if (rateVal === 'custom') {
+                rate = parseFloat(document.getElementById('in-rate-custom').value) || 0;
+                document.getElementById('in-rate-custom').classList.remove('hidden');
+            } else {
+                rate = parseFloat(rateVal) || 50;
+                document.getElementById('in-rate-custom').classList.add('hidden');
+            }
+
+            const advanceAmount = Math.floor(total * (rate / 100));
 
             document.querySelectorAll('.out-school').forEach(el => el.innerText = school);
             document.querySelectorAll('.out-school-city').forEach(el => el.innerText = schoolCity);
@@ -1249,6 +1368,10 @@
             
             document.querySelectorAll('.out-total-num').forEach(el => el.innerText = formatNum(total));
             document.querySelectorAll('.out-total-korean').forEach(el => el.innerText = numberToKorean(total));
+            
+            document.querySelectorAll('.out-advance-num').forEach(el => el.innerText = formatNum(advanceAmount));
+            document.querySelectorAll('.out-advance-korean').forEach(el => el.innerText = numberToKorean(advanceAmount));
+            document.querySelectorAll('.out-rate').forEach(el => el.innerText = rate);
 
             if(dateStr) {
                 const d = new Date(dateStr);
@@ -1264,6 +1387,18 @@
                 document.querySelectorAll('.out-doc-year').forEach(el => el.innerText = yyyy);
             }
 
+            const activeId = document.activeElement ? document.activeElement.id : '';
+            if(activeId !== 'in-flight' && activeId !== 'in-hotel' && activeId !== 'in-bus' && activeId !== 'in-rate-custom') {
+                const flight = Math.floor(advanceAmount * 0.417);
+                const hotel = Math.floor(advanceAmount * 0.404);
+                const bus = advanceAmount - flight - hotel; 
+                
+                if (document.getElementById('in-flight')) document.getElementById('in-flight').value = formatNum(flight);
+                if (document.getElementById('in-hotel')) document.getElementById('in-hotel').value = formatNum(hotel);
+                if (document.getElementById('in-bus')) document.getElementById('in-bus').value = formatNum(bus);
+            }
+
+            updateCustomPlanValidation();
             calcTable();
         }
 
@@ -1284,14 +1419,15 @@
                 schoolAddr: document.getElementById('in-school-addr').value,
                 title: document.getElementById('in-title').value,
                 period: document.getElementById('in-period').value,
-                total: document.getElementById('in-total').value,
+                total: parseNum(document.getElementById('in-total').value),
                 rate: document.getElementById('in-rate').value,
-                flight: document.getElementById('in-flight') ? document.getElementById('in-flight').value : '',
-                hotel: document.getElementById('in-hotel') ? document.getElementById('in-hotel').value : '',
-                bus: document.getElementById('in-bus') ? document.getElementById('in-bus').value : '',
+                rateCustom: document.getElementById('in-rate-custom') ? document.getElementById('in-rate-custom').value : '',
+                flight: document.getElementById('in-flight') ? parseNum(document.getElementById('in-flight').value) : '',
+                hotel: document.getElementById('in-hotel') ? parseNum(document.getElementById('in-hotel').value) : '',
+                bus: document.getElementById('in-bus') ? parseNum(document.getElementById('in-bus').value) : '',
                 date: document.getElementById('in-date').value,
                 settle: settleEl ? settleEl.value : '',
-                manualReceived: manualReceived,
+                manualReceived: manualReceived ? parseNum(manualReceived) : '',
                 showAdjustment: adjustmentRow ? adjustmentRow.style.display !== 'none' : true,
                 manualSettleInput: document.getElementById('manual-settle-input') ? document.getElementById('manual-settle-input').innerText : '',
                 rep: currentRep,
@@ -1319,15 +1455,20 @@
                 document.getElementById('in-school-addr').value = data.schoolAddr || '';
                 document.getElementById('in-title').value = data.title || '';
                 document.getElementById('in-period').value = data.period || '';
-                document.getElementById('in-total').value = data.total || '';
+                document.getElementById('in-total').value = formatNum(data.total || 0);
                 document.getElementById('in-rate').value = data.rate || '50';
+                
+                if(data.rateCustom && document.getElementById('in-rate-custom')) {
+                    document.getElementById('in-rate-custom').value = data.rateCustom;
+                }
+                
                 document.getElementById('in-date').value = data.date || '';
                 
-                if (document.getElementById('in-flight')) document.getElementById('in-flight').value = data.flight || '';
-                if (document.getElementById('in-hotel')) document.getElementById('in-hotel').value = data.hotel || '';
-                if (document.getElementById('in-bus')) document.getElementById('in-bus').value = data.bus || '';
+                if (document.getElementById('in-flight')) document.getElementById('in-flight').value = formatNum(data.flight || 0);
+                if (document.getElementById('in-hotel')) document.getElementById('in-hotel').value = formatNum(data.hotel || 0);
+                if (document.getElementById('in-bus')) document.getElementById('in-bus').value = formatNum(data.bus || 0);
                 
-                document.getElementById('in-received-manual').value = data.manualReceived || '';
+                document.getElementById('in-received-manual').value = data.manualReceived ? formatNum(data.manualReceived) : '';
 
                 if(data.currencyCode && document.getElementById('currency-code')) {
                     document.getElementById('currency-code').innerText = data.currencyCode;
@@ -1432,7 +1573,7 @@
             updateRowspans('local');
             updateRowspans('domestic');
             
-            setMode('final');
+            setMode('advance');
             updateDoc(); 
         });
 
@@ -1465,12 +1606,6 @@
 
         function resetInputs() {
             if(confirm('입력을 초기화하시겠습니까?')) location.reload();
-        }
-        
-        function updateCustomPlan() {
-            if (document.getElementById('in-flight')) document.querySelectorAll('.out-flight').forEach(el => el.innerText = formatNum(document.getElementById('in-flight').value));
-            if (document.getElementById('in-hotel')) document.querySelectorAll('.out-hotel').forEach(el => el.innerText = formatNum(document.getElementById('in-hotel').value));
-            if (document.getElementById('in-bus')) document.querySelectorAll('.out-bus').forEach(el => el.innerText = formatNum(document.getElementById('in-bus').value));
         }
 
     </script>
