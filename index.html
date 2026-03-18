@@ -159,7 +159,6 @@
                 </div>
             </div>
 
-            <!-- 🚨 새롭게 추가된 행사 유형(국내/해외) 토글 -->
             <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2 text-indigo-800">행사 유형 (정산서 양식)</label>
                 <div class="grid grid-cols-2 gap-2">
@@ -171,7 +170,8 @@
             <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">서류 생성 모드</label>
                 <div class="grid grid-cols-2 gap-2">
-                    <button onclick="setMode('advance')" id="btn-advance" class="bg-blue-600 text-white font-bold py-2.5 rounded-lg border border-blue-600 transition shadow-sm">1. 선금 신청 (5종)</button>
+                    <!-- 🚨 [이슈 1 수정] 5종 -> 6종으로 통일 -->
+                    <button onclick="setMode('advance')" id="btn-advance" class="bg-blue-600 text-white font-bold py-2.5 rounded-lg border border-blue-600 transition shadow-sm">1. 선금 신청 (6종)</button>
                     <button onclick="setMode('final')" id="btn-final" class="bg-white text-slate-600 font-bold py-2.5 rounded-lg border border-slate-300 hover:bg-slate-50 transition">2. 최종 정산 (3종)</button>
                 </div>
             </div>
@@ -204,7 +204,6 @@
                     <input type="text" id="in-total" value="38,636,530" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 font-bold" oninput="formatInputField(this); updateDoc()">
                 </div>
                 
-                <!-- 선금 모드 전용 입력 -->
                 <div id="advance-inputs" class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">선금 청구 비율 (%)</label>
@@ -221,19 +220,23 @@
                     </div>
 
                     <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
-                        <label class="block text-xs font-bold text-slate-700 mb-2">선금 사용계획 (수동 배분 가능)</label>
+                        <!-- 🚨 [이슈 3 수정] 수동 덮어쓰기 방지 리셋 버튼 추가 -->
+                        <label class="block text-xs font-bold text-slate-700 mb-2 flex justify-between items-center">
+                            선금 사용계획 (수동 배분 가능)
+                            <button onclick="resetPlan()" class="text-[10px] bg-slate-200 hover:bg-slate-300 px-2 py-0.5 rounded text-slate-600 font-normal transition print-hidden">비율 자동화 리셋</button>
+                        </label>
                         <div class="space-y-2">
                             <div class="flex items-center justify-between">
                                 <span class="text-xs text-slate-600">항공료 등</span>
-                                <input type="text" id="in-flight" class="w-2/3 border border-slate-300 rounded px-2 py-1 text-xs text-right" oninput="formatInputField(this); updateCustomPlanValidation()">
+                                <input type="text" id="in-flight" class="w-2/3 border border-slate-300 rounded px-2 py-1 text-xs text-right" oninput="isPlanManual=true; formatInputField(this); updateCustomPlanValidation()">
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="text-xs text-slate-600">숙박료 등</span>
-                                <input type="text" id="in-hotel" class="w-2/3 border border-slate-300 rounded px-2 py-1 text-xs text-right" oninput="formatInputField(this); updateCustomPlanValidation()">
+                                <input type="text" id="in-hotel" class="w-2/3 border border-slate-300 rounded px-2 py-1 text-xs text-right" oninput="isPlanManual=true; formatInputField(this); updateCustomPlanValidation()">
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="text-xs text-slate-600">기타경비</span>
-                                <input type="text" id="in-bus" class="w-2/3 border border-slate-300 rounded px-2 py-1 text-xs text-right" oninput="formatInputField(this); updateCustomPlanValidation()">
+                                <input type="text" id="in-bus" class="w-2/3 border border-slate-300 rounded px-2 py-1 text-xs text-right" oninput="isPlanManual=true; formatInputField(this); updateCustomPlanValidation()">
                             </div>
                         </div>
                         <div id="advance-warning" class="hidden mt-3 p-2 bg-red-50 border border-red-200 rounded text-[11px] text-red-600 font-bold leading-relaxed">
@@ -242,7 +245,6 @@
                     </div>
                 </div>
 
-                <!-- 정산 모드 전용 입력 -->
                 <div id="final-inputs" class="space-y-4 hidden">
                     <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
                         <label class="block text-[11px] font-bold text-indigo-800 mb-2"><i class="fa-solid fa-calculator"></i> 자동 정산 제어</label>
@@ -252,7 +254,6 @@
                             <input type="text" id="in-received-manual" placeholder="비워두면 최초계약액 기준 자동계산" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-indigo-500" oninput="formatInputField(this); triggerCalc()">
                         </div>
                     </div>
-                    <!-- JS 연산용 숨김 필드 -->
                     <input type="hidden" id="in-settle" value="38636530">
                 </div>
 
@@ -266,9 +267,6 @@
         <!-- 우측: A4 렌더링 패널 (출력부) -->
         <main class="flex-1 bg-[#e2e8f0] p-4 md:p-8 overflow-y-auto" id="doc-container">
             
-            <!-- ========================================== -->
-            <!-- 1. 선금 신청 서류 모음 (5종) -->
-            <!-- ========================================== -->
             <div id="advance-docs">
                 <!-- 1. 선금 지급의뢰 공문 -->
                 <div class="a4-page flex flex-col justify-between">
@@ -289,11 +287,13 @@
 
                         <div class="text-[11pt] mb-12 pb-10">
                             <p class="font-bold mb-4">붙임</p>
+                            <!-- 🚨 [이슈 1 수정] 5종을 명확히 6종으로 분리 -->
                             <p class="ml-8 mb-2">1. 선금지급신청서 1부.</p>
                             <p class="ml-8 mb-2">2. 선금사용계획서 1부.</p>
                             <p class="ml-8 mb-2">3. 각서 1부.</p>
                             <p class="ml-8 mb-2">4. 선금 청구서 1부.</p>
-                            <p class="ml-8">5. 계좌입금의뢰서 및 보증보험증권 각 1부. 끝.</p>
+                            <p class="ml-8 mb-2">5. 계좌입금의뢰서 1부.</p>
+                            <p class="ml-8">6. 보증보험증권 각 1부. 끝.</p>
                         </div>
                     </div>
 
@@ -1059,6 +1059,7 @@
         };
         let currentRep = 'lee';
         let currentTripType = 'overseas'; // 해외 모드 기본값
+        let isPlanManual = false; // 🚨 [이슈 3 수정] 수동 배분 덮어쓰기 방지 플래그
 
         function setRep(rep) {
             currentRep = rep;
@@ -1114,13 +1115,22 @@
             }
         }
 
+        // 🚨 [이슈 5 수정] execCommand 대신 모던한 Selection API 적용하여 호환성 및 오염 방지
         document.addEventListener('paste', function(e) {
             const target = e.target;
             if (target.hasAttribute('contenteditable')) {
                 e.preventDefault();
                 let text = (e.clipboardData || window.clipboardData).getData('text');
                 text = text.replace(/[\r\n]+/g, ' ').trim();
-                document.execCommand('insertText', false, text);
+                
+                const selection = window.getSelection();
+                if (!selection.rangeCount) return;
+                selection.deleteFromDocument();
+                selection.getRangeAt(0).insertNode(document.createTextNode(text));
+                selection.collapseToEnd();
+                
+                // 이벤트 수동 트리거로 calcTable 연동 보장
+                target.dispatchEvent(new Event('input', { bubbles: true }));
             }
         });
 
@@ -1261,7 +1271,7 @@
             });
         }
 
-        // 국내용(Jeju/Inland) '구분' 및 '항목' 병합 로직 🚨
+        // 국내용(Jeju/Inland) '구분' 및 '항목' 병합 로직
         function updateRowspansDom() {
             const rows = document.querySelectorAll('#tbody-dom-only tr.item-row');
             let prevCatCell = null;
@@ -1403,6 +1413,7 @@
             updateFinalSettlementValues(settle);
         }
 
+        // 🚨 [이슈 4 수정] 음수(마이너스) 최종 청구액일 경우 환급/차감 형태로 표시
         function updateFinalSettlementValues(settle) {
             const total = parseNum(document.getElementById('in-total').value);
             
@@ -1426,10 +1437,16 @@
             document.querySelectorAll('.out-advance-num').forEach(el => el.innerText = formatNum(advanceAmount));
             document.querySelectorAll('.out-advance-korean').forEach(el => el.innerText = numberToKorean(advanceAmount));
             
-            if (finalClaim <= 0) {
+            if (finalClaim < 0) {
+                // 선금을 과다 수령하여 환급이 필요한 경우
+                document.querySelectorAll('.out-final-num').forEach(el => el.innerText = "(-) " + formatNum(Math.abs(finalClaim)));
+                document.querySelectorAll('.out-final-korean').forEach(el => el.innerText = "(환급) " + numberToKorean(Math.abs(finalClaim)));
+            } else if (finalClaim === 0) {
+                // 정산 후 청구액 0원
                 document.querySelectorAll('.out-final-num').forEach(el => el.innerText = '0');
                 document.querySelectorAll('.out-final-korean').forEach(el => el.innerText = '영');
             } else {
+                // 일반적인 잔금 청구
                 document.querySelectorAll('.out-final-num').forEach(el => el.innerText = formatNum(finalClaim));
                 document.querySelectorAll('.out-final-korean').forEach(el => el.innerText = numberToKorean(finalClaim));
             }
@@ -1477,28 +1494,40 @@
             }
         }, true);
 
-        // 한글 금액 표기
+        // 🚨 [이슈 2 수정] 한글 금액 변환 관용구 보정 (십, 백, 천 앞의 불필요한 '일' 제거 및 자연스러운 단위 표현 적용)
         function numberToKorean(number) {
             if (!number || number === 0) return '영';
             const numStr = String(number);
             const hanA = ["", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구"];
             const danA = ["", "십", "백", "천"];
-            const danG = ["", "만", "억", "조"];
+            const danG = ["", "만", "억", "조", "경"];
             let result = "";
-            let len = numStr.length;
-            for (let i = 0; i < len; i++) {
+            for (let i = 0; i < numStr.length; i++) {
+                let str = "";
                 const n = parseInt(numStr.charAt(i));
-                const unit = len - i - 1;
-                if (n > 0) result += hanA[n] + danA[unit % 4];
+                const unit = numStr.length - i - 1;
+                if (n > 0) {
+                    str += (n === 1 && unit % 4 !== 0) ? "" : hanA[n];
+                    str += danA[unit % 4];
+                }
                 if (unit % 4 === 0) {
                     const groupVal = numStr.substring(Math.max(0, i - 3), i + 1);
-                    if (parseInt(groupVal) > 0) result += danG[unit / 4];
+                    if (parseInt(groupVal) > 0) str += danG[unit / 4];
                 }
+                result += str;
             }
+            // 문서 품질을 위해 맨 앞의 "일만"을 "만"으로 교정
+            if (result.startsWith("일만")) result = result.replace("일만", "만");
             return result;
         }
 
         function triggerCalc() { calcTable(); }
+
+        // 🚨 [이슈 3 수정] 수동 배분 입력 시 자동 계산 정지 처리
+        function resetPlan() {
+            isPlanManual = false;
+            updateDoc();
+        }
 
         function updateCustomPlanValidation() {
             const total = parseNum(document.getElementById('in-total').value);
@@ -1575,8 +1604,8 @@
                 document.querySelectorAll('.out-doc-year').forEach(el => el.innerText = yyyy);
             }
 
-            const activeId = document.activeElement ? document.activeElement.id : '';
-            if(activeId !== 'in-flight' && activeId !== 'in-hotel' && activeId !== 'in-bus' && activeId !== 'in-rate-custom') {
+            // 🚨 [이슈 3 수정] 수동 조작된 경우 덮어쓰기 방지
+            if(!isPlanManual && document.activeElement.id !== 'in-rate-custom') {
                 const flight = Math.floor(advanceAmount * 0.417);
                 const hotel = Math.floor(advanceAmount * 0.404);
                 const bus = advanceAmount - flight - hotel; 
@@ -1688,6 +1717,9 @@
                     }
                 }
                 
+                // 불러올 때 사용자가 이전에 저장한 비율은 수동배분으로 취급하여 오작동 방지
+                isPlanManual = true;
+
                 updateRowspans('flight');
                 updateRowspans('local');
                 updateRowspans('domestic');
