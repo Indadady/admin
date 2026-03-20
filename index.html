@@ -28,7 +28,7 @@
             color: #1e293b; 
         }
 
-        /* 🖨️ A4 용지 규격 설정 (한 장에 꽉 차게 여백 최적화) */
+        /* 🖨️ A4 용지 규격 설정 */
         .a4-page {
             background-color: white;
             width: 210mm;
@@ -66,7 +66,7 @@
         .stamp-box[data-rep="lee"] .stamp-img { transform: scale(1.0); }
         .stamp-box[data-rep="heo"] .stamp-img { transform: scale(2.6) translateY(1px); }
 
-        /* 자동계산 테이블 스타일 (A4 맞춤 콤팩트 사이즈) */
+        /* 자동계산 테이블 스타일 */
         .calc-table { width: 100%; border-collapse: collapse; font-size: 8pt; text-align: center; border-top: 2px solid #1e293b; border-bottom: 2px solid #1e293b; table-layout: fixed; }
         .calc-table th { padding: 5px 3px; border: 1px solid #cbd5e1; font-weight: bold; background-color: #f8fafc; color: #334155; }
         .calc-table td { padding: 5px 3px; border: 1px solid #cbd5e1; position: relative; line-height: 1.2; word-break: break-word; }
@@ -77,7 +77,7 @@
         [contenteditable="true"]:hover { background-color: #fefce8; cursor: text; border-radius: 2px; box-shadow: inset 0 0 0 1px #eab308; }
         [contenteditable="true"]:focus { background-color: #fffbeb; box-shadow: inset 0 0 0 1px #3b82f6; }
         
-        /* 삭제 버튼 절대좌표 처리 (테이블 열 구조 보호) */
+        /* 삭제 버튼 절대좌표 처리 */
         .row-ctrl { position: absolute; right: -25px; top: 50%; transform: translateY(-50%); display: flex; gap: 4px; opacity: 0.3; transition: 0.2s; z-index: 20; }
         tr:hover .row-ctrl { opacity: 1; }
         
@@ -121,6 +121,7 @@
         <!-- 좌측: 사이드바 제어부 -->
         <aside id="sidebar" class="w-full md:w-80 lg:w-[400px] bg-white border-r border-slate-200 p-6 overflow-y-auto flex flex-col gap-6 shadow-[10px_0_15px_-3px_rgba(0,0,0,0.05)] z-10 shrink-0">
             
+            <!-- 템플릿 관리부 -->
             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
                 <div class="flex justify-between items-center mb-3 border-b border-slate-200 pb-2">
                     <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-floppy-disk text-slate-500 mr-1"></i> 템플릿 로드 & 백업</h3>
@@ -151,6 +152,7 @@
                 </div>
             </div>
 
+            <!-- 대표자 선택 (이 선택에 따라 영수증 정보 자동 변경됨) -->
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">법인 및 대표자 선택</label>
                 <div class="grid grid-cols-2 gap-2">
@@ -170,16 +172,16 @@
             <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">서류 생성 모드</label>
                 <div class="grid grid-cols-2 gap-2">
-                    <!-- 🚨 [이슈 1 수정] 5종 -> 6종으로 통일 -->
-                    <button onclick="setMode('advance')" id="btn-advance" class="bg-blue-600 text-white font-bold py-2.5 rounded-lg border border-blue-600 transition shadow-sm">1. 선금 신청 (6종)</button>
-                    <button onclick="setMode('final')" id="btn-final" class="bg-white text-slate-600 font-bold py-2.5 rounded-lg border border-slate-300 hover:bg-slate-50 transition">2. 최종 정산 (3종)</button>
+                    <button onclick="setMode('advance')" id="btn-advance" class="bg-blue-600 text-white font-bold py-2.5 rounded-lg border border-blue-600 transition shadow-sm text-sm">1. 선금 신청 (6종)</button>
+                    <button onclick="setMode('final')" id="btn-final" class="bg-white text-slate-600 font-bold py-2.5 rounded-lg border border-slate-300 hover:bg-slate-50 transition text-sm">2. 최종 정산 (3종)</button>
+                    <button onclick="setMode('receipt')" id="btn-receipt" class="col-span-2 bg-white text-emerald-600 font-bold py-2.5 rounded-lg border border-emerald-300 hover:bg-emerald-50 transition text-sm">3. 대금 수령 영수증 (1종)</button>
                 </div>
             </div>
 
             <div class="space-y-4 border-t border-slate-200 pt-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">발주처 (학교/기관명)</label>
-                    <input type="text" id="in-school" value="정선고등학교" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" oninput="updateDoc()">
+                    <input type="text" id="in-school" value="문곡중학교" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" oninput="updateDoc()">
                 </div>
                 <div class="flex gap-2">
                     <div class="w-1/2">
@@ -188,22 +190,23 @@
                     </div>
                     <div class="w-1/2">
                         <label class="block text-xs font-bold text-slate-700 mb-1">상세주소</label>
-                        <input type="text" id="in-school-addr" value="정선읍 비봉로 39" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" oninput="updateDoc()">
+                        <input type="text" id="in-school-addr" value="남면 칠현로 46" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" oninput="updateDoc()">
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">계약 건명 (용역명)</label>
-                    <input type="text" id="in-title" value="제주도 현장체험학습" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" oninput="updateDoc()">
+                    <input type="text" id="in-title" value="2026학년도 문곡중학교 해외테마문화체험 학습 사전답사 위탁용역" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" oninput="updateDoc()">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">행사 일정</label>
-                    <input type="text" id="in-period" value="2025.10.13 ~ 10.16" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" oninput="updateDoc()">
+                    <input type="text" id="in-period" value="2026.03.19 ~ 03.22" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" oninput="updateDoc()">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">최초 총 계약 금액 (원)</label>
-                    <input type="text" id="in-total" value="38,636,530" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 font-bold" oninput="formatInputField(this); updateDoc()">
+                    <input type="text" id="in-total" value="3,982,850" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 font-bold" oninput="formatInputField(this); updateDoc()">
                 </div>
                 
+                <!-- 선금 입력부 -->
                 <div id="advance-inputs" class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">선금 청구 비율 (%)</label>
@@ -220,7 +223,6 @@
                     </div>
 
                     <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
-                        <!-- 🚨 [이슈 3 수정] 수동 덮어쓰기 방지 리셋 버튼 추가 -->
                         <label class="block text-xs font-bold text-slate-700 mb-2 flex justify-between items-center">
                             선금 사용계획 (수동 배분 가능)
                             <button onclick="resetPlan()" class="text-[10px] bg-slate-200 hover:bg-slate-300 px-2 py-0.5 rounded text-slate-600 font-normal transition print-hidden">비율 자동화 리셋</button>
@@ -240,11 +242,11 @@
                             </div>
                         </div>
                         <div id="advance-warning" class="hidden mt-3 p-2 bg-red-50 border border-red-200 rounded text-[11px] text-red-600 font-bold leading-relaxed">
-                            <!-- 경고 메시지 JS 주입 -->
                         </div>
                     </div>
                 </div>
 
+                <!-- 정산 입력부 -->
                 <div id="final-inputs" class="space-y-4 hidden">
                     <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
                         <label class="block text-[11px] font-bold text-indigo-800 mb-2"><i class="fa-solid fa-calculator"></i> 자동 정산 제어</label>
@@ -254,7 +256,16 @@
                             <input type="text" id="in-received-manual" placeholder="비워두면 최초계약액 기준 자동계산" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-indigo-500" oninput="formatInputField(this); triggerCalc()">
                         </div>
                     </div>
-                    <input type="hidden" id="in-settle" value="38636530">
+                    <input type="hidden" id="in-settle" value="3982850">
+                </div>
+
+                <!-- 영수증 입력부 -->
+                <div id="receipt-inputs" class="space-y-4 hidden">
+                    <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-200">
+                        <label class="block text-xs font-bold text-emerald-800 mb-1">영수증 발행 금액 지정 (원)</label>
+                        <input type="text" id="in-receipt-amount" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-emerald-500 font-bold" oninput="formatInputField(this); updateDoc()">
+                        <p class="text-[10px] text-emerald-700 mt-2 leading-tight">※ 입력하지 않으면 <b>최초 계약 금액</b>으로 자동 표시됩니다.<br>※ <b>선금/잔금 영수증</b>일 경우 해당 금액을 직접 입력하세요.</p>
+                    </div>
                 </div>
 
                 <div>
@@ -267,6 +278,7 @@
         <!-- 우측: A4 렌더링 패널 (출력부) -->
         <main class="flex-1 bg-[#e2e8f0] p-4 md:p-8 overflow-y-auto" id="doc-container">
             
+            <!-- 1. 선금 서류 모음 -->
             <div id="advance-docs">
                 <!-- 1. 선금 지급의뢰 공문 -->
                 <div class="a4-page flex flex-col justify-between">
@@ -287,7 +299,6 @@
 
                         <div class="text-[11pt] mb-12 pb-10">
                             <p class="font-bold mb-4">붙임</p>
-                            <!-- 🚨 [이슈 1 수정] 5종을 명확히 6종으로 분리 -->
                             <p class="ml-8 mb-2">1. 선금지급신청서 1부.</p>
                             <p class="ml-8 mb-2">2. 선금사용계획서 1부.</p>
                             <p class="ml-8 mb-2">3. 각서 1부.</p>
@@ -304,7 +315,7 @@
                         <div class="mt-12 text-[10pt] text-slate-600 border-t border-slate-300 pt-4">
                             <p>[연락처]</p>
                             <p>이메일: jmlojm@nate.com</p>
-                            <p>전화번호: 033-562-2551, 010-9443-7881</p>
+                            <p>전화번호: <span class="out-rep-phone"></span></p>
                             <p class="out-rep-addr"></p>
                         </div>
                     </div>
@@ -348,7 +359,7 @@
                             </tr>
                             <tr>
                                 <td class="py-3 font-bold">담당자 연락처</td>
-                                <td class="py-3"><span class="out-rep-name"></span> / 033-562-2551</td>
+                                <td class="py-3"><span class="out-rep-name"></span> / <span class="out-rep-phone"></span></td>
                             </tr>
                         </tbody>
                     </table>
@@ -492,14 +503,16 @@
                                 <div class="text-sm text-slate-600"><span class="out-school-city"></span> <span class="out-school-addr"></span></div>
                             </div>
                         </div>
-                        <!-- 발신 -->
+                        <!-- 발신 (주소/연락처 포함 완벽 구현) -->
                         <div class="w-[48%] flex h-full">
                             <div class="w-20 flex items-center justify-center font-bold border-l border-r border-slate-300 bg-slate-50">발 신</div>
-                            <div class="flex-1 pl-4 flex flex-col justify-center space-y-2">
+                            <div class="flex-1 pl-4 flex flex-col justify-center space-y-1 relative py-1">
                                 <div class="font-bold text-[12pt] out-rep-company"></div>
-                                <div class="font-bold text-[11pt] tracking-widest mt-1">
+                                <div class="text-[8.5pt] text-slate-600 leading-snug out-rep-addr"></div>
+                                <div class="text-[8.5pt] text-slate-600 out-rep-phone"></div>
+                                <div class="font-bold text-[11pt] tracking-widest mt-2">
                                     대 표 : <span class="out-rep-name"></span> 
-                                    <span class="relative inline-block ml-1 w-10 text-center">
+                                    <span class="relative inline-flex items-center justify-center ml-2 w-10 text-center">
                                         (인)
                                         <div class="stamp-box out-rep-stamp-box" style="left: 50%; top: 50%; transform: translate(-50%, -50%);">
                                             <img src="" class="stamp-img out-rep-stamp" alt="직인">
@@ -611,7 +624,7 @@
                         <div class="mt-12 text-[10pt] text-slate-600 border-t border-slate-300 pt-4">
                             <p>[연락처]</p>
                             <p>이메일: jmlojm@nate.com</p>
-                            <p>전화번호: 033-562-2551, 010-9443-7881</p>
+                            <p>전화번호: <span class="out-rep-phone"></span></p>
                             <p class="out-rep-addr"></p>
                         </div>
                     </div>
@@ -646,7 +659,7 @@
                             </tr>
                             <tr>
                                 <th class="border border-[#cbd5e1] bg-[#eef2f9] py-1 px-3 text-[#334155] font-bold">여행인원</th>
-                                <td class="border border-[#cbd5e1] px-3 font-bold text-slate-800" contenteditable="true">38명기준(학생 33+ 교사5)</td>
+                                <td class="border border-[#cbd5e1] px-3 font-bold text-slate-800" contenteditable="true">1명</td>
                             </tr>
                             <tr>
                                 <th class="border border-[#cbd5e1] bg-[#eef2f9] py-1 px-3 text-[#334155] font-bold">발송일자/환율</th>
@@ -673,9 +686,9 @@
                                 <tr class="item-row">
                                     <td contenteditable="true" class="bg-white item-name align-middle">에어부산</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">인천-오사카-인천</td>
-                                    <td contenteditable="true" class="col-qty bg-white">38</td>
+                                    <td contenteditable="true" class="col-qty bg-white">1</td>
                                     <td class="bg-slate-50 text-slate-400 text-[9px]">-</td>
-                                    <td contenteditable="true" class="col-krw bg-white">326,900</td>
+                                    <td contenteditable="true" class="col-krw bg-white">449,800</td>
                                     <td class="bg-white relative">
                                         <span class="font-bold col-sum text-right pr-1 block text-[8pt]"></span>
                                         <div class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>
@@ -696,11 +709,22 @@
                             <!-- 해외현지 발생경비 -->
                             <tbody id="tbody-local" class="editable-group">
                                 <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white item-name align-middle">호텔</td>
-                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">(2인실) 3박요금</td>
-                                    <td contenteditable="true" class="col-qty bg-white">20</td>
-                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">65,000</td>
-                                    <td contenteditable="true" class="col-krw bg-white">617,500</td>
+                                    <td contenteditable="true" class="bg-white item-name align-middle">호텔비</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">(1인실) 3박요금</td>
+                                    <td contenteditable="true" class="col-qty bg-white">1</td>
+                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">57,000</td>
+                                    <td contenteditable="true" class="col-krw bg-white">541,500</td>
+                                    <td class="bg-white relative">
+                                        <span class="font-bold col-sum text-right pr-1 block text-[8pt]"></span>
+                                        <div class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>
+                                    </td>
+                                </tr>
+                                <tr class="item-row">
+                                    <td contenteditable="true" class="bg-white item-name align-middle font-bold text-slate-700">전용차량</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">드라이빙가이드</td>
+                                    <td contenteditable="true" class="col-qty bg-white">1</td>
+                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">295,000</td>
+                                    <td contenteditable="true" class="col-krw bg-white">2,802,500</td>
                                     <td class="bg-white relative">
                                         <span class="font-bold col-sum text-right pr-1 block text-[8pt]"></span>
                                         <div class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>
@@ -708,10 +732,21 @@
                                 </tr>
                                 <tr class="item-row">
                                     <td contenteditable="true" class="bg-white item-name align-middle font-bold text-slate-700">식비</td>
-                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">중식/석식 등</td>
-                                    <td contenteditable="true" class="col-qty bg-white">38</td>
-                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">2,000</td>
-                                    <td contenteditable="true" class="col-krw bg-white">19,000</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">전일정 식대</td>
+                                    <td contenteditable="true" class="col-qty bg-white">1</td>
+                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">15,000</td>
+                                    <td contenteditable="true" class="col-krw bg-white">142,500</td>
+                                    <td class="bg-white relative">
+                                        <span class="font-bold col-sum text-right pr-1 block text-[8pt]"></span>
+                                        <div class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>
+                                    </td>
+                                </tr>
+                                <tr class="item-row">
+                                    <td contenteditable="true" class="bg-white item-name align-middle font-bold text-slate-700">입장료</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">청수사 외 관광지</td>
+                                    <td contenteditable="true" class="col-qty bg-white">1</td>
+                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">4,900</td>
+                                    <td contenteditable="true" class="col-krw bg-white">46,550</td>
                                     <td class="bg-white relative">
                                         <span class="font-bold col-sum text-right pr-1 block text-[8pt]"></span>
                                         <div class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>
@@ -732,22 +767,11 @@
                             <!-- 국내 발생비용 -->
                             <tbody id="tbody-domestic" class="editable-group">
                                 <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white item-name align-middle">여행자보험</td>
-                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">해외여행자보험 1억원</td>
-                                    <td contenteditable="true" class="col-qty bg-white">38</td>
-                                    <td class="bg-slate-50 text-slate-400 text-[9px]">-</td>
-                                    <td contenteditable="true" class="col-krw bg-white">5,000</td>
-                                    <td class="bg-white relative">
-                                        <span class="font-bold col-sum text-right pr-1 block text-[8pt]"></span>
-                                        <div class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>
-                                    </td>
-                                </tr>
-                                <tr class="item-row">
                                     <td contenteditable="true" class="bg-white item-name align-middle">알선수수료</td>
-                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">여행사 기획/운영 관리비</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">사전답사 기획/수배</td>
                                     <td contenteditable="true" class="col-qty bg-white">1</td>
                                     <td class="bg-slate-50 text-slate-400 text-[9px]">-</td>
-                                    <td contenteditable="true" class="col-krw bg-white">3,900,000</td>
+                                    <td contenteditable="true" class="col-krw bg-white">0</td>
                                     <td class="bg-white relative">
                                         <span class="font-bold col-sum text-right pr-1 block text-[8pt]"></span>
                                         <div class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>
@@ -792,7 +816,7 @@
                     </div>
                 </div>
 
-                <!-- 2-B. 🚨 [국내용 (내륙/제주)] 정산내역서 -->
+                <!-- 2-B. [국내용 (내륙/제주)] 정산내역서 -->
                 <div id="page-settle-domestic" class="a4-page hidden flex-col justify-between" style="min-height: 297mm;">
                     <div class="flex-1 flex flex-col">
                         <h1 class="text-[20pt] font-black text-center tracking-[1rem] mb-2">정 산 내 역 서</h1>
@@ -854,90 +878,6 @@
                                     </td>
                                     <td contenteditable="true" class="bg-white text-[7.5pt] align-middle px-1">별첨1</td>
                                 </tr>
-                                <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white col-cat align-middle font-bold text-slate-700">숙박료</td>
-                                    <td contenteditable="true" class="bg-white col-item align-middle text-left pl-2">서귀포 징크호텔</td>
-                                    <td contenteditable="true" class="bg-white text-left pl-2 col-desc">교사_3박요금</td>
-                                    <td contenteditable="true" class="col-qty bg-white">5</td>
-                                    <td contenteditable="true" class="col-krw bg-white">144,000</td>
-                                    <td class="bg-white relative">
-                                        <span class="font-bold col-sum text-right pr-1 block text-[8.5pt]">0</span>
-                                        <div class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>
-                                    </td>
-                                    <td contenteditable="true" class="bg-white text-[7.5pt] align-middle px-1"></td>
-                                </tr>
-                                <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white col-cat align-middle font-bold text-slate-700">차량비</td>
-                                    <td contenteditable="true" class="bg-white col-item align-middle text-left pl-2">제주 현지 대형버스</td>
-                                    <td contenteditable="true" class="bg-white text-left pl-2 col-desc">4일 사용</td>
-                                    <td contenteditable="true" class="col-qty bg-white">3</td>
-                                    <td contenteditable="true" class="col-krw bg-white">3,520,000</td>
-                                    <td class="bg-white relative">
-                                        <span class="font-bold col-sum text-right pr-1 block text-[8.5pt]">0</span>
-                                        <div class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>
-                                    </td>
-                                    <td contenteditable="true" class="bg-white text-[7.5pt] align-middle px-1">별첨2</td>
-                                </tr>
-                                <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white col-cat align-middle font-bold text-slate-700">식대료</td>
-                                    <td contenteditable="true" class="bg-white col-item align-middle text-left pl-2">전일정 식대(학생+교사)</td>
-                                    <td contenteditable="true" class="bg-white text-left pl-2 col-desc">1식당 평균단가</td>
-                                    <td contenteditable="true" class="col-qty bg-white">82</td>
-                                    <td contenteditable="true" class="col-krw bg-white">13,000</td>
-                                    <td class="bg-white relative">
-                                        <span class="font-bold col-sum text-right pr-1 block text-[8.5pt]">0</span>
-                                        <div class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>
-                                    </td>
-                                    <td contenteditable="true" class="bg-white text-[7.5pt] align-middle px-1">별첨3</td>
-                                </tr>
-                                <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white col-cat align-middle font-bold text-slate-700">관광지입장료</td>
-                                    <td contenteditable="true" class="bg-white col-item align-middle text-left pl-2">카멜리아힐</td>
-                                    <td contenteditable="true" class="bg-white text-left pl-2 col-desc">학생할인</td>
-                                    <td contenteditable="true" class="col-qty bg-white">77</td>
-                                    <td contenteditable="true" class="col-krw bg-white">7,000</td>
-                                    <td class="bg-white relative">
-                                        <span class="font-bold col-sum text-right pr-1 block text-[8.5pt]">0</span>
-                                        <div class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>
-                                    </td>
-                                    <td contenteditable="true" class="bg-white text-[7.5pt] align-middle px-1">별첨4</td>
-                                </tr>
-                                <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white col-cat align-middle font-bold text-slate-700">관광지입장료</td>
-                                    <td contenteditable="true" class="bg-white col-item align-middle text-left pl-2">에코랜드</td>
-                                    <td contenteditable="true" class="bg-white text-left pl-2 col-desc">학생할인</td>
-                                    <td contenteditable="true" class="col-qty bg-white">77</td>
-                                    <td contenteditable="true" class="col-krw bg-white">14,000</td>
-                                    <td class="bg-white relative">
-                                        <span class="font-bold col-sum text-right pr-1 block text-[8.5pt]">0</span>
-                                        <div class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>
-                                    </td>
-                                    <td contenteditable="true" class="bg-white text-[7.5pt] align-middle px-1"></td>
-                                </tr>
-                                <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white col-cat align-middle font-bold text-slate-700">보험료</td>
-                                    <td contenteditable="true" class="bg-white col-item align-middle text-left pl-2">여행자보험</td>
-                                    <td contenteditable="true" class="bg-white text-left pl-2 col-desc">가입 건당</td>
-                                    <td contenteditable="true" class="col-qty bg-white">1</td>
-                                    <td contenteditable="true" class="col-krw bg-white">297,730</td>
-                                    <td class="bg-white relative">
-                                        <span class="font-bold col-sum text-right pr-1 block text-[8.5pt]">0</span>
-                                        <div class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>
-                                    </td>
-                                    <td contenteditable="true" class="bg-white text-[7.5pt] align-middle px-1">별첨5</td>
-                                </tr>
-                                <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white col-cat align-middle font-bold text-slate-700">알선수수료</td>
-                                    <td contenteditable="true" class="bg-white col-item align-middle text-left pl-2">위탁알선수수료</td>
-                                    <td contenteditable="true" class="bg-white text-left pl-2 col-desc">기획 및 현장진행</td>
-                                    <td contenteditable="true" class="col-qty bg-white">1</td>
-                                    <td contenteditable="true" class="col-krw bg-white">3,000,000</td>
-                                    <td class="bg-white relative">
-                                        <span class="font-bold col-sum text-right pr-1 block text-[8.5pt]">0</span>
-                                        <div class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>
-                                    </td>
-                                    <td contenteditable="true" class="bg-white text-[7.5pt] align-middle px-1"></td>
-                                </tr>
                             </tbody>
                             <!-- 총 합계 -->
                             <tbody>
@@ -988,12 +928,14 @@
                                     <div class="text-sm text-slate-600"><span class="out-school-city"></span> <span class="out-school-addr"></span></div>
                                 </div>
                             </div>
-                            <!-- 발신 -->
+                            <!-- 발신 (주소/연락처 포함) -->
                             <div class="w-[48%] flex h-full">
                                 <div class="w-20 flex items-center justify-center font-bold border-l border-r border-slate-300 bg-slate-50">발 신</div>
-                                <div class="flex-1 pl-4 flex flex-col justify-center space-y-2 relative">
+                                <div class="flex-1 pl-4 flex flex-col justify-center space-y-1 relative py-1">
                                     <div class="font-bold text-[12pt] out-rep-company"></div>
-                                    <div class="font-bold text-[11pt] tracking-widest mt-1">
+                                    <div class="text-[8.5pt] text-slate-600 leading-snug out-rep-addr"></div>
+                                    <div class="text-[8.5pt] text-slate-600 out-rep-phone"></div>
+                                    <div class="font-bold text-[11pt] tracking-widest mt-2">
                                         대 표 : <span class="out-rep-name"></span> 
                                         <span class="relative inline-flex items-center justify-center ml-2 w-10 text-center">
                                             (인)
@@ -1032,6 +974,70 @@
                 </div>
             </div>
             
+            <!-- ========================================== -->
+            <!-- 3. 대금 수령 영수증 모음 (1종) -->
+            <!-- ========================================== -->
+            <div id="receipt-docs" class="hidden">
+                <div class="a4-page flex flex-col justify-between">
+                    <div>
+                        <h1 class="text-3xl font-black text-center mb-16 tracking-[1.5rem]">영 수 증</h1>
+                        
+                        <div class="flex mb-16 text-[11pt] font-bold justify-end pr-10">
+                            <div class="w-16">날 짜 :</div>
+                            <div class="out-date-korean-spaced"></div>
+                        </div>
+                        
+                        <div class="flex justify-between mb-16 text-[11pt] h-32 border-y-2 border-slate-800 py-4 px-2">
+                            <!-- 수신 -->
+                            <div class="w-[48%] flex h-full">
+                                <div class="w-20 flex items-center justify-center font-bold border-r border-slate-300">수 신</div>
+                                <div class="flex-1 pl-4 flex flex-col justify-center space-y-2">
+                                    <div class="font-bold text-[12pt]"><span class="out-school"></span> 담당자 귀하</div>
+                                    <div class="text-sm text-slate-600"><span class="out-school-city"></span> <span class="out-school-addr"></span></div>
+                                </div>
+                            </div>
+                            <!-- 발신 (주소/연락처 포함) -->
+                            <div class="w-[48%] flex h-full">
+                                <div class="w-20 flex items-center justify-center font-bold border-l border-r border-slate-300 bg-slate-50">발 신</div>
+                                <div class="flex-1 pl-4 flex flex-col justify-center space-y-1 relative py-1">
+                                    <div class="font-bold text-[12pt] out-rep-company"></div>
+                                    <div class="text-[8.5pt] text-slate-600 leading-snug out-rep-addr"></div>
+                                    <div class="text-[8.5pt] text-slate-600 out-rep-phone"></div>
+                                    <div class="font-bold text-[11pt] tracking-widest mt-2">
+                                        대 표 : <span class="out-rep-name"></span> 
+                                        <span class="relative inline-flex items-center justify-center ml-2 w-10 text-center">
+                                            (인)
+                                            <div class="stamp-box out-rep-stamp-box" style="left: 50%; top: 50%; transform: translate(-50%, -50%);">
+                                                <img src="" class="stamp-img out-rep-stamp" alt="직인">
+                                            </div>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4 text-[11pt] mb-12 border border-slate-300 p-6 rounded bg-slate-50">
+                            <div class="flex"><div class="w-32 font-bold">용 역 명</div><div class="w-4">:</div><div class="flex-1 font-bold out-title leading-tight pt-1"></div></div>
+                            <div class="flex mt-6"><div class="w-32 font-bold">영 수 금 액</div><div class="w-4">:</div><div class="flex-1 font-bold text-blue-700 text-lg">금 <span class="out-receipt-korean"></span>원 (₩<span class="out-receipt-num"></span>)</div></div>
+                        </div>
+
+                        <div class="text-[18pt] font-black mb-16 text-center text-slate-800 tracking-widest border-b-2 border-slate-800 pb-8 w-[80%] mx-auto">
+                            위 금액을 정히 영수함.
+                        </div>
+                        
+                        <div class="border border-slate-800 rounded-lg p-6 w-[85%] mx-auto relative bg-white mt-12">
+                            <div class="absolute -top-3 left-6 bg-white px-2 font-bold text-slate-600 text-sm">입금 계좌 정보 (Make All check payable to :)</div>
+                            <div class="space-y-4 text-[11pt]">
+                                <div class="flex"><div class="w-32 font-bold pl-4">은 행 명</div><div class="w-4">:</div><div class="flex-1 font-bold out-rep-bank"></div></div>
+                                <div class="flex"><div class="w-32 font-bold pl-4">계좌번호</div><div class="w-4">:</div><div class="flex-1 font-bold tracking-widest text-lg text-blue-700 out-rep-account"></div></div>
+                                <div class="flex"><div class="w-32 font-bold pl-4">예 금 주</div><div class="w-4">:</div><div class="flex-1 font-bold out-rep-holder"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" class="footer-logo" alt="Tourmaker Logo">
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -1045,7 +1051,8 @@
                 addr: '강원특별자치도 정선군 정선읍 봉양3길 22-10, 3층',
                 bank: '신협',
                 account: '131-022-382094',
-                holder: '주식회사 투어메이커'
+                holder: '주식회사 투어메이커',
+                phone: 'T. 033-562-2551 / M. 010-9443-7881'
             },
             heo: { 
                 name: '허 나 연', 
@@ -1054,12 +1061,13 @@
                 addr: '강원도 태백시 광장로 17, 2층',
                 bank: '카카오뱅크',
                 account: '3333-30-1606566',
-                holder: '허나연(투어메이커)'
+                holder: '허나연(투어메이커)',
+                phone: 'T. 033-562-2551 / M. 010-9443-7881'
             }
         };
         let currentRep = 'lee';
-        let currentTripType = 'overseas'; // 해외 모드 기본값
-        let isPlanManual = false; // 🚨 [이슈 3 수정] 수동 배분 덮어쓰기 방지 플래그
+        let currentTripType = 'overseas';
+        let isPlanManual = false; 
 
         function setRep(rep) {
             currentRep = rep;
@@ -1069,6 +1077,7 @@
             document.querySelectorAll('.out-rep-company').forEach(el => el.innerText = reps[rep].company);
             document.querySelectorAll('.out-rep-name').forEach(el => el.innerText = reps[rep].name);
             document.querySelectorAll('.out-rep-addr').forEach(el => el.innerHTML = reps[rep].addr.replace(', ', '<br>'));
+            document.querySelectorAll('.out-rep-phone').forEach(el => el.innerText = reps[rep].phone);
             document.querySelectorAll('.out-rep-bank').forEach(el => el.innerText = reps[rep].bank);
             document.querySelectorAll('.out-rep-account').forEach(el => el.innerText = reps[rep].account);
             document.querySelectorAll('.out-rep-holder').forEach(el => el.innerText = reps[rep].holder);
@@ -1115,7 +1124,6 @@
             }
         }
 
-        // 🚨 [이슈 5 수정] execCommand 대신 모던한 Selection API 적용하여 호환성 및 오염 방지
         document.addEventListener('paste', function(e) {
             const target = e.target;
             if (target.hasAttribute('contenteditable')) {
@@ -1129,12 +1137,10 @@
                 selection.getRangeAt(0).insertNode(document.createTextNode(text));
                 selection.collapseToEnd();
                 
-                // 이벤트 수동 트리거로 calcTable 연동 보장
                 target.dispatchEvent(new Event('input', { bubbles: true }));
             }
         });
 
-        // 해외용 행 추가
         function addRow(section) {
             const tbody = document.getElementById(`tbody-${section}`);
             const tr = document.createElement('tr');
@@ -1169,7 +1175,6 @@
             calcTable();
         }
 
-        // 국내용 행 추가
         function addRowDom() {
             const tbody = document.getElementById('tbody-dom-only');
             const tr = document.createElement('tr');
@@ -1212,7 +1217,6 @@
             calcTable();
         }
 
-        // 해외용 병합 로직
         function updateRowspans(section) {
             const tbody = document.getElementById(`tbody-${section}`);
             const rows = tbody.querySelectorAll('tr.item-row');
@@ -1271,7 +1275,6 @@
             });
         }
 
-        // 국내용(Jeju/Inland) '구분' 및 '항목' 병합 로직
         function updateRowspansDom() {
             const rows = document.querySelectorAll('#tbody-dom-only tr.item-row');
             let prevCatCell = null;
@@ -1282,7 +1285,6 @@
                 let itemCell = row.querySelector('.col-item');
 
                 let isSameCat = false;
-                // 1. 구분 열 병합
                 if (catCell) {
                     catCell.style.display = '';
                     catCell.rowSpan = 1;
@@ -1295,7 +1297,6 @@
                     }
                 }
 
-                // 2. 항목 열 병합 (구분이 병합된 상태에서만 항목 병합 허용)
                 if (itemCell) {
                     itemCell.style.display = '';
                     itemCell.rowSpan = 1;
@@ -1326,7 +1327,6 @@
         }
 
         function calcTable() {
-            // --- 1. 해외 결제액 산출 ---
             let totalFlight = 0, totalLocalKrw = 0, totalLocalForeign = 0, totalDomestic = 0;
 
             document.querySelectorAll('#tbody-flight tr.item-row').forEach(row => {
@@ -1370,7 +1370,6 @@
             let grandTotalOverseas = totalFlight + totalLocalKrw + totalDomestic;
             document.getElementById('grand-total-exact').innerText = formatNum(grandTotalOverseas);
 
-            // --- 2. 국내 전용 결제액 산출 ---
             let grandTotalDom = 0;
             document.querySelectorAll('#tbody-dom-only tr.item-row').forEach(row => {
                 let qty = parseNum(row.querySelector('.col-qty').innerText);
@@ -1382,8 +1381,6 @@
             const domExactEl = document.getElementById('grand-total-dom-exact');
             if (domExactEl) domExactEl.innerText = formatNum(grandTotalDom);
 
-
-            // --- 3. 최종 청구 기준금액 판단 ---
             let activeGrandTotal = currentTripType === 'overseas' ? grandTotalOverseas : grandTotalDom;
             let settle = activeGrandTotal; 
             
@@ -1411,9 +1408,9 @@
             if (inSettleEl) inSettleEl.value = settle;
 
             updateFinalSettlementValues(settle);
+            updateDoc(); // Recalculate receipt
         }
 
-        // 🚨 [이슈 4 수정] 음수(마이너스) 최종 청구액일 경우 환급/차감 형태로 표시
         function updateFinalSettlementValues(settle) {
             const total = parseNum(document.getElementById('in-total').value);
             
@@ -1438,21 +1435,17 @@
             document.querySelectorAll('.out-advance-korean').forEach(el => el.innerText = numberToKorean(advanceAmount));
             
             if (finalClaim < 0) {
-                // 선금을 과다 수령하여 환급이 필요한 경우
                 document.querySelectorAll('.out-final-num').forEach(el => el.innerText = "(-) " + formatNum(Math.abs(finalClaim)));
                 document.querySelectorAll('.out-final-korean').forEach(el => el.innerText = "(환급) " + numberToKorean(Math.abs(finalClaim)));
             } else if (finalClaim === 0) {
-                // 정산 후 청구액 0원
                 document.querySelectorAll('.out-final-num').forEach(el => el.innerText = '0');
                 document.querySelectorAll('.out-final-korean').forEach(el => el.innerText = '영');
             } else {
-                // 일반적인 잔금 청구
                 document.querySelectorAll('.out-final-num').forEach(el => el.innerText = formatNum(finalClaim));
                 document.querySelectorAll('.out-final-korean').forEach(el => el.innerText = numberToKorean(finalClaim));
             }
         }
 
-        // 셀 내용 동기화(병합 유지용)
         document.getElementById('doc-container').addEventListener('input', function(e) {
             if(e.target.hasAttribute('contenteditable')) calcTable();
             
@@ -1494,7 +1487,6 @@
             }
         }, true);
 
-        // 🚨 [이슈 2 수정] 한글 금액 변환 관용구 보정 (십, 백, 천 앞의 불필요한 '일' 제거 및 자연스러운 단위 표현 적용)
         function numberToKorean(number) {
             if (!number || number === 0) return '영';
             const numStr = String(number);
@@ -1516,14 +1508,12 @@
                 }
                 result += str;
             }
-            // 문서 품질을 위해 맨 앞의 "일만"을 "만"으로 교정
             if (result.startsWith("일만")) result = result.replace("일만", "만");
             return result;
         }
 
         function triggerCalc() { calcTable(); }
 
-        // 🚨 [이슈 3 수정] 수동 배분 입력 시 자동 계산 정지 처리
         function resetPlan() {
             isPlanManual = false;
             updateDoc();
@@ -1604,7 +1594,6 @@
                 document.querySelectorAll('.out-doc-year').forEach(el => el.innerText = yyyy);
             }
 
-            // 🚨 [이슈 3 수정] 수동 조작된 경우 덮어쓰기 방지
             if(!isPlanManual && document.activeElement.id !== 'in-rate-custom') {
                 const flight = Math.floor(advanceAmount * 0.417);
                 const hotel = Math.floor(advanceAmount * 0.404);
@@ -1615,11 +1604,16 @@
                 if (document.getElementById('in-bus')) document.getElementById('in-bus').value = formatNum(bus);
             }
 
+            // 💡 영수증 금액 계산 로직 추가
+            let receiptAmtStr = document.getElementById('in-receipt-amount').value;
+            let receiptAmount = receiptAmtStr ? parseNum(receiptAmtStr) : total;
+
+            document.querySelectorAll('.out-receipt-num').forEach(el => el.innerText = formatNum(receiptAmount));
+            document.querySelectorAll('.out-receipt-korean').forEach(el => el.innerText = numberToKorean(receiptAmount));
+
             updateCustomPlanValidation();
-            calcTable();
         }
 
-        // --- 템플릿 관리 ---
         const STORAGE_KEY = 'tourmaker_backoffice_templates';
         function getTemplates() { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
         function saveTemplate() {
@@ -1646,6 +1640,7 @@
                 date: document.getElementById('in-date').value,
                 settle: settleEl ? settleEl.value : '',
                 manualReceived: manualReceived ? parseNum(manualReceived) : '',
+                receiptAmount: document.getElementById('in-receipt-amount') ? parseNum(document.getElementById('in-receipt-amount').value) : '',
                 showAdjustment: adjustmentRow ? adjustmentRow.style.display !== 'none' : true,
                 manualSettleInput: document.getElementById('manual-settle-input') ? document.getElementById('manual-settle-input').innerText : '',
                 
@@ -1690,6 +1685,7 @@
                 if (document.getElementById('in-bus')) document.getElementById('in-bus').value = formatNum(data.bus || 0);
                 
                 document.getElementById('in-received-manual').value = data.manualReceived ? formatNum(data.manualReceived) : '';
+                if (document.getElementById('in-receipt-amount')) document.getElementById('in-receipt-amount').value = data.receiptAmount ? formatNum(data.receiptAmount) : '';
 
                 if(data.currencyCode && document.getElementById('currency-code')) document.getElementById('currency-code').innerText = data.currencyCode;
                 if(data.tblFlight) document.getElementById('tbody-flight').innerHTML = data.tblFlight;
@@ -1699,7 +1695,7 @@
 
                 if(data.rep) setRep(data.rep);
                 if(data.tripType) setTripType(data.tripType);
-                else setTripType('overseas'); // 구버전 호환성
+                else setTripType('overseas'); 
                 
                 if (data.showAdjustment === false) toggleAdjustmentRow(false);
                 else {
@@ -1717,7 +1713,6 @@
                     }
                 }
                 
-                // 불러올 때 사용자가 이전에 저장한 비율은 수동배분으로 취급하여 오작동 방지
                 isPlanManual = true;
 
                 updateRowspans('flight');
@@ -1802,33 +1797,39 @@
             updateRowspansDom();
             
             setMode('advance');
-            setTripType('domestic'); // 현재 기본 포커스(제주)를 확인하기 위해 국내세팅
+            setTripType('overseas'); 
             updateDoc(); 
         });
 
+        // 💡 3가지 모드로 분기 (선금, 정산, 영수증)
         function setMode(mode) {
             const btnAdv = document.getElementById('btn-advance');
             const btnFin = document.getElementById('btn-final');
+            const btnRec = document.getElementById('btn-receipt');
+            
             const advInputs = document.getElementById('advance-inputs');
             const finInputs = document.getElementById('final-inputs');
+            const recInputs = document.getElementById('receipt-inputs');
+            
             const advDocs = document.getElementById('advance-docs');
             const finDocs = document.getElementById('final-docs');
+            const recDocs = document.getElementById('receipt-docs');
 
-            if(mode === 'advance') {
-                btnAdv.className = 'bg-blue-600 text-white font-bold py-2.5 rounded-lg border border-blue-600 transition shadow-sm';
-                btnFin.className = 'bg-white text-slate-600 font-bold py-2.5 rounded-lg border border-slate-300 hover:bg-slate-50 transition';
-                advInputs.classList.remove('hidden');
-                finInputs.classList.add('hidden');
-                advDocs.classList.remove('hidden');
-                finDocs.classList.add('hidden');
-            } else {
-                btnFin.className = 'bg-blue-600 text-white font-bold py-2.5 rounded-lg border border-blue-600 transition shadow-sm';
-                btnAdv.className = 'bg-white text-slate-600 font-bold py-2.5 rounded-lg border border-slate-300 hover:bg-slate-50 transition';
-                advInputs.classList.add('hidden');
-                finInputs.classList.remove('hidden');
-                advDocs.classList.add('hidden');
-                finDocs.classList.remove('hidden');
-            }
+            const inactiveBtn = 'bg-white text-slate-600 font-bold py-2.5 rounded-lg border border-slate-300 hover:bg-slate-50 transition text-sm';
+            const activeBtnBase = 'text-white font-bold py-2.5 rounded-lg border transition shadow-sm text-sm ';
+
+            btnAdv.className = mode === 'advance' ? activeBtnBase + 'bg-blue-600 border-blue-600' : inactiveBtn;
+            btnFin.className = mode === 'final' ? activeBtnBase + 'bg-blue-600 border-blue-600' : inactiveBtn;
+            btnRec.className = mode === 'receipt' ? activeBtnBase + 'bg-emerald-600 border-emerald-600 col-span-2' : inactiveBtn + ' col-span-2';
+
+            advInputs.classList.toggle('hidden', mode !== 'advance');
+            finInputs.classList.toggle('hidden', mode !== 'final');
+            recInputs.classList.toggle('hidden', mode !== 'receipt');
+
+            advDocs.classList.toggle('hidden', mode !== 'advance');
+            finDocs.classList.toggle('hidden', mode !== 'final');
+            recDocs.classList.toggle('hidden', mode !== 'receipt');
+            
             updateDoc();
         }
 
