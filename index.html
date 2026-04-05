@@ -319,7 +319,7 @@
                         <p class="text-[10px] text-indigo-600 mb-2">※ 우측 화면의 [정산내역서] 표에서 숫자와 내용을 직접 입력하시면 청구서 잔금까지 <b>모두 자동 연산</b>됩니다.</p>
                         <div class="mt-2 border-t border-indigo-200 pt-2">
                             <label class="block text-[10px] font-bold text-slate-600 mb-1">기 수령 선금액 수동 보정 (선택)</label>
-                            <input type="text" id="in-received-manual" placeholder="비워두면 최초계약액 기준 자동계산" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-indigo-500" oninput="formatInputField(this); triggerCalc()">
+                            <input type="text" id="in-received-manual" placeholder="비워두면 최초계약액 기준 자동계산" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-indigo-500" oninput="formatInputField(this); updateDoc()">
                         </div>
                     </div>
                     <input type="hidden" id="in-settle" value="3982850">
@@ -1300,7 +1300,7 @@
                                         최종 청구 (정산) 금액 <span class="text-[8px] font-normal text-slate-500 ml-2">백단위 절사 등 조정액</span>
                                     </td>
                                     <td colspan="2" class="py-2.5 font-black text-red-600 tracking-widest text-right pr-6 bg-yellow-50 text-[11pt] relative border-l-0">
-                                        ₩ <span class="out-settle-num" contenteditable="true" id="manual-settle-input"></span>
+                                        ₩ <span class="out-settle-num" contenteditable="true" id="manual-settle-input" data-manual="false" oninput="this.dataset.manual='true';"></span>
                                         <button onclick="toggleAdjustmentRow(false)" class="absolute right-1 top-1/2 -translate-y-1/2 text-red-400 hover:text-red-600 print-hidden" title="이 행 삭제하기"><i class="fa-solid fa-xmark"></i></button>
                                     </td>
                                 </tr>
@@ -1393,7 +1393,7 @@
                                         최종 청구 (정산) 금액 <span class="text-[8px] font-normal text-slate-500 ml-2">백단위 절사 등 조정액</span>
                                     </td>
                                     <td colspan="2" class="py-2.5 font-black text-red-600 tracking-widest text-right pr-6 bg-yellow-50 text-[11pt] relative border-l-0">
-                                        ₩ <span class="out-settle-num" contenteditable="true" id="manual-settle-input-dom"></span>
+                                        ₩ <span class="out-settle-num" contenteditable="true" id="manual-settle-input-dom" data-manual="false" oninput="this.dataset.manual='true';"></span>
                                         <button onclick="toggleAdjustmentRowDom(false)" class="absolute right-1 top-1/2 -translate-y-1/2 text-red-400 hover:text-red-600 print-hidden" title="이 행 삭제하기"><i class="fa-solid fa-xmark"></i></button>
                                     </td>
                                 </tr>
@@ -1451,7 +1451,7 @@
                         <div class="space-y-4 text-[11pt] mb-12 border border-slate-300 p-6 rounded bg-slate-50">
                             <div class="flex"><div class="w-32 font-bold">용 역 명</div><div class="w-4">:</div><div class="flex-1 font-bold out-title leading-tight pt-1"></div></div>
                             <div class="flex mt-6"><div class="w-32">최초 계약금액</div><div class="w-4">:</div><div class="flex-1 text-slate-600">금 <span class="out-total-korean"></span>원 (₩<span class="out-total-num"></span>)</div></div>
-                            <div class="flex"><div class="w-32 font-bold">최종 정산금액</div><div class="w-4">:</div><div class="flex-1 font-bold text-slate-800">금 <span class="out-settle-korean"></span>원 (₩<span class="out-settle-num"></span>)</div></div>
+                            <div class="flex"><div class="w-32 font-bold">최종 정산(계약)금액</div><div class="w-4">:</div><div class="flex-1 font-bold text-slate-800">금 <span class="out-settle-korean"></span>원 (₩<span class="out-settle-num"></span>)</div></div>
                             <div class="flex"><div class="w-32 text-blue-700">기수령 선금액</div><div class="w-4 text-blue-700">:</div><div class="flex-1 text-blue-700 font-bold">- 금 <span class="out-advance-korean"></span>원 (₩<span class="out-advance-num"></span>)</div></div>
                         </div>
                         
@@ -1518,7 +1518,9 @@
                         
                         <div class="space-y-4 text-[11pt] mb-12 border border-slate-300 p-6 rounded bg-slate-50">
                             <div class="flex"><div class="w-32 font-bold">용 역 명</div><div class="w-4">:</div><div class="flex-1 font-bold out-title leading-tight pt-1"></div></div>
-                            <div class="flex mt-6"><div class="w-32 font-bold">영 수 금 액</div><div class="w-4">:</div><div class="flex-1 font-bold text-blue-700 text-lg">금 <span class="out-receipt-korean"></span>원 (₩<span class="out-receipt-num"></span>)</div></div>
+                            <div class="flex mt-6"><div class="w-32">최초 계약금액</div><div class="w-4">:</div><div class="flex-1 text-slate-600">금 <span class="out-total-korean"></span>원 (₩<span class="out-total-num"></span>)</div></div>
+                            <div class="flex"><div class="w-32 font-bold">최종 정산(계약)금액</div><div class="w-4">:</div><div class="flex-1 font-bold text-slate-800">금 <span class="out-settle-korean"></span>원 (₩<span class="out-settle-num"></span>)</div></div>
+                            <div class="flex"><div class="w-32 text-blue-700">기수령 선금액</div><div class="w-4 text-blue-700">:</div><div class="flex-1 text-blue-700 font-bold">- 금 <span class="out-advance-korean"></span>원 (₩<span class="out-advance-num"></span>)</div></div>
                         </div>
 
                         <div class="text-[18pt] font-black mb-16 text-center text-slate-800 tracking-widest border-b-2 border-slate-800 pb-8 w-[80%] mx-auto">
@@ -1834,16 +1836,32 @@
         function toggleAdjustmentRow(show) {
             const row = document.getElementById('row-adjustment');
             const manualInput = document.getElementById('manual-settle-input');
-            if (show) row.style.display = 'table-row';
-            else { row.style.display = 'none'; manualInput.innerText = ''; }
+            if (show) {
+                row.style.display = 'table-row';
+                if (manualInput) manualInput.dataset.manual = 'false';
+            } else { 
+                row.style.display = 'none'; 
+                if (manualInput) {
+                    manualInput.innerText = ''; 
+                    manualInput.dataset.manual = 'false';
+                }
+            }
             calcTable();
         }
 
         function toggleAdjustmentRowDom(show) {
             const row = document.getElementById('row-adjustment-dom');
             const manualInput = document.getElementById('manual-settle-input-dom');
-            if (show) row.style.display = 'table-row';
-            else { row.style.display = 'none'; manualInput.innerText = ''; }
+            if (show) {
+                row.style.display = 'table-row';
+                if (manualInput) manualInput.dataset.manual = 'false';
+            } else { 
+                row.style.display = 'none'; 
+                if (manualInput) {
+                    manualInput.innerText = ''; 
+                    manualInput.dataset.manual = 'false';
+                }
+            }
             calcTable();
         }
 
@@ -1912,20 +1930,36 @@
             if (currentTripType === 'overseas') {
                 const manualInputEl = document.getElementById('manual-settle-input');
                 const rowAdjustment = document.getElementById('row-adjustment');
-                if (rowAdjustment && rowAdjustment.style.display !== 'none' && manualInputEl && manualInputEl.innerText.trim() !== '') {
+                if (rowAdjustment && rowAdjustment.style.display !== 'none' && manualInputEl && manualInputEl.dataset.manual === 'true' && manualInputEl.innerText.trim() !== '') {
                     const parsedManual = parseNum(manualInputEl.innerText);
                     if (parsedManual > 0) settle = parsedManual; 
+                    else {
+                        settle = activeGrandTotal;
+                        manualInputEl.dataset.manual = 'false';
+                        manualInputEl.innerText = formatNum(settle);
+                    }
                 } else {
-                    if (manualInputEl) manualInputEl.innerText = formatNum(activeGrandTotal); 
+                    if (manualInputEl) {
+                        manualInputEl.dataset.manual = 'false';
+                        manualInputEl.innerText = formatNum(activeGrandTotal); 
+                    }
                 }
             } else {
                 const manualInputDomEl = document.getElementById('manual-settle-input-dom');
                 const rowAdjustmentDom = document.getElementById('row-adjustment-dom');
-                if (rowAdjustmentDom && rowAdjustmentDom.style.display !== 'none' && manualInputDomEl && manualInputDomEl.innerText.trim() !== '') {
+                if (rowAdjustmentDom && rowAdjustmentDom.style.display !== 'none' && manualInputDomEl && manualInputDomEl.dataset.manual === 'true' && manualInputDomEl.innerText.trim() !== '') {
                     const parsedManual = parseNum(manualInputDomEl.innerText);
                     if (parsedManual > 0) settle = parsedManual; 
+                    else {
+                        settle = activeGrandTotal;
+                        manualInputDomEl.dataset.manual = 'false';
+                        manualInputDomEl.innerText = formatNum(settle);
+                    }
                 } else {
-                    if (manualInputDomEl) manualInputDomEl.innerText = formatNum(activeGrandTotal); 
+                    if (manualInputDomEl) {
+                        manualInputDomEl.dataset.manual = 'false';
+                        manualInputDomEl.innerText = formatNum(activeGrandTotal); 
+                    }
                 }
             }
 
@@ -1933,7 +1967,6 @@
             if (inSettleEl) inSettleEl.value = settle;
 
             updateFinalSettlementValues(settle);
-            updateDoc(); // Recalculate receipt
         }
 
         function updateFinalSettlementValues(settle) {
@@ -1998,7 +2031,18 @@
                 });
 
                 docContainer.addEventListener('blur', function(e) {
-                    if(e.target.classList.contains('col-qty') || e.target.classList.contains('col-foreign') || e.target.classList.contains('col-krw') || e.target.id === 'manual-settle-input' || e.target.id === 'manual-settle-input-dom') {
+                    if(e.target.classList.contains('col-qty') || e.target.classList.contains('col-foreign') || e.target.classList.contains('col-krw')) {
+                        let val = parseNum(e.target.innerText);
+                        e.target.innerText = val > 0 ? formatNum(val) : '';
+                        calcTable();
+                    }
+
+                    if (e.target.id === 'manual-settle-input' || e.target.id === 'manual-settle-input-dom') {
+                        if (e.target.innerText.trim() === '') {
+                            e.target.dataset.manual = 'false';
+                        } else {
+                            e.target.dataset.manual = 'true';
+                        }
                         let val = parseNum(e.target.innerText);
                         e.target.innerText = val > 0 ? formatNum(val) : '';
                         calcTable();
@@ -2056,7 +2100,9 @@
             if (rateVal === 'custom') rate = parseFloat(document.getElementById('in-rate-custom').value) || 0;
             else rate = parseFloat(rateVal) || 50;
             
-            const advanceAmount = Math.floor(total * (rate / 100));
+            let manualAdvance = document.getElementById('in-received-manual') ? document.getElementById('in-received-manual').value : '';
+            let advanceAmount = manualAdvance !== "" ? parseNum(manualAdvance) : Math.floor(total * (rate / 100));
+
             const flight = parseNum(document.getElementById('in-flight').value);
             const hotel = parseNum(document.getElementById('in-hotel').value);
             const bus = parseNum(document.getElementById('in-bus').value);
@@ -2113,7 +2159,8 @@
                 document.getElementById('in-rate-custom').classList.add('hidden');
             }
 
-            const advanceAmount = Math.floor(total * (rate / 100));
+            let manualAdvance = document.getElementById('in-received-manual') ? document.getElementById('in-received-manual').value : '';
+            const advanceAmount = manualAdvance !== "" ? parseNum(manualAdvance) : Math.floor(total * (rate / 100));
 
             document.querySelectorAll('.out-school').forEach(el => el.innerText = school);
             document.querySelectorAll('.out-school-dept').forEach(el => el.innerText = schoolDept);
@@ -2168,6 +2215,11 @@
             document.querySelectorAll('.out-receipt-korean').forEach(el => el.innerText = numberToKorean(receiptAmount));
 
             updateCustomPlanValidation();
+            
+            // 최종 정산금액 연동을 위해 문서 업데이트 시 테이블 계산도 함께 트리거
+            if (typeof calcTable === 'function') {
+                calcTable();
+            }
         }
 
         const STORAGE_KEY = 'tourmaker_backoffice_templates';
@@ -2181,6 +2233,9 @@
             const adjustmentRow = document.getElementById('row-adjustment');
             const adjustmentRowDom = document.getElementById('row-adjustment-dom');
             const showStamp = document.getElementById('toggle-stamp-chk').checked;
+
+            const manualInputEl = document.getElementById('manual-settle-input');
+            const manualInputDomEl = document.getElementById('manual-settle-input-dom');
 
             const data = {
                 school: document.getElementById('in-school').value,
@@ -2207,11 +2262,14 @@
                 settle: settleEl ? settleEl.value : '',
                 manualReceived: manualReceived ? parseNum(manualReceived) : '',
                 receiptAmount: document.getElementById('in-receipt-amount') ? parseNum(document.getElementById('in-receipt-amount').value) : '',
+                
                 showAdjustment: adjustmentRow ? adjustmentRow.style.display !== 'none' : true,
-                manualSettleInput: document.getElementById('manual-settle-input') ? document.getElementById('manual-settle-input').innerText : '',
+                manualSettleInput: manualInputEl ? manualInputEl.innerText : '',
+                isManual: manualInputEl ? (manualInputEl.dataset.manual === 'true') : false,
                 
                 showAdjustmentDom: adjustmentRowDom ? adjustmentRowDom.style.display !== 'none' : true,
-                manualSettleInputDom: document.getElementById('manual-settle-input-dom') ? document.getElementById('manual-settle-input-dom').innerText : '',
+                manualSettleInputDom: manualInputDomEl ? manualInputDomEl.innerText : '',
+                isManualDom: manualInputDomEl ? (manualInputDomEl.dataset.manual === 'true') : false,
                 
                 rep: currentRep,
                 tripType: currentTripType,
@@ -2282,6 +2340,7 @@
                     toggleAdjustmentRow(true);
                     if (document.getElementById('manual-settle-input') && data.manualSettleInput) {
                         document.getElementById('manual-settle-input').innerText = data.manualSettleInput;
+                        document.getElementById('manual-settle-input').dataset.manual = data.isManual ? 'true' : 'false';
                     }
                 }
 
@@ -2290,6 +2349,7 @@
                     toggleAdjustmentRowDom(true);
                     if (document.getElementById('manual-settle-input-dom') && data.manualSettleInputDom) {
                         document.getElementById('manual-settle-input-dom').innerText = data.manualSettleInputDom;
+                        document.getElementById('manual-settle-input-dom').dataset.manual = data.isManualDom ? 'true' : 'false';
                     }
                 }
                 
