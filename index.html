@@ -1518,9 +1518,7 @@
                         
                         <div class="space-y-4 text-[11pt] mb-12 border border-slate-300 p-6 rounded bg-slate-50">
                             <div class="flex"><div class="w-32 font-bold">용 역 명</div><div class="w-4">:</div><div class="flex-1 font-bold out-title leading-tight pt-1"></div></div>
-                            <div class="flex mt-6"><div class="w-32">최초 계약금액</div><div class="w-4">:</div><div class="flex-1 text-slate-600">금 <span class="out-total-korean"></span>원 (₩<span class="out-total-num"></span>)</div></div>
-                            <div class="flex"><div class="w-32 font-bold">최종 정산(계약)금액</div><div class="w-4">:</div><div class="flex-1 font-bold text-slate-800">금 <span class="out-settle-korean"></span>원 (₩<span class="out-settle-num"></span>)</div></div>
-                            <div class="flex"><div class="w-32 text-blue-700">기수령 선금액</div><div class="w-4 text-blue-700">:</div><div class="flex-1 text-blue-700 font-bold">- 금 <span class="out-received-advance-korean"></span>원 (₩<span class="out-received-advance-num"></span>)</div></div>
+                            <div class="flex mt-6"><div class="w-32 font-bold">영 수 금 액</div><div class="w-4">:</div><div class="flex-1 font-bold text-blue-700 text-lg">금 <span class="out-receipt-korean"></span>원 (₩<span class="out-receipt-num"></span>)</div></div>
                         </div>
 
                         <div class="text-[18pt] font-black mb-16 text-center text-slate-800 tracking-widest border-b-2 border-slate-800 pb-8 w-[80%] mx-auto">
@@ -1623,7 +1621,7 @@
         
         function parseNum(str) {
             if(!str) return 0;
-            return parseInt(str.toString().replace(/,/g, '')) || 0;
+            return parseInt(str.toString().replace(/[^0-9-]/g, '')) || 0; // 마이너스(-) 입력 허용
         }
 
         function formatNum(num) {
@@ -1632,7 +1630,8 @@
         }
 
         function formatInputField(input) {
-            let val = input.value.replace(/[^0-9]/g, '');
+            let val = input.value.replace(/[^0-9-]/g, ''); // 마이너스(-) 입력 허용
+            if (val === '-') return; // '-' 기호만 입력된 상태 허용
             if (val) {
                 input.value = new Intl.NumberFormat('ko-KR').format(parseInt(val, 10));
             } else {
@@ -1932,7 +1931,7 @@
                 const rowAdjustment = document.getElementById('row-adjustment');
                 if (rowAdjustment && rowAdjustment.style.display !== 'none' && manualInputEl && manualInputEl.dataset.manual === 'true' && manualInputEl.innerText.trim() !== '') {
                     const parsedManual = parseNum(manualInputEl.innerText);
-                    if (parsedManual > 0) settle = parsedManual; 
+                    if (parsedManual !== 0) settle = parsedManual; 
                     else {
                         settle = activeGrandTotal;
                         manualInputEl.dataset.manual = 'false';
@@ -1949,7 +1948,7 @@
                 const rowAdjustmentDom = document.getElementById('row-adjustment-dom');
                 if (rowAdjustmentDom && rowAdjustmentDom.style.display !== 'none' && manualInputDomEl && manualInputDomEl.dataset.manual === 'true' && manualInputDomEl.innerText.trim() !== '') {
                     const parsedManual = parseNum(manualInputDomEl.innerText);
-                    if (parsedManual > 0) settle = parsedManual; 
+                    if (parsedManual !== 0) settle = parsedManual; 
                     else {
                         settle = activeGrandTotal;
                         manualInputDomEl.dataset.manual = 'false';
@@ -2037,19 +2036,23 @@
 
                 docContainer.addEventListener('blur', function(e) {
                     if(e.target.classList.contains('col-qty') || e.target.classList.contains('col-foreign') || e.target.classList.contains('col-krw')) {
-                        let val = parseNum(e.target.innerText);
-                        e.target.innerText = val > 0 ? formatNum(val) : '';
+                        let text = e.target.innerText.trim();
+                        if(text !== '') {
+                            let val = parseNum(text);
+                            e.target.innerText = val !== 0 ? formatNum(val) : '0';
+                        }
                         calcTable();
                     }
 
                     if (e.target.id === 'manual-settle-input' || e.target.id === 'manual-settle-input-dom') {
-                        if (e.target.innerText.trim() === '') {
+                        let text = e.target.innerText.trim();
+                        if (text === '') {
                             e.target.dataset.manual = 'false';
                         } else {
                             e.target.dataset.manual = 'true';
+                            let val = parseNum(text);
+                            e.target.innerText = formatNum(val);
                         }
-                        let val = parseNum(e.target.innerText);
-                        e.target.innerText = val > 0 ? formatNum(val) : '';
                         calcTable();
                     }
                     
@@ -2347,7 +2350,7 @@
                 if (data.showAdjustment === false) toggleAdjustmentRow(false);
                 else {
                     toggleAdjustmentRow(true);
-                    if (document.getElementById('manual-settle-input') && data.manualSettleInput) {
+                    if (document.getElementById('manual-settle-input') && data.manualSettleInput !== undefined) {
                         document.getElementById('manual-settle-input').innerText = data.manualSettleInput;
                         document.getElementById('manual-settle-input').dataset.manual = data.isManual ? 'true' : 'false';
                     }
@@ -2356,7 +2359,7 @@
                 if (data.showAdjustmentDom === false) toggleAdjustmentRowDom(false);
                 else {
                     toggleAdjustmentRowDom(true);
-                    if (document.getElementById('manual-settle-input-dom') && data.manualSettleInputDom) {
+                    if (document.getElementById('manual-settle-input-dom') && data.manualSettleInputDom !== undefined) {
                         document.getElementById('manual-settle-input-dom').innerText = data.manualSettleInputDom;
                         document.getElementById('manual-settle-input-dom').dataset.manual = data.isManualDom ? 'true' : 'false';
                     }
