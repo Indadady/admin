@@ -1452,7 +1452,7 @@
                             <div class="flex"><div class="w-32 font-bold">용 역 명</div><div class="w-4">:</div><div class="flex-1 font-bold out-title leading-tight pt-1"></div></div>
                             <div class="flex mt-6"><div class="w-32">최초 계약금액</div><div class="w-4">:</div><div class="flex-1 text-slate-600">금 <span class="out-total-korean"></span>원 (₩<span class="out-total-num"></span>)</div></div>
                             <div class="flex"><div class="w-32 font-bold">최종 정산(계약)금액</div><div class="w-4">:</div><div class="flex-1 font-bold text-slate-800">금 <span class="out-settle-korean"></span>원 (₩<span class="out-settle-num"></span>)</div></div>
-                            <div class="flex"><div class="w-32 text-blue-700">기수령 선금액</div><div class="w-4 text-blue-700">:</div><div class="flex-1 text-blue-700 font-bold">- 금 <span class="out-advance-korean"></span>원 (₩<span class="out-advance-num"></span>)</div></div>
+                            <div class="flex"><div class="w-32 text-blue-700">기수령 선금액</div><div class="w-4 text-blue-700">:</div><div class="flex-1 text-blue-700 font-bold">- 금 <span class="out-received-advance-korean"></span>원 (₩<span class="out-received-advance-num"></span>)</div></div>
                         </div>
                         
                         <div class="flex text-[12pt] font-bold mb-12 bg-indigo-50 p-5 border border-indigo-200 rounded-lg items-center">
@@ -1520,7 +1520,7 @@
                             <div class="flex"><div class="w-32 font-bold">용 역 명</div><div class="w-4">:</div><div class="flex-1 font-bold out-title leading-tight pt-1"></div></div>
                             <div class="flex mt-6"><div class="w-32">최초 계약금액</div><div class="w-4">:</div><div class="flex-1 text-slate-600">금 <span class="out-total-korean"></span>원 (₩<span class="out-total-num"></span>)</div></div>
                             <div class="flex"><div class="w-32 font-bold">최종 정산(계약)금액</div><div class="w-4">:</div><div class="flex-1 font-bold text-slate-800">금 <span class="out-settle-korean"></span>원 (₩<span class="out-settle-num"></span>)</div></div>
-                            <div class="flex"><div class="w-32 text-blue-700">기수령 선금액</div><div class="w-4 text-blue-700">:</div><div class="flex-1 text-blue-700 font-bold">- 금 <span class="out-advance-korean"></span>원 (₩<span class="out-advance-num"></span>)</div></div>
+                            <div class="flex"><div class="w-32 text-blue-700">기수령 선금액</div><div class="w-4 text-blue-700">:</div><div class="flex-1 text-blue-700 font-bold">- 금 <span class="out-received-advance-korean"></span>원 (₩<span class="out-received-advance-num"></span>)</div></div>
                         </div>
 
                         <div class="text-[18pt] font-black mb-16 text-center text-slate-800 tracking-widest border-b-2 border-slate-800 pb-8 w-[80%] mx-auto">
@@ -1977,10 +1977,12 @@
             if (rateVal === 'custom') rate = parseFloat(document.getElementById('in-rate-custom').value) || 0;
             else rate = parseFloat(rateVal) || 50;
             
-            let manualAdvance = document.getElementById('in-received-manual').value;
-            let advanceAmount = manualAdvance !== "" ? parseNum(manualAdvance) : Math.floor(total * (rate / 100));
+            let manualAdvance = document.getElementById('in-received-manual') ? document.getElementById('in-received-manual').value : '';
             
-            const finalClaim = settle - advanceAmount;
+            const reqAdvanceAmount = Math.floor(total * (rate / 100));
+            const receivedAdvanceAmount = manualAdvance !== "" ? parseNum(manualAdvance) : reqAdvanceAmount;
+            
+            const finalClaim = settle - receivedAdvanceAmount;
 
             document.querySelectorAll('.out-settle-num').forEach(el => {
                 if (el.id !== 'manual-settle-input' && el.id !== 'manual-settle-input-dom') {
@@ -1989,8 +1991,11 @@
             });
             document.querySelectorAll('.out-settle-korean').forEach(el => el.innerText = numberToKorean(settle));
             
-            document.querySelectorAll('.out-advance-num').forEach(el => el.innerText = formatNum(advanceAmount));
-            document.querySelectorAll('.out-advance-korean').forEach(el => el.innerText = numberToKorean(advanceAmount));
+            document.querySelectorAll('.out-advance-num').forEach(el => el.innerText = formatNum(reqAdvanceAmount));
+            document.querySelectorAll('.out-advance-korean').forEach(el => el.innerText = numberToKorean(reqAdvanceAmount));
+            
+            document.querySelectorAll('.out-received-advance-num').forEach(el => el.innerText = formatNum(receivedAdvanceAmount));
+            document.querySelectorAll('.out-received-advance-korean').forEach(el => el.innerText = numberToKorean(receivedAdvanceAmount));
             
             if (finalClaim < 0) {
                 document.querySelectorAll('.out-final-num').forEach(el => el.innerText = "(-) " + formatNum(Math.abs(finalClaim)));
@@ -2100,19 +2105,18 @@
             if (rateVal === 'custom') rate = parseFloat(document.getElementById('in-rate-custom').value) || 0;
             else rate = parseFloat(rateVal) || 50;
             
-            let manualAdvance = document.getElementById('in-received-manual') ? document.getElementById('in-received-manual').value : '';
-            let advanceAmount = manualAdvance !== "" ? parseNum(manualAdvance) : Math.floor(total * (rate / 100));
+            const reqAdvanceAmount = Math.floor(total * (rate / 100));
 
             const flight = parseNum(document.getElementById('in-flight').value);
             const hotel = parseNum(document.getElementById('in-hotel').value);
             const bus = parseNum(document.getElementById('in-bus').value);
             const sum = flight + hotel + bus;
-            const diff = advanceAmount - sum;
+            const diff = reqAdvanceAmount - sum;
 
             const warningEl = document.getElementById('advance-warning');
             if (diff !== 0) {
                 warningEl.classList.remove('hidden');
-                warningEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> 배분액 합계가 선금액 일치하지 않습니다.<br>차액: ${diff > 0 ? '+' : ''}${formatNum(diff)}원`;
+                warningEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> 배분액 합계가 선금액과 일치하지 않습니다.<br>차액: ${diff > 0 ? '+' : ''}${formatNum(diff)}원`;
             } else {
                 warningEl.classList.add('hidden');
             }
@@ -2160,7 +2164,8 @@
             }
 
             let manualAdvance = document.getElementById('in-received-manual') ? document.getElementById('in-received-manual').value : '';
-            const advanceAmount = manualAdvance !== "" ? parseNum(manualAdvance) : Math.floor(total * (rate / 100));
+            const reqAdvanceAmount = Math.floor(total * (rate / 100));
+            const receivedAdvanceAmount = manualAdvance !== "" ? parseNum(manualAdvance) : reqAdvanceAmount;
 
             document.querySelectorAll('.out-school').forEach(el => el.innerText = school);
             document.querySelectorAll('.out-school-dept').forEach(el => el.innerText = schoolDept);
@@ -2172,8 +2177,12 @@
             document.querySelectorAll('.out-total-num').forEach(el => el.innerText = formatNum(total));
             document.querySelectorAll('.out-total-korean').forEach(el => el.innerText = numberToKorean(total));
             
-            document.querySelectorAll('.out-advance-num').forEach(el => el.innerText = formatNum(advanceAmount));
-            document.querySelectorAll('.out-advance-korean').forEach(el => el.innerText = numberToKorean(advanceAmount));
+            document.querySelectorAll('.out-advance-num').forEach(el => el.innerText = formatNum(reqAdvanceAmount));
+            document.querySelectorAll('.out-advance-korean').forEach(el => el.innerText = numberToKorean(reqAdvanceAmount));
+            
+            document.querySelectorAll('.out-received-advance-num').forEach(el => el.innerText = formatNum(receivedAdvanceAmount));
+            document.querySelectorAll('.out-received-advance-korean').forEach(el => el.innerText = numberToKorean(receivedAdvanceAmount));
+            
             document.querySelectorAll('.out-rate').forEach(el => el.innerText = rate);
 
             document.querySelectorAll('.out-location').forEach(el => el.innerText = locationStr);
@@ -2198,10 +2207,10 @@
                 document.querySelectorAll('.out-doc-year').forEach(el => el.innerText = yyyy);
             }
 
-            if(!isPlanManual && document.activeElement.id !== 'in-rate-custom') {
-                const flight = Math.floor(advanceAmount * 0.417);
-                const hotel = Math.floor(advanceAmount * 0.404);
-                const bus = advanceAmount - flight - hotel; 
+            if(!isPlanManual) {
+                const flight = Math.floor(reqAdvanceAmount * 0.417);
+                const hotel = Math.floor(reqAdvanceAmount * 0.404);
+                const bus = reqAdvanceAmount - flight - hotel; 
                 
                 if (document.getElementById('in-flight')) document.getElementById('in-flight').value = formatNum(flight);
                 if (document.getElementById('in-hotel')) document.getElementById('in-hotel').value = formatNum(hotel);
