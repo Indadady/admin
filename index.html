@@ -781,54 +781,50 @@
                     <h1 class="doc-title text-center tracking-[0.5rem]">예정공정표</h1>
                     
                     <div class="text-[10pt] text-blue-600 bg-blue-50 px-3 py-2 rounded font-bold mb-4 print-hidden border border-blue-200 flex justify-between items-center">
-                        <span><i class="fa-solid fa-info-circle"></i> 표 내용(일차 등)과 공정표 마커(■)는 클릭하여 마음대로 수정 가능합니다.</span>
-                        <div class="space-x-1 shrink-0">
-                            <button onclick="setSchedule('car')" class="bg-blue-600 text-white px-2 py-1 rounded text-[10px] hover:bg-blue-700 shadow transition-colors">🚗 차량 세팅</button>
-                            <button onclick="setSchedule('trans')" class="bg-blue-600 text-white px-2 py-1 rounded text-[10px] hover:bg-blue-700 shadow transition-colors">🗣️ 통역 세팅</button>
-                        </div>
+                        <span><i class="fa-solid fa-info-circle"></i> 표 안의 텍스트와 공정표 마커(■)는 클릭하여 자유롭게 수정 가능합니다.</span>
                     </div>
                     
                     <table class="w-full text-center border-collapse border-y-2 border-slate-800 text-[11pt]">
                         <thead>
                             <tr class="bg-slate-50 border-b border-slate-300 font-bold">
                                 <th class="py-4 w-[28%] border-r border-slate-300">구분 (업무)</th>
-                                <th class="py-4 border-r border-slate-200" contenteditable="true">1일차</th>
-                                <th class="py-4 border-r border-slate-200" contenteditable="true">2일차</th>
-                                <th class="py-4 border-r border-slate-200" contenteditable="true">3일차</th>
-                                <th class="py-4" contenteditable="true">4일차</th>
+                                <th class="py-4 border-r border-slate-200" contenteditable="true">착수~1주차</th>
+                                <th class="py-4 border-r border-slate-200" contenteditable="true">2주차</th>
+                                <th class="py-4 border-r border-slate-200" contenteditable="true">3주차</th>
+                                <th class="py-4" contenteditable="true">완료일</th>
                             </tr>
                         </thead>
                         <tbody class="leading-loose" id="schedule-tbody">
                             <tr class="border-b border-slate-200">
-                                <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">사전 준비 및 착수</td>
+                                <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">착수보고</td>
                                 <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
                                 <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
                                 <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
                                 <td class="py-3 text-blue-800 font-bold" contenteditable="true"></td>
                             </tr>
                             <tr class="border-b border-slate-200">
-                                <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">운영 계획</td>
+                                <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">항공/숙소 예약</td>
                                 <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
-                                <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                                <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                                <td class="py-3 text-blue-800 font-bold" contenteditable="true"></td>
-                            </tr>
-                            <tr class="border-b border-slate-200">
-                                <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">차량 및 운영 준비</td>
                                 <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
-                                <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
                                 <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
                                 <td class="py-3 text-blue-800 font-bold" contenteditable="true"></td>
                             </tr>
                             <tr class="border-b border-slate-200">
-                                <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">차량 운행</td>
+                                <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">프로그램 운영 준비</td>
+                                <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
                                 <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
                                 <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
+                                <td class="py-3 text-blue-800 font-bold" contenteditable="true"></td>
+                            </tr>
+                            <tr class="border-b border-slate-200">
+                                <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">현장진행 및 수행</td>
+                                <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                                <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
                                 <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
                                 <td class="py-3 text-blue-800 font-bold" contenteditable="true">■</td>
                             </tr>
                             <tr>
-                                <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">완료 보고서 제출</td>
+                                <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">완료보고서 제출</td>
                                 <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
                                 <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
                                 <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
@@ -1725,90 +1721,6 @@
                 else doc.classList.add('hidden', 'print-hidden');
             }
             if (chk) chk.checked = isChecked;
-        }
-
-        // 공정표 원클릭 세팅
-        function setSchedule(type) {
-            const tbody = document.getElementById('schedule-tbody');
-            if(!tbody) return;
-            
-            if (type === 'car') {
-                tbody.innerHTML = `
-                    <tr class="border-b border-slate-200">
-                        <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">사전 준비 및 착수</td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                        <td class="py-3 text-blue-800 font-bold" contenteditable="true"></td>
-                    </tr>
-                    <tr class="border-b border-slate-200">
-                        <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">운영 계획</td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                        <td class="py-3 text-blue-800 font-bold" contenteditable="true"></td>
-                    </tr>
-                    <tr class="border-b border-slate-200">
-                        <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">차량 및 운영 준비</td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                        <td class="py-3 text-blue-800 font-bold" contenteditable="true"></td>
-                    </tr>
-                    <tr class="border-b border-slate-200">
-                        <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">차량 운행</td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
-                        <td class="py-3 text-blue-800 font-bold" contenteditable="true">■</td>
-                    </tr>
-                    <tr>
-                        <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">완료 보고서 제출</td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                        <td class="py-3 text-blue-800 font-bold" contenteditable="true">■</td>
-                    </tr>
-                `;
-            } else if (type === 'trans') {
-                tbody.innerHTML = `
-                    <tr class="border-b border-slate-200">
-                        <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">착수 보고</td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                        <td class="py-3 text-blue-800 font-bold" contenteditable="true"></td>
-                    </tr>
-                    <tr class="border-b border-slate-200">
-                        <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">자료 수집</td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                        <td class="py-3 text-blue-800 font-bold" contenteditable="true"></td>
-                    </tr>
-                    <tr class="border-b border-slate-200">
-                        <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">자료 분석</td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                        <td class="py-3 text-blue-800 font-bold" contenteditable="true"></td>
-                    </tr>
-                    <tr class="border-b border-slate-200">
-                        <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">통역 수행</td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
-                        <td class="py-3 text-blue-800 font-bold" contenteditable="true">■</td>
-                    </tr>
-                    <tr>
-                        <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">완료 보고서 제출</td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                        <td class="py-3 text-blue-800 font-bold" contenteditable="true">■</td>
-                    </tr>
-                `;
-            }
         }
 
         function parseNum(str) {
