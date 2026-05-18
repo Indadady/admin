@@ -138,7 +138,7 @@
         <!-- 좌측: 사이드바 제어부 -->
         <aside id="sidebar" class="w-full md:w-80 lg:w-[400px] bg-white border-r border-slate-200 p-6 overflow-y-auto flex flex-col gap-6 shadow-[10px_0_15px_-3px_rgba(0,0,0,0.05)] z-10 shrink-0">
             
-            <!-- 템플릿 관리부 (단일 파일 입출력 개편) -->
+            <!-- 템플릿 관리부 -->
             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
                 <div class="flex justify-between items-center mb-3 border-b border-slate-200 pb-2">
                     <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-floppy-disk text-slate-500 mr-1"></i> 문서 저장 & 백업</h3>
@@ -223,9 +223,16 @@
             </div>
 
             <div class="space-y-4 border-t border-slate-200 pt-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">발주처명</label>
-                    <input type="text" id="in-school" value="문곡중학교" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" oninput="updateDoc()">
+                <div class="flex gap-2">
+                    <div class="w-1/2">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">발주처명</label>
+                        <input type="text" id="in-school" value="문곡중학교" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" oninput="updateDoc()">
+                    </div>
+                    <!-- 💡 부서명 (옵션)을 공통 영역으로 이동 -->
+                    <div class="w-1/2">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">소속 부서 (옵션)</label>
+                        <input type="text" id="in-school-dept" value="가족행복과" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" placeholder="예: 환경과" oninput="updateDoc()">
+                    </div>
                 </div>
                 <div class="flex gap-2">
                     <div class="w-1/2">
@@ -281,10 +288,6 @@
                                 </div>
                             </div>
 
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">발주처 소속 부서명 (옵션)</label>
-                                <input type="text" id="in-school-dept" value="가족행복과" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-amber-500" placeholder="예: 가족행복과" oninput="updateDoc()">
-                            </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 mb-1">계약일자</label>
@@ -610,7 +613,7 @@
                         <div class="w-[48%] flex h-full">
                             <div class="w-20 flex items-center justify-center font-bold border-r border-slate-300">수 신</div>
                             <div class="flex-1 pl-4 flex flex-col justify-center space-y-2">
-                                <div class="font-bold text-[12pt]"><span class="out-school"></span> (재무관) 귀하</div>
+                                <div class="font-bold text-[12pt]"><span class="out-school"></span> <span class="out-school-dept text-[11pt] font-normal text-slate-600"></span> (재무관) 귀하</div>
                                 <div class="text-sm text-slate-600"><span class="out-school-city"></span> <span class="out-school-addr"></span></div>
                             </div>
                         </div>
@@ -1289,7 +1292,7 @@
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">(1인실) 3박요금</td>
                                     <td contenteditable="true" class="col-qty bg-white">1</td>
                                     <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">57,000</td>
-                                    <td contenteditable="true" class=\"col-krw bg-white\">541,500</td>
+                                    <td contenteditable="true" class="col-krw bg-white">541,500</td>
                                     <td class="bg-white relative">
                                         <span class="font-bold col-sum text-right pr-1 block text-[8pt]"></span>
                                         <div class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>
@@ -1299,7 +1302,7 @@
                                     <td contenteditable="true" class="bg-white item-name align-middle font-bold text-slate-700">전용차량</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">드라이빙가이드</td>
                                     <td contenteditable="true" class="col-qty bg-white">1</td>
-                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold\">295,000</td>
+                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">295,000</td>
                                     <td contenteditable="true" class="col-krw bg-white">2,802,500</td>
                                     <td class="bg-white relative">
                                         <span class="font-bold col-sum text-right pr-1 block text-[8pt]"></span>
@@ -1308,7 +1311,7 @@
                                 </tr>
                                 <tr class="item-row">
                                     <td contenteditable="true" class="bg-white item-name align-middle font-bold text-slate-700">식비</td>
-                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white\">전일정 식대</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">전일정 식대</td>
                                     <td contenteditable="true" class="col-qty bg-white">1</td>
                                     <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">15,000</td>
                                     <td contenteditable="true" class="col-krw bg-white">142,500</td>
@@ -2337,7 +2340,8 @@
             }
 
             let receiptAmtStr = document.getElementById('in-receipt-amount').value;
-            let receiptAmount = receiptAmtStr ? parseNum(receiptAmtStr) : total;
+            // 🚨 영수증 0원 입력 가능하도록 로직 수정
+            let receiptAmount = receiptAmtStr !== '' ? parseNum(receiptAmtStr) : total;
 
             document.querySelectorAll('.out-receipt-num').forEach(el => el.innerText = formatNum(receiptAmount));
             document.querySelectorAll('.out-receipt-korean').forEach(el => el.innerText = numberToKorean(receiptAmount));
@@ -2365,6 +2369,7 @@
             const manualInputDomEl = document.getElementById('manual-settle-input-dom');
 
             return {
+                mode: currentMode, // 🚨 현재 모드 저장 기능 추가
                 clientType: currentClientType,
 
                 school: document.getElementById('in-school').value,
@@ -2496,7 +2501,7 @@
                 if (document.getElementById('in-bus')) document.getElementById('in-bus').value = formatNum(data.bus || 0);
                 
                 document.getElementById('in-received-manual').value = data.manualReceived ? formatNum(data.manualReceived) : '';
-                if (document.getElementById('in-receipt-amount')) document.getElementById('in-receipt-amount').value = data.receiptAmount ? formatNum(data.receiptAmount) : '';
+                if (document.getElementById('in-receipt-amount')) document.getElementById('in-receipt-amount').value = data.receiptAmount !== undefined && data.receiptAmount !== '' ? formatNum(data.receiptAmount) : '';
 
                 if(data.currencyCode && document.getElementById('currency-code')) document.getElementById('currency-code').innerText = data.currencyCode;
                 
@@ -2531,6 +2536,10 @@
                     }
                 }
                 
+                // 🚨 서류 모드 복원 기능 추가
+                if(data.mode) setMode(data.mode);
+                else setMode('advance'); // 구버전 호환용 기본값
+
                 isPlanManual = true;
                 updateDoc();
 
@@ -2570,18 +2579,20 @@
             }
         }
 
-        // 🚨 단일 데이터(현재 문서) 다운로드 기능 추가
+        // 🚨 단일 데이터(현재 문서) 다운로드 기능 + 파일명 특수문자 방지
         function exportSingleData() {
             const name = document.getElementById('tpl-name').value.trim() || document.getElementById('in-title').value.trim() || '이름없는_문서';
+            const safeName = name.replace(/[\/\\:*?"<>|]/g, '_').slice(0, 50); // OS 저장 오류 방지용 치환
+            
             const data = getCurrentData();
             const exportObj = {};
-            exportObj[name] = data; // 기존 포맷(단일 키 객체) 유지하여 호환성 보장
+            exportObj[name] = data; 
             
             const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `투어메이커_${name}_${new Date().toISOString().slice(0,10)}.json`;
+            a.download = `투어메이커_${safeName}_${new Date().toISOString().slice(0,10)}.json`;
             a.click();
             URL.revokeObjectURL(url);
         }
