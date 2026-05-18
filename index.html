@@ -138,34 +138,43 @@
         <!-- 좌측: 사이드바 제어부 -->
         <aside id="sidebar" class="w-full md:w-80 lg:w-[400px] bg-white border-r border-slate-200 p-6 overflow-y-auto flex flex-col gap-6 shadow-[10px_0_15px_-3px_rgba(0,0,0,0.05)] z-10 shrink-0">
             
-            <!-- 템플릿 관리부 -->
+            <!-- 템플릿 관리부 (단일 파일 입출력 개편) -->
             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
                 <div class="flex justify-between items-center mb-3 border-b border-slate-200 pb-2">
-                    <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-floppy-disk text-slate-500 mr-1"></i> 템플릿 로드 & 백업</h3>
+                    <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-floppy-disk text-slate-500 mr-1"></i> 문서 저장 & 백업</h3>
                     <button onclick="resetInputs()" class="text-xs text-slate-500 bg-white border border-slate-200 px-2 py-1 rounded hover:bg-slate-100 transition">초기화</button>
                 </div>
-                <div class="flex gap-2 mb-2">
-                    <div class="relative w-1/2">
-                        <i class="fa-solid fa-magnifying-glass absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input type="text" id="tpl-name" placeholder="저장할 제목..." class="w-full border border-slate-300 rounded px-2 pl-6 py-1.5 text-xs focus:outline-none focus:border-blue-500">
+                
+                <div class="bg-white border border-blue-200 p-2 rounded mb-3">
+                    <label class="block text-[10px] font-bold text-blue-800 mb-1">현재 상태를 브라우저에 저장</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="tpl-name" placeholder="저장할 제목 (예: 차량용역)" class="w-2/3 border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-blue-500">
+                        <button onclick="saveTemplate()" class="w-1/3 bg-blue-600 text-white text-xs py-1.5 rounded hover:bg-blue-700 transition font-bold">저장</button>
                     </div>
-                    <select id="tpl-select" class="w-1/2 border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-blue-500">
-                        <option value="">저장된 템플릿...</option>
+                </div>
+                
+                <div class="flex gap-2 mb-2">
+                    <select id="tpl-select" class="w-2/3 border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-blue-500">
+                        <option value="">저장된 문서 불러오기...</option>
                     </select>
+                    <button onclick="loadTemplate()" class="w-1/3 bg-slate-700 text-white text-xs py-1.5 rounded hover:bg-slate-800 transition font-bold">불러오기</button>
                 </div>
-                <div class="flex gap-2 mb-3">
-                    <button onclick="loadTemplate()" class="w-1/3 bg-slate-700 text-white text-xs py-2 rounded hover:bg-slate-800 transition font-bold">불러오기</button>
-                    <button onclick="saveTemplate()" class="w-1/3 bg-blue-600 text-white text-xs py-2 rounded hover:bg-blue-700 transition font-bold">상태 저장</button>
-                    <button onclick="deleteTemplate()" class="w-1/3 bg-white text-red-500 border border-red-200 text-xs py-2 rounded hover:bg-red-50 transition">삭제</button>
+                <div class="flex gap-2 mb-3 pb-3 border-b border-slate-200">
+                    <button onclick="deleteTemplate()" class="w-full bg-white text-red-500 border border-red-200 text-xs py-1.5 rounded hover:bg-red-50 transition">선택 문서 삭제</button>
                 </div>
-                <div class="flex gap-2 border-t border-slate-200 pt-3">
-                    <label class="w-1/2 bg-white text-yellow-600 border border-yellow-400 text-xs py-2 rounded text-center cursor-pointer hover:bg-yellow-50 transition font-bold">
-                        <i class="fa-solid fa-folder-open mr-1"></i> 데이터 업로드
-                        <input type="file" id="import-file" class="hidden" accept=".json" onchange="importData(event)">
-                    </label>
-                    <button onclick="exportData()" class="w-1/2 bg-white text-emerald-600 border border-emerald-400 text-xs py-2 rounded hover:bg-emerald-50 transition font-bold">
-                        <i class="fa-solid fa-download mr-1"></i> 데이터 백업
-                    </button>
+
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-bold text-emerald-800">파일로 백업 및 공유 (.json)</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="exportSingleData()" class="bg-emerald-50 text-emerald-700 border border-emerald-300 text-[11px] py-2 rounded hover:bg-emerald-100 transition font-bold flex flex-col items-center justify-center gap-1 text-center">
+                            <i class="fa-solid fa-file-export text-lg"></i> 현재문서 다운
+                        </button>
+                        <label class="bg-white text-slate-700 border border-slate-300 text-[11px] py-2 rounded text-center cursor-pointer hover:bg-slate-50 transition font-bold flex flex-col items-center justify-center gap-1">
+                            <i class="fa-solid fa-file-import text-lg"></i> 파일 불러오기
+                            <input type="file" id="import-file" class="hidden" accept=".json" onchange="importData(event)">
+                        </label>
+                    </div>
+                    <button onclick="exportData()" class="w-full text-slate-400 text-[9px] hover:text-slate-600 transition text-right underline mt-1">전체 DB 통째로 백업하기</button>
                 </div>
             </div>
 
@@ -250,11 +259,11 @@
                             <!-- 날짜 분리 및 문서 출력 선택부 추가 -->
                             <div class="grid grid-cols-2 gap-2 border-b border-amber-200 pb-3 mb-2">
                                 <div>
-                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">착수계 제출일</label>
+                                    <label class="block text-[11px] font-bold text-slate-700 mb-1 text-blue-700">착수계 제출일</label>
                                     <input type="date" id="in-start-doc-date" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-amber-500" onchange="updateDoc()">
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">완료계 제출일</label>
+                                    <label class="block text-[11px] font-bold text-slate-700 mb-1 text-blue-700">완료계 제출일</label>
                                     <input type="date" id="in-end-doc-date" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-amber-500" onchange="updateDoc()">
                                 </div>
                             </div>
@@ -696,7 +705,12 @@
             <!-- ========================================== -->
             <div id="startend-docs" class="hidden">
                 <!-- 1. 착수계 -->
-                <div class="a4-page" id="doc-se-1">
+                <div class="a4-page group" id="doc-se-1">
+                    <div class="absolute top-2 right-2 print-hidden opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                        <button onclick="document.getElementById('chk-doc-1').click()" class="bg-red-100 text-red-600 px-3 py-1 rounded text-xs font-bold shadow-sm hover:bg-red-200">
+                            <i class="fa-solid fa-eye-slash"></i> 이 페이지 숨기기
+                        </button>
+                    </div>
                     <h1 class="doc-title text-center tracking-[1rem]">착 수 계</h1>
                     <table class="doc-table">
                         <tr class="bg-slate-50 border-t-2 border-slate-800">
@@ -758,11 +772,20 @@
                 </div>
 
                 <!-- 2. 예정공정표 -->
-                <div class="a4-page" id="doc-se-2">
+                <div class="a4-page group" id="doc-se-2">
+                    <div class="absolute top-2 right-2 print-hidden opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                        <button onclick="document.getElementById('chk-doc-2').click()" class="bg-red-100 text-red-600 px-3 py-1 rounded text-xs font-bold shadow-sm hover:bg-red-200">
+                            <i class="fa-solid fa-eye-slash"></i> 이 페이지 숨기기
+                        </button>
+                    </div>
                     <h1 class="doc-title text-center tracking-[0.5rem]">예정공정표</h1>
                     
-                    <div class="text-[10pt] text-blue-600 bg-blue-50 px-3 py-2 rounded font-bold mb-4 print-hidden border border-blue-200">
-                        <i class="fa-solid fa-info-circle"></i> 모든 항목 명칭과 공정표 마커(■)는 클릭하여 자유롭게 수정 가능합니다.
+                    <div class="text-[10pt] text-blue-600 bg-blue-50 px-3 py-2 rounded font-bold mb-4 print-hidden border border-blue-200 flex justify-between items-center">
+                        <span><i class="fa-solid fa-info-circle"></i> 표 내용(일차 등)과 공정표 마커(■)는 클릭하여 마음대로 수정 가능합니다.</span>
+                        <div class="space-x-1 shrink-0">
+                            <button onclick="setSchedule('car')" class="bg-blue-600 text-white px-2 py-1 rounded text-[10px] hover:bg-blue-700 shadow transition-colors">🚗 차량 세팅</button>
+                            <button onclick="setSchedule('trans')" class="bg-blue-600 text-white px-2 py-1 rounded text-[10px] hover:bg-blue-700 shadow transition-colors">🗣️ 통역 세팅</button>
+                        </div>
                     </div>
                     
                     <table class="w-full text-center border-collapse border-y-2 border-slate-800 text-[11pt]">
@@ -775,7 +798,7 @@
                                 <th class="py-4" contenteditable="true">4일차</th>
                             </tr>
                         </thead>
-                        <tbody class="leading-loose">
+                        <tbody class="leading-loose" id="schedule-tbody">
                             <tr class="border-b border-slate-200">
                                 <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">사전 준비 및 착수</td>
                                 <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
@@ -784,21 +807,21 @@
                                 <td class="py-3 text-blue-800 font-bold" contenteditable="true"></td>
                             </tr>
                             <tr class="border-b border-slate-200">
-                                <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">차량 운행 지원</td>
+                                <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">운영 계획</td>
                                 <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
-                                <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
-                                <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
-                                <td class="py-3 text-blue-800 font-bold" contenteditable="true">■</td>
-                            </tr>
-                            <tr class="border-b border-slate-200">
-                                <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">통역 수행</td>
                                 <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
-                                <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
-                                <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
-                                <td class="py-3 text-blue-800 font-bold" contenteditable="true">■</td>
+                                <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                                <td class="py-3 text-blue-800 font-bold" contenteditable="true"></td>
                             </tr>
                             <tr class="border-b border-slate-200">
-                                <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">현장 안내 및 관리</td>
+                                <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">차량 및 운영 준비</td>
+                                <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
+                                <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                                <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                                <td class="py-3 text-blue-800 font-bold" contenteditable="true"></td>
+                            </tr>
+                            <tr class="border-b border-slate-200">
+                                <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">차량 운행</td>
                                 <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
                                 <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
                                 <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
@@ -834,7 +857,12 @@
                 </div>
 
                 <!-- 3. 현장대리인계 -->
-                <div class="a4-page" id="doc-se-3">
+                <div class="a4-page group" id="doc-se-3">
+                    <div class="absolute top-2 right-2 print-hidden opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                        <button onclick="document.getElementById('chk-doc-3').click()" class="bg-red-100 text-red-600 px-3 py-1 rounded text-xs font-bold shadow-sm hover:bg-red-200">
+                            <i class="fa-solid fa-eye-slash"></i> 이 페이지 숨기기
+                        </button>
+                    </div>
                     <h1 class="doc-title text-center tracking-[0.5rem]">현장대리인계</h1>
                     
                     <p class="text-[12pt] leading-relaxed mb-12 px-6">
@@ -885,7 +913,12 @@
                 </div>
 
                 <!-- 4. 재직증명서 -->
-                <div class="a4-page" id="doc-se-4">
+                <div class="a4-page group" id="doc-se-4">
+                    <div class="absolute top-2 right-2 print-hidden opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                        <button onclick="document.getElementById('chk-doc-4').click()" class="bg-red-100 text-red-600 px-3 py-1 rounded text-xs font-bold shadow-sm hover:bg-red-200">
+                            <i class="fa-solid fa-eye-slash"></i> 이 페이지 숨기기
+                        </button>
+                    </div>
                     <h1 class="doc-title text-center tracking-[1rem]">재 직 증 명 서</h1>
                     
                     <table class="doc-table mt-10">
@@ -950,7 +983,12 @@
                 </div>
 
                 <!-- 5. 완료계 -->
-                <div class="a4-page" id="doc-se-5">
+                <div class="a4-page group" id="doc-se-5">
+                    <div class="absolute top-2 right-2 print-hidden opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                        <button onclick="document.getElementById('chk-doc-5').click()" class="bg-red-100 text-red-600 px-3 py-1 rounded text-xs font-bold shadow-sm hover:bg-red-200">
+                            <i class="fa-solid fa-eye-slash"></i> 이 페이지 숨기기
+                        </button>
+                    </div>
                     <h1 class="doc-title text-center tracking-[1rem]">완 료 계</h1>
                     
                     <div class="flex justify-between items-end mb-10 px-4">
@@ -1023,7 +1061,12 @@
                 </div>
 
                 <!-- 6. 완료검사원 -->
-                <div class="a4-page" id="doc-se-6">
+                <div class="a4-page group" id="doc-se-6">
+                    <div class="absolute top-2 right-2 print-hidden opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                        <button onclick="document.getElementById('chk-doc-6').click()" class="bg-red-100 text-red-600 px-3 py-1 rounded text-xs font-bold shadow-sm hover:bg-red-200">
+                            <i class="fa-solid fa-eye-slash"></i> 이 페이지 숨기기
+                        </button>
+                    </div>
                     <h1 class="doc-title text-center tracking-[1rem]">완 료 검 사 원</h1>
                     
                     <div class="flex justify-between items-end mb-12 px-4 border-b border-slate-300 pb-4">
@@ -1065,7 +1108,12 @@
                 </div>
 
                 <!-- 7. 완료내역서 -->
-                <div class="a4-page" id="doc-se-7">
+                <div class="a4-page group" id="doc-se-7">
+                    <div class="absolute top-2 right-2 print-hidden opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                        <button onclick="document.getElementById('chk-doc-7').click()" class="bg-red-100 text-red-600 px-3 py-1 rounded text-xs font-bold shadow-sm hover:bg-red-200">
+                            <i class="fa-solid fa-eye-slash"></i> 이 페이지 숨기기
+                        </button>
+                    </div>
                     <h1 class="doc-title text-center tracking-[1rem]">완 료 내 역 서</h1>
                     
                     <div class="flex justify-between items-end mb-12 px-4 border-b border-slate-300 pb-4">
@@ -1245,7 +1293,7 @@
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">(1인실) 3박요금</td>
                                     <td contenteditable="true" class="col-qty bg-white">1</td>
                                     <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">57,000</td>
-                                    <td contenteditable="true" class="col-krw bg-white">541,500</td>
+                                    <td contenteditable="true" class=\"col-krw bg-white\">541,500</td>
                                     <td class="bg-white relative">
                                         <span class="font-bold col-sum text-right pr-1 block text-[8pt]"></span>
                                         <div class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>
@@ -1255,7 +1303,7 @@
                                     <td contenteditable="true" class="bg-white item-name align-middle font-bold text-slate-700">전용차량</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">드라이빙가이드</td>
                                     <td contenteditable="true" class="col-qty bg-white">1</td>
-                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">295,000</td>
+                                    <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold\">295,000</td>
                                     <td contenteditable="true" class="col-krw bg-white">2,802,500</td>
                                     <td class="bg-white relative">
                                         <span class="font-bold col-sum text-right pr-1 block text-[8pt]"></span>
@@ -1264,7 +1312,7 @@
                                 </tr>
                                 <tr class="item-row">
                                     <td contenteditable="true" class="bg-white item-name align-middle font-bold text-slate-700">식비</td>
-                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white">전일정 식대</td>
+                                    <td contenteditable="true" class="text-left pl-2 col-desc bg-white\">전일정 식대</td>
                                     <td contenteditable="true" class="col-qty bg-white">1</td>
                                     <td contenteditable="true" class="col-foreign bg-white text-emerald-700 font-bold">15,000</td>
                                     <td contenteditable="true" class="col-krw bg-white">142,500</td>
@@ -1399,13 +1447,13 @@
                             <tbody id="tbody-dom-only" class="editable-group">
                                 <!-- 기본 초기화 데이터 (제주도 기준) -->
                                 <tr class="item-row">
-                                    <td contenteditable="true" class="bg-white col-cat align-middle font-bold text-slate-700">숙박료</td>
-                                    <td contenteditable="true" class="bg-white col-item align-middle text-left pl-2">서귀포 징크호텔</td>
+                                    <td contenteditable="true" class="bg-white col-cat align-middle font-bold text-slate-700" rowspan="1">숙박료</td>
+                                    <td contenteditable="true" class="bg-white col-item align-middle text-left pl-2" rowspan="1">서귀포 징크호텔</td>
                                     <td contenteditable="true" class="bg-white text-left pl-2 col-desc">학생_3박요금</td>
                                     <td contenteditable="true" class="col-qty bg-white">77</td>
                                     <td contenteditable="true" class="col-krw bg-white">144,000</td>
                                     <td class="bg-white relative">
-                                        <span class="font-bold col-sum text-right pr-1 block text-[8.5pt]">0</span>
+                                        <span class="font-bold col-sum text-right pr-1 block text-[8.5pt]">11,088,000</span>
                                         <div class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>
                                     </td>
                                     <td contenteditable="true" class="bg-white text-[7.5pt] align-middle px-1">별첨1</td>
@@ -1668,12 +1716,98 @@
             calcTable();
         }
 
-        // 문서 출력 토글
+        // 문서 출력 토글 (우측 상단 x버튼 & 좌측 체크박스 연동)
         function toggleDocVisibility(idx, isChecked) {
             const doc = document.getElementById(`doc-se-${idx}`);
+            const chk = document.getElementById(`chk-doc-${idx}`);
             if (doc) {
                 if (isChecked) doc.classList.remove('hidden', 'print-hidden');
                 else doc.classList.add('hidden', 'print-hidden');
+            }
+            if (chk) chk.checked = isChecked;
+        }
+
+        // 공정표 원클릭 세팅
+        function setSchedule(type) {
+            const tbody = document.getElementById('schedule-tbody');
+            if(!tbody) return;
+            
+            if (type === 'car') {
+                tbody.innerHTML = `
+                    <tr class="border-b border-slate-200">
+                        <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">사전 준비 및 착수</td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                        <td class="py-3 text-blue-800 font-bold" contenteditable="true"></td>
+                    </tr>
+                    <tr class="border-b border-slate-200">
+                        <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">운영 계획</td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                        <td class="py-3 text-blue-800 font-bold" contenteditable="true"></td>
+                    </tr>
+                    <tr class="border-b border-slate-200">
+                        <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">차량 및 운영 준비</td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                        <td class="py-3 text-blue-800 font-bold" contenteditable="true"></td>
+                    </tr>
+                    <tr class="border-b border-slate-200">
+                        <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">차량 운행</td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
+                        <td class="py-3 text-blue-800 font-bold" contenteditable="true">■</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">완료 보고서 제출</td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                        <td class="py-3 text-blue-800 font-bold" contenteditable="true">■</td>
+                    </tr>
+                `;
+            } else if (type === 'trans') {
+                tbody.innerHTML = `
+                    <tr class="border-b border-slate-200">
+                        <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">착수 보고</td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                        <td class="py-3 text-blue-800 font-bold" contenteditable="true"></td>
+                    </tr>
+                    <tr class="border-b border-slate-200">
+                        <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">자료 수집</td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                        <td class="py-3 text-blue-800 font-bold" contenteditable="true"></td>
+                    </tr>
+                    <tr class="border-b border-slate-200">
+                        <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">자료 분석</td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                        <td class="py-3 text-blue-800 font-bold" contenteditable="true"></td>
+                    </tr>
+                    <tr class="border-b border-slate-200">
+                        <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">통역 수행</td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true">■</td>
+                        <td class="py-3 text-blue-800 font-bold" contenteditable="true">■</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3 font-bold bg-slate-50 border-r border-slate-300" contenteditable="true">완료 보고서 제출</td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                        <td class="py-3 border-r border-slate-200 text-blue-800 font-bold" contenteditable="true"></td>
+                        <td class="py-3 text-blue-800 font-bold" contenteditable="true">■</td>
+                    </tr>
+                `;
             }
         }
 
@@ -2307,18 +2441,8 @@
         const STORAGE_KEY = 'tourmaker_backoffice_templates';
         function getTemplates() { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
         
-        function saveTemplate() {
-            const name = document.getElementById('tpl-name').value.trim();
-            if (!name) return alert('저장할 템플릿 제목을 입력하세요.');
-            
-            const templates = getTemplates();
-            // 🚨 덮어쓰기 방지 (이미 존재하는 이름이면 경고)
-            if (templates[name]) {
-                if (!confirm(`'${name}' (으)로 이미 저장된 데이터가 있습니다.\n덮어쓰시겠습니까?\n\n(차량/통역 등 다른 용역 서류라면 '취소'를 누르고 저장할 제목을 변경해주세요!)`)) {
-                    return;
-                }
-            }
-            
+        // 현재 화면 데이터를 JSON 객체로 반환하는 헬퍼 함수
+        function getCurrentData() {
             const settleEl = document.getElementById('in-settle');
             const manualReceived = document.getElementById('in-received-manual').value;
             const adjustmentRow = document.getElementById('row-adjustment');
@@ -2328,7 +2452,7 @@
             const manualInputEl = document.getElementById('manual-settle-input');
             const manualInputDomEl = document.getElementById('manual-settle-input-dom');
 
-            const data = {
+            return {
                 clientType: currentClientType,
 
                 school: document.getElementById('in-school').value,
@@ -2380,16 +2504,29 @@
                 tblDomestic: document.getElementById('tbody-domestic').innerHTML,
                 tblDomOnly: document.getElementById('tbody-dom-only').innerHTML
             };
+        }
+
+        function saveTemplate() {
+            const name = document.getElementById('tpl-name').value.trim();
+            if (!name) return alert('저장할 제목을 입력하세요.');
             
-            templates[name] = data;
+            const templates = getTemplates();
+            // 덮어쓰기 방지 경고
+            if (templates[name]) {
+                if (!confirm(`'${name}' (으)로 이미 브라우저에 저장된 데이터가 있습니다.\n덮어쓰시겠습니까?\n\n(차량/통역 등 다른 용도라면 '취소'를 누르고 저장할 제목을 변경해주세요!)`)) {
+                    return;
+                }
+            }
+            
+            templates[name] = getCurrentData();
             localStorage.setItem(STORAGE_KEY, JSON.stringify(templates));
             updateTemplateSelect(name);
-            alert(`'${name}' 템플릿이 성공적으로 저장되었습니다.`);
+            alert(`'${name}' 상태가 브라우저에 임시 저장되었습니다.`);
         }
 
         function loadTemplate() {
             const name = document.getElementById('tpl-select').value;
-            if (!name) return alert('불러올 템플릿을 선택하세요.');
+            if (!name) return alert('불러올 항목을 선택하세요.');
             const templates = getTemplates();
             const data = templates[name];
             if (data) {
@@ -2498,8 +2635,8 @@
 
         function deleteTemplate() {
             const name = document.getElementById('tpl-select').value;
-            if (!name) return alert('삭제할 템플릿을 선택하세요.');
-            if (confirm(`'${name}' 템플릿을 정말 삭제하시겠습니까?`)) {
+            if (!name) return alert('삭제할 항목을 선택하세요.');
+            if (confirm(`'${name}' 상태를 정말 삭제하시겠습니까?`)) {
                 const templates = getTemplates();
                 delete templates[name];
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(templates));
@@ -2511,7 +2648,7 @@
         function updateTemplateSelect(selected = '') {
             const templates = getTemplates();
             const select = document.getElementById('tpl-select');
-            select.innerHTML = '<option value="">저장된 템플릿 선택...</option>';
+            select.innerHTML = '<option value="">저장된 문서 불러오기...</option>';
             for (const name in templates) {
                 const option = document.createElement('option');
                 option.value = name;
@@ -2521,18 +2658,36 @@
             }
         }
 
+        // 🚨 단일 데이터(현재 문서) 다운로드 기능 추가
+        function exportSingleData() {
+            const name = document.getElementById('tpl-name').value.trim() || document.getElementById('in-title').value.trim() || '이름없는_문서';
+            const data = getCurrentData();
+            const exportObj = {};
+            exportObj[name] = data; // 기존 포맷(단일 키 객체) 유지하여 호환성 보장
+            
+            const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `투어메이커_${name}_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 전체 데이터 통째로 백업 (기존 기능)
         function exportData() {
             const templates = localStorage.getItem(STORAGE_KEY) || '{}';
             const blob = new Blob([templates], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `투어메이커_백오피스_데이터_${new Date().toISOString().slice(0,10)}.json`;
+            a.download = `투어메이커_백오피스_전체데이터_백업_${new Date().toISOString().slice(0,10)}.json`;
             a.click();
             URL.revokeObjectURL(url);
-            alert('데이터 백업 파일이 다운로드되었습니다.\n(발주처 이름으로 파일명을 변경하여 보관하시면 좋습니다.)');
+            alert('브라우저에 저장된 모든 데이터가 통째로 백업되었습니다.');
         }
 
+        // 데이터 임포트 시 병합 처리 강화
         function importData(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -2541,12 +2696,22 @@
                 try {
                     const imported = JSON.parse(e.target.result);
                     const existing = getTemplates();
+                    
+                    // 병합 처리
                     const merged = { ...existing, ...imported };
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
                     updateTemplateSelect();
-                    alert('데이터가 성공적으로 업로드되었습니다!');
+                    
+                    // 방금 임포트한 항목 중 첫 번째 것을 자동으로 로드
+                    const keys = Object.keys(imported);
+                    if(keys.length > 0) {
+                        document.getElementById('tpl-select').value = keys[0];
+                        loadTemplate();
+                    }
+                    
+                    alert('문서 파일이 성공적으로 로드되었습니다!');
                 } catch (err) {
-                    alert('유효하지 않은 JSON 파일입니다.');
+                    alert('유효하지 않은 파일입니다.');
                 }
                 event.target.value = ''; 
             };
