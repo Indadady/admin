@@ -111,6 +111,14 @@
             .a4-page.hidden { display: none !important; page-break-after: auto; }
             .a4-page:last-child { page-break-after: auto; }
             [contenteditable="true"] { box-shadow: none !important; background-color: transparent !important; }
+            /* 인쇄 시 표 머리글/소계 등 음영(회색·파랑 배경) 제거 → 깔끔한 흰 바탕 */
+            .a4-page [class*="bg-"],
+            .a4-page th, .a4-page td,
+            .calc-table th, .calc-subtotal,
+            .doc-table th {
+                background-color: #ffffff !important;
+                background-image: none !important;
+            }
         }
     </style>
 </head>
