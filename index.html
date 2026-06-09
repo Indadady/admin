@@ -380,9 +380,13 @@
                         <p class="text-[10px] text-indigo-600 mb-2">※ 우측 화면의 [정산내역서] 표에서 숫자와 내용을 직접 입력하시면 청구서 잔금까지 <b>모두 자동 연산</b>됩니다.</p>
                         <div class="mt-2 border-t border-indigo-200 pt-2 space-y-2">
                             <label class="flex items-start gap-2 cursor-pointer">
-                                <input type="checkbox" id="toggle-adjustment-chk" checked onchange="onAdjustmentToggle(this.checked)" class="w-3.5 h-3.5 mt-0.5 text-indigo-600 rounded border-slate-300 cursor-pointer shrink-0">
-                                <span class="text-[10px] font-bold text-slate-600 leading-snug">「백단위 절사 등 조정액」 행 표시<br><span class="font-normal text-slate-500">해제 시 해당 행이 숨겨지고, 합계액만 청구금액으로 반영됩니다.</span></span>
+                                <input type="checkbox" id="toggle-adj-label-chk" onchange="updateAdjustmentLabelUI()" class="w-3.5 h-3.5 mt-0.5 text-indigo-600 rounded border-slate-300 cursor-pointer shrink-0">
+                                <span class="text-[10px] font-bold text-slate-600 leading-snug">조정 안내 문구 표시 (선택)<br><span class="font-normal text-slate-500">「최종 청구 (정산) 금액」 옆에 백단위 절사 등 안내 문구를 붙입니다.</span></span>
                             </label>
+                            <div id="adj-label-input-wrap" class="hidden">
+                                <label class="block text-[10px] font-bold text-slate-600 mb-1">안내 문구 내용</label>
+                                <input type="text" id="in-adj-label-text" value="백단위 절사 등 조정액" placeholder="예: 백단위 절사 등 조정액" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-indigo-500" oninput="updateAdjustmentLabelUI()">
+                            </div>
                             <label class="block text-[10px] font-bold text-slate-600 mb-1">기 수령 선금액 수동 보정 (선택)</label>
                             <input type="text" id="in-received-manual" placeholder="비워두면 최초계약액 기준 자동계산" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-indigo-500" oninput="formatInputField(this); updateDoc()">
                         </div>
@@ -1235,10 +1239,7 @@
                         <h1 class="text-[20pt] font-black text-center tracking-[1rem] mb-2">정 산 내 역 서</h1>
                         <p class="text-center text-[10px] text-slate-500 font-bold tracking-[0.5rem] mb-4">SETTLEMENT DETAILS</p>
 
-                        <div class="flex justify-between mb-2 print-hidden">
-                            <div>
-                                <button id="btn-restore-adjustment" onclick="onAdjustmentToggle(true)" class="adj-restore-btn hidden text-[10px] bg-slate-200 text-slate-700 px-2 py-1 rounded hover:bg-slate-300 transition font-bold"><i class="fa-solid fa-rotate-left"></i> 조정액 행 복구</button>
-                            </div>
+                        <div class="flex justify-end mb-2 print-hidden">
                             <p class="text-[11px] text-blue-600 bg-blue-50 px-3 py-1 rounded font-bold border border-blue-200 shadow-sm"><i class="fa-solid fa-pen-to-square"></i> 표 안의 항목과 숫자를 자유롭게 수정하세요.</p>
                         </div>
 
@@ -1395,11 +1396,10 @@
                                 </tr>
                                 <tr class="bg-[#fefce8] font-bold text-[10pt] border-t-2 border-slate-800" id="row-adjustment">
                                     <td colspan="6" class="py-2.5 text-left pl-4 text-indigo-900">
-                                        최종 청구 (정산) 금액 <span class="text-[8px] font-normal text-slate-500 ml-2">백단위 절사 등 조정액</span>
+                                        최종 청구 (정산) 금액<span class="adj-label-sub hidden text-[8px] font-normal text-slate-500 ml-2"></span>
                                     </td>
                                     <td colspan="2" class="py-2.5 font-black text-red-600 tracking-widest text-right pr-6 bg-yellow-50 text-[11pt] relative border-l-0">
                                         ₩ <span class="out-settle-num" contenteditable="true" id="manual-settle-input" data-manual="false" oninput="this.dataset.manual='true';"></span>
-                                        <button onclick="onAdjustmentToggle(false)" class="absolute right-1 top-1/2 -translate-y-1/2 text-red-400 hover:text-red-600 print-hidden" title="이 행 숨기기"><i class="fa-solid fa-xmark"></i></button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -1420,10 +1420,7 @@
                         <h1 class="text-[20pt] font-black text-center tracking-[1rem] mb-2">정 산 내 역 서</h1>
                         <p class="text-center text-[10px] text-slate-500 font-bold tracking-[0.5rem] mb-4">DOMESTIC SETTLEMENT</p>
 
-                        <div class="flex justify-between mb-2 print-hidden">
-                            <div>
-                                <button id="btn-restore-adjustment-dom" onclick="onAdjustmentToggle(true)" class="adj-restore-btn hidden text-[10px] bg-slate-200 text-slate-700 px-2 py-1 rounded hover:bg-slate-300 transition font-bold"><i class="fa-solid fa-rotate-left"></i> 조정액 행 복구</button>
-                            </div>
+                        <div class="flex justify-end mb-2 print-hidden">
                             <p class="text-[11px] text-blue-600 bg-blue-50 px-3 py-1 rounded font-bold border border-blue-200 shadow-sm"><i class="fa-solid fa-pen-to-square"></i> 표 안의 항목과 숫자를 자유롭게 수정하세요.</p>
                         </div>
 
@@ -1488,11 +1485,10 @@
                                 </tr>
                                 <tr class="bg-[#fefce8] font-bold text-[10pt] border-t-2 border-slate-800" id="row-adjustment-dom">
                                     <td colspan="5" class="py-2.5 text-left pl-4 text-indigo-900">
-                                        최종 청구 (정산) 금액 <span class="text-[8px] font-normal text-slate-500 ml-2">백단위 절사 등 조정액</span>
+                                        최종 청구 (정산) 금액<span class="adj-label-sub hidden text-[8px] font-normal text-slate-500 ml-2"></span>
                                     </td>
                                     <td colspan="2" class="py-2.5 font-black text-red-600 tracking-widest text-right pr-6 bg-yellow-50 text-[11pt] relative border-l-0">
                                         ₩ <span class="out-settle-num" contenteditable="true" id="manual-settle-input-dom" data-manual="false" oninput="this.dataset.manual='true';"></span>
-                                        <button onclick="onAdjustmentToggle(false)" class="absolute right-1 top-1/2 -translate-y-1/2 text-red-400 hover:text-red-600 print-hidden" title="이 행 숨기기"><i class="fa-solid fa-xmark"></i></button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -1732,7 +1728,6 @@
                 document.getElementById('page-settle-domestic').classList.add('flex');
             }
             calcTable();
-            updateAdjustmentUI();
         }
 
         // 문서 출력 토글 (우측 상단 x버튼 & 좌측 체크박스 연동)
@@ -1959,64 +1954,36 @@
             });
         }
 
-        function isAdjustmentVisible() {
-            const rowId = currentTripType === 'overseas' ? 'row-adjustment' : 'row-adjustment-dom';
-            const row = document.getElementById(rowId);
-            return row ? row.style.display !== 'none' : true;
-        }
+        const DEFAULT_ADJ_LABEL = '백단위 절사 등 조정액';
 
-        function updateAdjustmentUI() {
-            const visible = isAdjustmentVisible();
-            const chk = document.getElementById('toggle-adjustment-chk');
-            if (chk) chk.checked = visible;
-
-            const restoreOverseas = document.getElementById('btn-restore-adjustment');
-            const restoreDom = document.getElementById('btn-restore-adjustment-dom');
-            if (restoreOverseas) restoreOverseas.classList.toggle('hidden', currentTripType !== 'overseas' || visible);
-            if (restoreDom) restoreDom.classList.toggle('hidden', currentTripType !== 'domestic' || visible);
-        }
-
-        function onAdjustmentToggle(show) {
-            if (currentTripType === 'overseas') toggleAdjustmentRow(show);
-            else toggleAdjustmentRowDom(show);
-        }
-
-        function toggleAdjustmentRow(show) {
-            const row = document.getElementById('row-adjustment');
-            const manualInput = document.getElementById('manual-settle-input');
-            if (show) {
-                row.style.display = 'table-row';
-                row.classList.remove('print-hidden');
-                if (manualInput) manualInput.dataset.manual = 'false';
-            } else { 
-                row.style.display = 'none';
-                row.classList.add('print-hidden');
-                if (manualInput) {
-                    manualInput.innerText = ''; 
-                    manualInput.dataset.manual = 'false';
+        function ensureAdjustmentRowsVisible() {
+            ['row-adjustment', 'row-adjustment-dom'].forEach(id => {
+                const row = document.getElementById(id);
+                if (row) {
+                    row.style.display = 'table-row';
+                    row.classList.remove('print-hidden');
                 }
-            }
-            updateAdjustmentUI();
-            calcTable();
+            });
         }
 
-        function toggleAdjustmentRowDom(show) {
-            const row = document.getElementById('row-adjustment-dom');
-            const manualInput = document.getElementById('manual-settle-input-dom');
-            if (show) {
-                row.style.display = 'table-row';
-                row.classList.remove('print-hidden');
-                if (manualInput) manualInput.dataset.manual = 'false';
-            } else { 
-                row.style.display = 'none';
-                row.classList.add('print-hidden');
-                if (manualInput) {
-                    manualInput.innerText = ''; 
-                    manualInput.dataset.manual = 'false';
+        function updateAdjustmentLabelUI() {
+            const chk = document.getElementById('toggle-adj-label-chk');
+            const input = document.getElementById('in-adj-label-text');
+            const inputWrap = document.getElementById('adj-label-input-wrap');
+            const show = chk ? chk.checked : false;
+            const text = (input && input.value.trim()) ? input.value.trim() : DEFAULT_ADJ_LABEL;
+
+            if (inputWrap) inputWrap.classList.toggle('hidden', !show);
+
+            document.querySelectorAll('.adj-label-sub').forEach(el => {
+                if (show && text) {
+                    el.textContent = ' ' + text;
+                    el.classList.remove('hidden');
+                } else {
+                    el.textContent = '';
+                    el.classList.add('hidden');
                 }
-            }
-            updateAdjustmentUI();
-            calcTable();
+            });
         }
 
         function calcTable() {
@@ -2083,8 +2050,7 @@
             
             if (currentTripType === 'overseas') {
                 const manualInputEl = document.getElementById('manual-settle-input');
-                const rowAdjustment = document.getElementById('row-adjustment');
-                if (rowAdjustment && rowAdjustment.style.display !== 'none' && manualInputEl && manualInputEl.dataset.manual === 'true' && manualInputEl.innerText.trim() !== '') {
+                if (manualInputEl && manualInputEl.dataset.manual === 'true' && manualInputEl.innerText.trim() !== '') {
                     const parsedManual = parseNum(manualInputEl.innerText);
                     if (parsedManual !== 0) settle = parsedManual; 
                     else {
@@ -2100,8 +2066,7 @@
                 }
             } else {
                 const manualInputDomEl = document.getElementById('manual-settle-input-dom');
-                const rowAdjustmentDom = document.getElementById('row-adjustment-dom');
-                if (rowAdjustmentDom && rowAdjustmentDom.style.display !== 'none' && manualInputDomEl && manualInputDomEl.dataset.manual === 'true' && manualInputDomEl.innerText.trim() !== '') {
+                if (manualInputDomEl && manualInputDomEl.dataset.manual === 'true' && manualInputDomEl.innerText.trim() !== '') {
                     const parsedManual = parseNum(manualInputDomEl.innerText);
                     if (parsedManual !== 0) settle = parsedManual; 
                     else {
@@ -2409,9 +2374,9 @@
         function getCurrentData() {
             const settleEl = document.getElementById('in-settle');
             const manualReceived = document.getElementById('in-received-manual').value;
-            const adjustmentRow = document.getElementById('row-adjustment');
-            const adjustmentRowDom = document.getElementById('row-adjustment-dom');
             const showStamp = document.getElementById('toggle-stamp-chk').checked;
+            const adjLabelChk = document.getElementById('toggle-adj-label-chk');
+            const adjLabelInput = document.getElementById('in-adj-label-text');
 
             const manualInputEl = document.getElementById('manual-settle-input');
             const manualInputDomEl = document.getElementById('manual-settle-input-dom');
@@ -2452,11 +2417,10 @@
                 manualReceived: manualReceived ? parseNum(manualReceived) : '',
                 receiptAmount: document.getElementById('in-receipt-amount') ? parseNum(document.getElementById('in-receipt-amount').value) : '',
                 
-                showAdjustment: adjustmentRow ? adjustmentRow.style.display !== 'none' : true,
+                showAdjustmentLabel: adjLabelChk ? adjLabelChk.checked : false,
+                adjustmentLabelText: adjLabelInput ? adjLabelInput.value : DEFAULT_ADJ_LABEL,
                 manualSettleInput: manualInputEl ? manualInputEl.innerText : '',
                 isManual: manualInputEl ? (manualInputEl.dataset.manual === 'true') : false,
-                
-                showAdjustmentDom: adjustmentRowDom ? adjustmentRowDom.style.display !== 'none' : true,
                 manualSettleInputDom: manualInputDomEl ? manualInputDomEl.innerText : '',
                 isManualDom: manualInputDomEl ? (manualInputDomEl.dataset.manual === 'true') : false,
                 
@@ -2566,22 +2530,21 @@
                 document.getElementById('toggle-stamp-chk').checked = showStampVal;
                 toggleStamp();
                 
-                if (data.showAdjustment === false) toggleAdjustmentRow(false);
-                else {
-                    toggleAdjustmentRow(true);
-                    if (document.getElementById('manual-settle-input') && data.manualSettleInput !== undefined) {
-                        document.getElementById('manual-settle-input').innerText = data.manualSettleInput;
-                        document.getElementById('manual-settle-input').dataset.manual = data.isManual ? 'true' : 'false';
-                    }
-                }
+                ensureAdjustmentRowsVisible();
 
-                if (data.showAdjustmentDom === false) toggleAdjustmentRowDom(false);
-                else {
-                    toggleAdjustmentRowDom(true);
-                    if (document.getElementById('manual-settle-input-dom') && data.manualSettleInputDom !== undefined) {
-                        document.getElementById('manual-settle-input-dom').innerText = data.manualSettleInputDom;
-                        document.getElementById('manual-settle-input-dom').dataset.manual = data.isManualDom ? 'true' : 'false';
-                    }
+                const adjLabelChk = document.getElementById('toggle-adj-label-chk');
+                const adjLabelInput = document.getElementById('in-adj-label-text');
+                if (adjLabelChk) adjLabelChk.checked = data.showAdjustmentLabel === true;
+                if (adjLabelInput) adjLabelInput.value = data.adjustmentLabelText || DEFAULT_ADJ_LABEL;
+                updateAdjustmentLabelUI();
+
+                if (document.getElementById('manual-settle-input') && data.manualSettleInput !== undefined) {
+                    document.getElementById('manual-settle-input').innerText = data.manualSettleInput;
+                    document.getElementById('manual-settle-input').dataset.manual = data.isManual ? 'true' : 'false';
+                }
+                if (document.getElementById('manual-settle-input-dom') && data.manualSettleInputDom !== undefined) {
+                    document.getElementById('manual-settle-input-dom').innerText = data.manualSettleInputDom;
+                    document.getElementById('manual-settle-input-dom').dataset.manual = data.isManualDom ? 'true' : 'false';
                 }
                 
                 // 🚨 서류 모드 복원 기능 추가
@@ -2720,8 +2683,9 @@
             setMode('advance');
             setTripType('overseas'); 
             toggleStamp(); 
+            ensureAdjustmentRowsVisible();
             updateDoc();
-            updateAdjustmentUI();
+            updateAdjustmentLabelUI();
         });
 
         function setMode(mode) {
