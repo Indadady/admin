@@ -387,6 +387,10 @@
                                 <label class="block text-[10px] font-bold text-slate-600 mb-1">안내 문구 내용</label>
                                 <input type="text" id="in-adj-label-text" value="백단위 절사 등 조정액" placeholder="예: 백단위 절사 등 조정액" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-indigo-500" oninput="updateAdjustmentLabelUI()">
                             </div>
+                            <label class="flex items-start gap-2 cursor-pointer">
+                                <input type="checkbox" id="toggle-tax-notice-chk" onchange="onTaxNoticeToggleChange()" class="w-3.5 h-3.5 mt-0.5 text-indigo-600 rounded border-slate-300 cursor-pointer shrink-0" checked>
+                                <span class="text-[10px] font-bold text-slate-600 leading-snug">세금계산서·증빙 안내문 표시 (선택)<br><span class="font-normal text-slate-500">알선수수료 미청구 건(사전답사 등)은 기본 숨김. 필요 시 수동으로 표시할 수 있습니다.</span></span>
+                            </label>
                             <label class="block text-[10px] font-bold text-slate-600 mb-1">기 수령 선금액 수동 보정 (선택)</label>
                             <input type="text" id="in-received-manual" placeholder="비워두면 최초계약액 기준 자동계산" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-indigo-500" oninput="formatInputField(this); updateDoc()">
                         </div>
@@ -1363,8 +1367,8 @@
                                 </tr>
                             </tbody>
 
-                            <!-- 국내 발생비용 -->
-                            <tbody id="tbody-domestic" class="editable-group">
+                            <!-- 국내 발생비용 (알선수수료 0원 시 자동 숨김) -->
+                            <tbody id="tbody-domestic" class="editable-group settle-domestic-block">
                                 <tr class="item-row">
                                     <td contenteditable="true" class="bg-white item-name align-middle">알선수수료</td>
                                     <td contenteditable="true" class="text-left pl-2 col-desc bg-white">사전답사 기획/수배</td>
@@ -1377,7 +1381,7 @@
                                     </td>
                                 </tr>
                             </tbody>
-                            <tbody>
+                            <tbody class="settle-domestic-block">
                                 <tr class="calc-subtotal">
                                     <td colspan="6" class="py-1 text-blue-800 text-left pl-4">
                                         <button onclick="addRow('domestic')" class="print-hidden mr-2 text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded hover:bg-blue-200 transition"><i class="fa-solid fa-plus"></i> 항목추가</button>
@@ -1391,7 +1395,7 @@
                             <!-- 총 합계 -->
                             <tbody>
                                 <tr class="bg-[#eef2f9] font-bold text-[9.5pt]">
-                                    <td colspan="6" class="py-1.5 text-left pl-4 text-slate-700">(1) + (2) + (3) 전체 합계 산출액</td>
+                                    <td colspan="6" class="py-1.5 text-left pl-4 text-slate-700" id="grand-total-label">(1) + (2) + (3) 전체 합계 산출액</td>
                                     <td colspan="2" class="py-1.5 text-right pr-6 text-slate-700 border-l-0 tracking-wide">₩ <span id="grand-total-exact"></span></td>
                                 </tr>
                                 <tr class="bg-[#fefce8] font-bold text-[10pt] border-t-2 border-slate-800" id="row-adjustment">
@@ -1406,10 +1410,15 @@
                         </table>
                     </div>
                     
-                    <div class="mt-4 relative pb-2">
-                        <div class="text-[7.5pt] text-slate-600 leading-relaxed text-left border border-[#cbd5e1] p-1.5 bg-white">
+                    <div class="mt-4 relative pb-2" id="tax-notice-overseas-wrap">
+                        <div id="tax-notice-overseas-standard" class="text-[7.5pt] text-slate-600 leading-relaxed text-left border border-[#cbd5e1] p-1.5 bg-white">
                             <p class="font-bold text-black mb-0.5">1. 세금계산서 발행 관련 안내문</p>
                             <p>* 본 위탁용역의 특성상 항공권, 숙박비, 현지교통비 등은 당사가 직접 제공하는 서비스가 아닌, 제 3자와의 거래를 통한 수탁 대행 처리 항목으로 분류됩니다. 따라서, 당사는 전체 계약금액 기준의 세금계산서 발행이 불가하며, 국내 과세 대상 경비 중 <strong>알선수수료</strong> 등 자체수익에 대해서만 세금계산서를 발행함을 사전 안내드립니다.</p>
+                        </div>
+                        <div id="tax-notice-overseas-package" class="hidden text-[7.5pt] text-slate-600 leading-relaxed text-left border border-[#cbd5e1] p-1.5 bg-white">
+                            <p class="font-bold text-black mb-0.5">1. 정산 증빙 안내 (현지 B2B 패키지)</p>
+                            <p>* 본 건은 본행사 수행을 위한 <strong>사전답사</strong> 등으로, 당사 <strong>알선수수료는 별도 청구하지 않습니다</strong>.</p>
+                            <p>* 청구 금액은 현지 랜드사와의 <strong>B2B 패키지 일괄도급비</strong>에 해당하며, 국세청 부가46015-1296(2000.6.2.)에 따라 현지 업체 발행 <strong>Invoice(인보이스)</strong>가 적법한 최종 증빙입니다.</p>
                         </div>
                     </div>
                 </div>
@@ -1495,10 +1504,14 @@
                         </table>
                     </div>
                     
-                    <div class="mt-4 relative pb-2">
-                        <div class="text-[7.5pt] text-slate-600 leading-relaxed text-left border border-[#cbd5e1] p-1.5 bg-white">
+                    <div class="mt-4 relative pb-2" id="tax-notice-domestic-wrap">
+                        <div id="tax-notice-domestic-standard" class="text-[7.5pt] text-slate-600 leading-relaxed text-left border border-[#cbd5e1] p-1.5 bg-white">
                             <p class="font-bold text-black mb-0.5">1. 세금계산서 발행 관련 안내문</p>
                             <p>* 본 위탁용역의 특성상 수탁 대행 처리 항목으로 분류됩니다. 당사는 전체 계약금액 기준의 세금계산서 발행이 불가하며, 국세청 부가가치세법 기본통칙(여행업의 매입세액 공제범위)에 의해 <strong>위탁알선수수료</strong> 등 자체수익에 대해서만 세금계산서를 발행함을 사전 안내드립니다.</p>
+                        </div>
+                        <div id="tax-notice-domestic-package" class="hidden text-[7.5pt] text-slate-600 leading-relaxed text-left border border-[#cbd5e1] p-1.5 bg-white">
+                            <p class="font-bold text-black mb-0.5">1. 정산 증빙 안내</p>
+                            <p>* 본 건은 <strong>알선수수료를 별도 청구하지 않는</strong> 용역으로, 청구 금액은 수탁 대행·현지/국내 경비의 <strong>일괄 정산</strong>에 해당합니다. 세금계산서는 과세 대상 수수료가 발생한 경우에만 별도 발행합니다.</p>
                         </div>
                     </div>
                 </div>
@@ -1669,7 +1682,8 @@
         let currentTripType = 'overseas';
         let currentClientType = 'school'; 
         let currentMode = 'advance'; 
-        let isPlanManual = false; 
+        let isPlanManual = false;
+        let taxNoticeManual = false; 
 
         function setRep(rep) {
             currentRep = rep;
@@ -1986,6 +2000,72 @@
             });
         }
 
+        function getDomesticNoticeMode() {
+            let hasCommissionRow = false;
+            let commissionTotal = 0;
+            document.querySelectorAll('#tbody-dom-only tr.item-row').forEach(row => {
+                const nameCell = row.querySelector('.item-name, .col-item, .col-cat');
+                const name = nameCell ? nameCell.innerText : '';
+                if (/알선|수수료/.test(name)) {
+                    hasCommissionRow = true;
+                    commissionTotal += parseNum(row.querySelector('.col-sum')?.innerText);
+                }
+            });
+            if (!hasCommissionRow) return 'standard';
+            return commissionTotal > 0 ? 'standard' : 'package';
+        }
+
+        function getTaxNoticeSmartDefault(totalDomestic) {
+            if (currentTripType === 'overseas') return totalDomestic > 0;
+            return getDomesticNoticeMode() === 'standard';
+        }
+
+        function applyTaxNoticeVisibility() {
+            const chk = document.getElementById('toggle-tax-notice-chk');
+            const show = chk ? chk.checked : true;
+            ['tax-notice-overseas-wrap', 'tax-notice-domestic-wrap'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.toggle('hidden', !show);
+            });
+        }
+
+        function onTaxNoticeToggleChange() {
+            taxNoticeManual = true;
+            applyTaxNoticeVisibility();
+        }
+
+        function updateSettlementNotices(totalDomestic) {
+            const hasOverseasCommission = totalDomestic > 0;
+            const domNoticeMode = getDomesticNoticeMode();
+
+            document.querySelectorAll('.settle-domestic-block').forEach(el => {
+                el.style.display = hasOverseasCommission ? '' : 'none';
+            });
+
+            const grandLabel = document.getElementById('grand-total-label');
+            if (grandLabel) {
+                grandLabel.innerText = hasOverseasCommission
+                    ? '(1) + (2) + (3) 전체 합계 산출액'
+                    : '(1) + (2) 전체 합계 산출액';
+            }
+
+            const osStd = document.getElementById('tax-notice-overseas-standard');
+            const osPkg = document.getElementById('tax-notice-overseas-package');
+            if (osStd) osStd.classList.toggle('hidden', !hasOverseasCommission);
+            if (osPkg) osPkg.classList.toggle('hidden', hasOverseasCommission);
+
+            const domStd = document.getElementById('tax-notice-domestic-standard');
+            const domPkg = document.getElementById('tax-notice-domestic-package');
+            if (domStd) domStd.classList.toggle('hidden', domNoticeMode !== 'standard');
+            if (domPkg) domPkg.classList.toggle('hidden', domNoticeMode !== 'package');
+
+            if (!taxNoticeManual) {
+                const chk = document.getElementById('toggle-tax-notice-chk');
+                if (chk) chk.checked = getTaxNoticeSmartDefault(totalDomestic);
+            }
+            applyTaxNoticeVisibility();
+        }
+
         function calcTable() {
             let totalFlight = 0, totalLocalKrw = 0, totalLocalForeign = 0, totalDomestic = 0;
 
@@ -2029,6 +2109,8 @@
             });
             const subtotalDomesticEl = document.getElementById('subtotal-domestic');
             if(subtotalDomesticEl) subtotalDomesticEl.innerText = formatNum(totalDomestic);
+
+            updateSettlementNotices(totalDomestic);
 
             let grandTotalOverseas = totalFlight + totalLocalKrw + totalDomestic;
             const grandTotalExactEl = document.getElementById('grand-total-exact');
@@ -2377,6 +2459,7 @@
             const showStamp = document.getElementById('toggle-stamp-chk').checked;
             const adjLabelChk = document.getElementById('toggle-adj-label-chk');
             const adjLabelInput = document.getElementById('in-adj-label-text');
+            const taxNoticeChk = document.getElementById('toggle-tax-notice-chk');
 
             const manualInputEl = document.getElementById('manual-settle-input');
             const manualInputDomEl = document.getElementById('manual-settle-input-dom');
@@ -2419,6 +2502,8 @@
                 
                 showAdjustmentLabel: adjLabelChk ? adjLabelChk.checked : false,
                 adjustmentLabelText: adjLabelInput ? adjLabelInput.value : DEFAULT_ADJ_LABEL,
+                showTaxNotice: taxNoticeChk ? taxNoticeChk.checked : true,
+                taxNoticeManual: taxNoticeManual,
                 manualSettleInput: manualInputEl ? manualInputEl.innerText : '',
                 isManual: manualInputEl ? (manualInputEl.dataset.manual === 'true') : false,
                 manualSettleInputDom: manualInputDomEl ? manualInputDomEl.innerText : '',
@@ -2537,6 +2622,12 @@
                 if (adjLabelChk) adjLabelChk.checked = data.showAdjustmentLabel === true;
                 if (adjLabelInput) adjLabelInput.value = data.adjustmentLabelText || DEFAULT_ADJ_LABEL;
                 updateAdjustmentLabelUI();
+
+                taxNoticeManual = data.taxNoticeManual === true;
+                const taxNoticeChk = document.getElementById('toggle-tax-notice-chk');
+                if (taxNoticeChk && data.showTaxNotice !== undefined) {
+                    taxNoticeChk.checked = data.showTaxNotice;
+                }
 
                 if (document.getElementById('manual-settle-input') && data.manualSettleInput !== undefined) {
                     document.getElementById('manual-settle-input').innerText = data.manualSettleInput;
