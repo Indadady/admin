@@ -410,6 +410,12 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">서류 작성(발행) 일자 <span class="font-normal text-slate-500">(선금/정산용)</span></label>
                     <input type="date" id="in-date" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" onchange="updateDoc()">
+                    <label class="block text-[11px] font-bold text-slate-600 mt-2 mb-1">작성일자 공란 옵션 <span class="font-normal text-slate-400">(시행·제출·작성일 출력)</span></label>
+                    <select id="in-date-blank-mode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-blue-500" onchange="updateDoc()">
+                        <option value="">전체 표기</option>
+                        <option value="d">일만 공란 (○○년 ○월 　　일)</option>
+                        <option value="md">월·일 공란 (○○년 　　월 　　일)</option>
+                    </select>
                 </div>
 
                 <!-- 환율 리체크 (해외 정산내역서 최종 환율 점검) -->
@@ -2334,13 +2340,46 @@
             document.querySelectorAll('.out-bus').forEach(el => el.innerText = formatNum(bus));
         }
 
-        function formatDateKorean(dateStr) {
-            if(!dateStr) return '';
+        const DATE_BLANK_SP = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+
+        function getDateBlankMode() {
+            const el = document.getElementById('in-date-blank-mode');
+            return el ? el.value : '';
+        }
+
+        function parseDateParts(dateStr) {
+            if (!dateStr) return null;
             const d = new Date(dateStr);
-            const yyyy = d.getFullYear();
-            const mm = String(d.getMonth()+1).padStart(2, '0');
-            const dd = String(d.getDate()).padStart(2, '0');
-            return `${yyyy}년 ${parseInt(mm)}월 ${parseInt(dd)}일`;
+            if (isNaN(d.getTime())) return null;
+            return {
+                yyyy: d.getFullYear(),
+                mm: parseInt(String(d.getMonth() + 1).padStart(2, '0'), 10),
+                mmPad: String(d.getMonth() + 1).padStart(2, '0'),
+                dd: parseInt(String(d.getDate()).padStart(2, '0'), 10),
+                ddPad: String(d.getDate()).padStart(2, '0')
+            };
+        }
+
+        function formatDateKorean(dateStr, blankMode) {
+            const p = parseDateParts(dateStr);
+            if (!p) return '';
+            const mode = blankMode !== undefined ? blankMode : getDateBlankMode();
+            if (mode === 'd') return `${p.yyyy}년 ${p.mm}월 ${DATE_BLANK_SP}일`;
+            if (mode === 'md') return `${p.yyyy}년 ${DATE_BLANK_SP}월 ${DATE_BLANK_SP}일`;
+            return `${p.yyyy}년 ${p.mm}월 ${p.dd}일`;
+        }
+
+        function formatDateKoreanSpaced(dateStr, blankMode) {
+            const p = parseDateParts(dateStr);
+            if (!p) return '';
+            const mode = blankMode !== undefined ? blankMode : getDateBlankMode();
+            if (mode === 'd') return `${p.yyyy}년   ${p.mm}월   ${DATE_BLANK_SP}일`;
+            if (mode === 'md') return `${p.yyyy}년   ${DATE_BLANK_SP}월   ${DATE_BLANK_SP}일`;
+            return `${p.yyyy}년   ${p.mm}월   ${p.dd}일`;
+        }
+
+        function setDateOutput(selector, html) {
+            document.querySelectorAll(selector).forEach(el => { el.innerHTML = html; });
         }
 
         function updateDoc() {
@@ -2405,26 +2444,37 @@
             document.querySelectorAll('.out-start-date-korean').forEach(el => el.innerText = formatDateKorean(startDate));
             document.querySelectorAll('.out-end-date-korean').forEach(el => el.innerText = formatDateKorean(endDate));
             
-            // 분리된 문서 날짜 적용
-            if(startDocDate) {
-                document.querySelectorAll('.out-start-doc-date-korean').forEach(el => el.innerText = formatDateKorean(startDocDate));
-            }
-            if(endDocDate) {
-                document.querySelectorAll('.out-end-doc-date-korean').forEach(el => el.innerText = formatDateKorean(endDocDate));
-            }
+            const dateBlankMode = getDateBlankMode();
 
-            if(dateStr) {
-                const d = new Date(dateStr);
-                const yyyy = d.getFullYear();
-                const mm = String(d.getMonth()+1).padStart(2, '0');
-                const dd = String(d.getDate()).padStart(2, '0');
-                
-                document.querySelectorAll('.out-date-korean').forEach(el => el.innerText = `${yyyy}년 ${parseInt(mm)}월 ${parseInt(dd)}일`);
-                document.querySelectorAll('.out-date-korean-ym').forEach(el => el.innerText = `${yyyy}년 ${mm}월`);
-                document.querySelectorAll('.out-date-korean-ym-dash').forEach(el => el.innerText = `${yyyy}-${mm}-`);
-                document.querySelectorAll('.out-date-korean-spaced').forEach(el => el.innerText = `${yyyy}년   ${parseInt(mm)}월   ${parseInt(dd)}일`);
-                document.querySelectorAll('.out-date-mmdd').forEach(el => el.innerText = `${mm}${dd}`);
-                document.querySelectorAll('.out-doc-year').forEach(el => el.innerText = yyyy);
+            setDateOutput('.out-start-doc-date-korean', formatDateKorean(startDocDate, dateBlankMode));
+            setDateOutput('.out-end-doc-date-korean', formatDateKorean(endDocDate, dateBlankMode));
+
+            const mainDate = parseDateParts(dateStr);
+            if (mainDate) {
+                setDateOutput('.out-date-korean', formatDateKorean(dateStr, dateBlankMode));
+                setDateOutput('.out-date-korean-spaced', formatDateKoreanSpaced(dateStr, dateBlankMode));
+
+                if (dateBlankMode === 'md') {
+                    setDateOutput('.out-date-korean-ym', `${mainDate.yyyy}년 ${DATE_BLANK_SP}월`);
+                    setDateOutput('.out-date-korean-ym-dash', `${mainDate.yyyy}-${DATE_BLANK_SP}-`);
+                    setDateOutput('.out-date-mmdd', DATE_BLANK_SP);
+                } else if (dateBlankMode === 'd') {
+                    setDateOutput('.out-date-korean-ym', `${mainDate.yyyy}년 ${mainDate.mmPad}월`);
+                    setDateOutput('.out-date-korean-ym-dash', `${mainDate.yyyy}-${mainDate.mmPad}-`);
+                    setDateOutput('.out-date-mmdd', `${mainDate.mmPad}${DATE_BLANK_SP}`);
+                } else {
+                    document.querySelectorAll('.out-date-korean-ym').forEach(el => el.innerText = `${mainDate.yyyy}년 ${mainDate.mmPad}월`);
+                    document.querySelectorAll('.out-date-korean-ym-dash').forEach(el => el.innerText = `${mainDate.yyyy}-${mainDate.mmPad}-`);
+                    document.querySelectorAll('.out-date-mmdd').forEach(el => el.innerText = `${mainDate.mmPad}${mainDate.ddPad}`);
+                }
+                document.querySelectorAll('.out-doc-year').forEach(el => el.innerText = mainDate.yyyy);
+            } else {
+                setDateOutput('.out-date-korean', '');
+                setDateOutput('.out-date-korean-spaced', '');
+                setDateOutput('.out-date-korean-ym', '');
+                setDateOutput('.out-date-korean-ym-dash', '');
+                setDateOutput('.out-date-mmdd', '');
+                document.querySelectorAll('.out-doc-year').forEach(el => el.innerText = '');
             }
 
             if(!isPlanManual) {
@@ -2490,6 +2540,7 @@
 
                 // 작성일자 3종 저장
                 date: document.getElementById('in-date').value,
+                dateBlankMode: getDateBlankMode(),
                 startDocDate: document.getElementById('in-start-doc-date') ? document.getElementById('in-start-doc-date').value : '',
                 endDocDate: document.getElementById('in-end-doc-date') ? document.getElementById('in-end-doc-date').value : '',
 
@@ -2572,7 +2623,10 @@
                 if(document.getElementById('in-remark')) document.getElementById('in-remark').value = data.remark || '';
 
                 document.getElementById('in-date').value = data.date || '';
-                
+                if (document.getElementById('in-date-blank-mode')) {
+                    document.getElementById('in-date-blank-mode').value = data.dateBlankMode || (data.dateBlank ? 'd' : '');
+                }
+
                 // 작성일자 분리 로드
                 if(document.getElementById('in-start-doc-date')) document.getElementById('in-start-doc-date').value = data.startDocDate || '';
                 if(document.getElementById('in-end-doc-date')) document.getElementById('in-end-doc-date').value = data.endDocDate || '';
