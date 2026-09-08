@@ -421,7 +421,7 @@
                 <!-- 환율 리체크 (해외 정산내역서 최종 환율 점검) -->
                 <div id="fx-recheck-box" class="bg-amber-50 p-3 rounded-lg border border-amber-300">
                     <label class="block text-xs font-bold text-amber-800 mb-1"><i class="fa-solid fa-yen-sign"></i> 환율 리체크 <span class="font-normal text-amber-600">(해외 정산내역서)</span></label>
-                    <p class="text-[10px] text-amber-700 mb-2 leading-tight">※ 파일을 불러올 때마다 <b>최종 환율</b>을 다시 확인하도록 안내합니다. 환율을 수정하면 우측 정산내역서 표에 자동 반영됩니다.</p>
+                    <p class="text-[10px] text-amber-700 mb-2 leading-tight">※ 파일을 불러올 때마다 <b>최종 환율</b>을 다시 확인하도록 안내합니다. 환율·외화단가를 입력하면 해외현지비 <b>원화단가 = 외화단가 × 환율</b>로 자동 계산됩니다.</p>
                     <div class="flex items-center gap-1.5">
                         <span class="text-[11px] text-slate-600 shrink-0">외화</span>
                         <input type="text" id="in-fx-rate" value="9.5" class="w-20 border border-slate-300 rounded px-2 py-1.5 text-xs text-right font-bold focus:outline-none focus:border-amber-500" oninput="applyFxRate()">
@@ -1304,7 +1304,7 @@
                                     <th class="w-[22%]">내용</th> 
                                     <th class="w-[7%]">수량</th>
                                     <th class="w-[10%]">외화단가<br><span class="text-[8px] text-slate-500 font-normal">(<span id="currency-code" contenteditable="true" class="text-blue-600 border-b border-dashed border-blue-300 cursor-text" title="클릭하여 JPY, USD, CNY 등 변경">JPY</span>)</span></th>
-                                    <th class="w-[12%]">원화단가<br><span class="text-[8px] text-slate-500 font-normal">(KRW)</span></th>
+                                    <th class="w-[12%]">원화단가<br><span class="text-[8px] text-slate-500 font-normal">(KRW · 외화×환율)</span></th>
                                     <th class="w-[14%]">총금액<br><span class="text-[8px] text-slate-500 font-normal">(KRW)</span></th>
                                     <th class="w-[12%]">비고</th>
                                 </tr>
@@ -1778,6 +1778,40 @@
             return parseInt(str.toString().replace(/[^0-9-]/g, '')) || 0; 
         }
 
+        function parseFxRate(str) {
+            if (!str) return 0;
+            const n = parseFloat(String(str).replace(/,/g, '').replace(/[^\d.-]/g, ''));
+            return isNaN(n) ? 0 : n;
+        }
+
+        function getFxRate() {
+            const el = document.getElementById('in-fx-rate');
+            return parseFxRate(el ? el.value : '');
+        }
+
+        function foreignTextIsBlank(text) {
+            const t = (text || '').trim();
+            return t === '' || t === '-' || t === '—' || t === '–';
+        }
+
+        function syncLocalKrwFromFx() {
+            const rate = getFxRate();
+            document.querySelectorAll('#tbody-local tr.item-row').forEach(row => {
+                const foreignEl = row.querySelector('.col-foreign');
+                const krwEl = row.querySelector('.col-krw');
+                if (!foreignEl || !krwEl) return;
+                if (foreignTextIsBlank(foreignEl.innerText)) return;
+                if (krwEl.dataset.krwManual === '1') {
+                    krwEl.title = '원화단가를 직접 수정한 값입니다. 외화단가나 환율을 바꾸면 다시 자동계산됩니다.';
+                    return;
+                }
+                if (!(rate > 0)) return;
+                const krw = Math.round(parseNum(foreignEl.innerText) * rate);
+                krwEl.innerText = formatNum(krw);
+                krwEl.title = '외화단가 × 환율로 자동계산됩니다. 직접 수정하면 그 값이 유지됩니다.';
+            });
+        }
+
         function formatNum(num) {
             if(num === 0) return '0';
             return new Intl.NumberFormat('ko-KR').format(num);
@@ -2048,6 +2082,7 @@
         }
 
         function calcTable() {
+            syncLocalKrwFromFx();
             let totalFlight = 0, totalLocalKrw = 0, totalLocalForeign = 0, totalDomestic = 0;
 
             document.querySelectorAll('#tbody-flight tr.item-row').forEach(row => {
@@ -2197,12 +2232,16 @@
             if (!rateEl) return;
             const v = (rateEl.value || '').trim();
             document.querySelectorAll('.out-fx-rate').forEach(s => s.innerText = v);
+            document.querySelectorAll('#tbody-local tr.item-row .col-krw').forEach(el => {
+                delete el.dataset.krwManual;
+            });
             // 환율을 바꾸면 다시 확인해야 하므로 확인 상태 초기화
             const chk = document.getElementById('chk-fx-confirm');
             if (chk) chk.checked = false;
             updateFxRecheckUI();
+            calcTable();
             if (manual === true) {
-                alert(`정산내역서 표의 환율이 "외화 ${v || '-'} 기준" 으로 반영되었습니다.\n금액(원화단가/총금액)은 자동 환산되지 않으니 표의 숫자도 함께 확인하세요.`);
+                alert(`정산내역서 표의 환율이 "외화 ${v || '-'} 기준" 으로 반영되었습니다.\n해외현지비 원화단가·총금액은 외화단가 × 환율로 다시 계산했습니다.`);
             }
         }
 
@@ -2223,6 +2262,13 @@
             const docContainer = document.getElementById('doc-container');
             if(docContainer) {
                 docContainer.addEventListener('input', function(e) {
+                    if (e.target.classList.contains('col-krw') && e.target.closest('#tbody-local')) {
+                        e.target.dataset.krwManual = '1';
+                    }
+                    if (e.target.classList.contains('col-foreign') && e.target.closest('#tbody-local')) {
+                        const krwEl = e.target.closest('tr') && e.target.closest('tr').querySelector('.col-krw');
+                        if (krwEl) delete krwEl.dataset.krwManual;
+                    }
                     if(e.target.hasAttribute('contenteditable')) calcTable();
                     
                     if (e.target.classList.contains('item-name') || e.target.classList.contains('col-cat') || e.target.classList.contains('col-item')) {
@@ -2248,6 +2294,9 @@
                 docContainer.addEventListener('blur', function(e) {
                     if(e.target.classList.contains('col-qty') || e.target.classList.contains('col-foreign') || e.target.classList.contains('col-krw')) {
                         let text = e.target.innerText.trim();
+                        if (e.target.classList.contains('col-krw') && e.target.closest('#tbody-local') && text === '') {
+                            delete e.target.dataset.krwManual;
+                        }
                         if(text !== '') {
                             let val = parseNum(text);
                             e.target.innerText = val !== 0 ? formatNum(val) : '0';
