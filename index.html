@@ -283,11 +283,11 @@
                             <div class="grid grid-cols-2 gap-2 border-b border-amber-200 pb-3 mb-2">
                                 <div>
                                     <label class="block text-[11px] font-bold text-slate-700 mb-1 text-blue-700">착수계 제출일</label>
-                                    <input type="date" id="in-start-doc-date" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-amber-500" onchange="updateDoc()">
+                                    <input type="date" id="in-start-doc-date" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-amber-500" oninput="updateDoc()" onchange="updateDoc()">
                                 </div>
                                 <div>
                                     <label class="block text-[11px] font-bold text-slate-700 mb-1 text-blue-700">완료계 제출일</label>
-                                    <input type="date" id="in-end-doc-date" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-amber-500" onchange="updateDoc()">
+                                    <input type="date" id="in-end-doc-date" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-amber-500" oninput="updateDoc()" onchange="updateDoc()">
                                 </div>
                             </div>
 
@@ -307,16 +307,16 @@
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 mb-1">계약일자</label>
-                                    <input type="date" id="in-contract-date" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-amber-500" onchange="updateDoc()">
+                                    <input type="date" id="in-contract-date" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-amber-500" oninput="updateDoc()" onchange="updateDoc()">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 mb-1">착수일자</label>
-                                    <input type="date" id="in-start-date" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-amber-500" onchange="updateDoc()">
+                                    <input type="date" id="in-start-date" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-amber-500" oninput="updateDoc()" onchange="updateDoc()">
                                 </div>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">용역기한 (종료일자)</label>
-                                <input type="date" id="in-end-date" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-amber-500" onchange="updateDoc()">
+                                <input type="date" id="in-end-date" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-amber-500" oninput="updateDoc()" onchange="updateDoc()">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">행사 장소</label>
@@ -2399,17 +2399,33 @@
 
         function parseDateParts(dateStr) {
             if (!dateStr) return null;
+            // YYYY-MM-DD는 UTC 파싱으로 하루 밀릴 수 있어 달력 문자열을 직접 분해
+            const m = String(dateStr).trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+            if (m) {
+                const yyyy = parseInt(m[1], 10);
+                const mm = parseInt(m[2], 10);
+                const dd = parseInt(m[3], 10);
+                if (!yyyy || mm < 1 || mm > 12 || dd < 1 || dd > 31) return null;
+                return {
+                    yyyy,
+                    mm,
+                    mmPad: String(mm).padStart(2, '0'),
+                    dd,
+                    ddPad: String(dd).padStart(2, '0')
+                };
+            }
             const d = new Date(dateStr);
             if (isNaN(d.getTime())) return null;
             return {
                 yyyy: d.getFullYear(),
-                mm: parseInt(String(d.getMonth() + 1).padStart(2, '0'), 10),
+                mm: d.getMonth() + 1,
                 mmPad: String(d.getMonth() + 1).padStart(2, '0'),
-                dd: parseInt(String(d.getDate()).padStart(2, '0'), 10),
+                dd: d.getDate(),
                 ddPad: String(d.getDate()).padStart(2, '0')
             };
         }
 
+        // blankMode: '' = 전체 표기, 'd'/'md' = 공란. 미지정 시 작성일자 공란 옵션 사용
         function formatDateKorean(dateStr, blankMode) {
             const p = parseDateParts(dateStr);
             if (!p) return '';
@@ -2417,6 +2433,11 @@
             if (mode === 'd') return `${p.yyyy}년 ${p.mm}월 ${DATE_BLANK_SP}일`;
             if (mode === 'md') return `${p.yyyy}년 ${DATE_BLANK_SP}월 ${DATE_BLANK_SP}일`;
             return `${p.yyyy}년 ${p.mm}월 ${p.dd}일`;
+        }
+
+        // 계약·착수·용역기한 등 고정 일정은 공란 옵션과 무관하게 항상 전체 표기
+        function formatDateKoreanFull(dateStr) {
+            return formatDateKorean(dateStr, '');
         }
 
         function formatDateKoreanSpaced(dateStr, blankMode) {
@@ -2490,9 +2511,10 @@
             document.querySelectorAll('.out-participants').forEach(el => el.innerText = participants);
             document.querySelectorAll('.out-remark').forEach(el => el.innerText = remark);
 
-            document.querySelectorAll('.out-contract-date-korean').forEach(el => el.innerText = formatDateKorean(contractDate));
-            document.querySelectorAll('.out-start-date-korean').forEach(el => el.innerText = formatDateKorean(startDate));
-            document.querySelectorAll('.out-end-date-korean').forEach(el => el.innerText = formatDateKorean(endDate));
+            // 계약/착수/용역기한: 작성일자 공란 옵션에 영향받지 않고 항상 우측 서류에 전체 반영
+            document.querySelectorAll('.out-contract-date-korean').forEach(el => { el.textContent = formatDateKoreanFull(contractDate); });
+            document.querySelectorAll('.out-start-date-korean').forEach(el => { el.textContent = formatDateKoreanFull(startDate); });
+            document.querySelectorAll('.out-end-date-korean').forEach(el => { el.textContent = formatDateKoreanFull(endDate); });
             
             const dateBlankMode = getDateBlankMode();
 
