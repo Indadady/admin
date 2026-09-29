@@ -381,6 +381,31 @@
 
                 <!-- 선금 입력부 -->
                 <div id="advance-inputs" class="space-y-4">
+                    <div class="bg-amber-50 p-3 rounded-lg border border-amber-200">
+                        <div class="flex justify-between items-center gap-2 mb-1">
+                            <span class="text-xs font-bold text-amber-900">공문 붙임 서류</span>
+                            <button type="button" onclick="resetAdvanceAttachments()" class="text-[10px] bg-white hover:bg-amber-100 px-2 py-0.5 rounded text-amber-800 font-bold border border-amber-200 transition shrink-0">기본 목록</button>
+                        </div>
+                        <p class="text-[10px] text-amber-800 mb-2 leading-tight">선금 공문의 붙임 문구만 바뀝니다. 각서·계좌입금의뢰서처럼 빼도 오른쪽 서류 페이지는 그대로 남고, 번호는 다시 매겨지며 마지막 항목에 ‘끝.’이 붙습니다.</p>
+                        <div id="advance-attach-list" class="space-y-1.5"></div>
+                        <button type="button" onclick="addAdvanceAttachment()" class="mt-2 w-full text-[11px] bg-white text-amber-900 border border-amber-300 py-1.5 rounded hover:bg-amber-100 transition font-bold">항목 추가</button>
+                    </div>
+
+                    <div class="bg-sky-50 p-3 rounded-lg border border-sky-200">
+                        <label class="block text-xs font-bold text-sky-900 mb-1">선금 입금 계좌</label>
+                        <p class="text-[10px] text-sky-800 mb-2 leading-tight">선금 전용계좌가 필요한 곳에만 입력하세요. 비우면 선택한 대표자의 기본 계좌가 들어갑니다. 선금 청구서·계좌입금의뢰서에만 적용되고, 정산·영수증 계좌는 바뀌지 않습니다.</p>
+                        <div class="space-y-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-600 mb-1">은행명</label>
+                                <input type="text" id="in-bank-override" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-sky-500" placeholder="기본 계좌 사용" oninput="applyBankAccount()">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-600 mb-1">계좌번호</label>
+                                <input type="text" id="in-account-override" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:border-sky-500 font-bold tracking-wide" placeholder="기본 계좌 사용" oninput="applyBankAccount()">
+                            </div>
+                        </div>
+                    </div>
+
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">선금 청구 비율 (%)</label>
                         <div class="flex gap-2">
@@ -512,12 +537,7 @@
 
                         <div class="text-[11pt] mb-12 pb-10">
                             <p class="font-bold mb-4">붙임</p>
-                            <p class="ml-8 mb-2">1. 선금지급신청서 1부.</p>
-                            <p class="ml-8 mb-2">2. 선금사용계획서 1부.</p>
-                            <p class="ml-8 mb-2">3. 각서 1부.</p>
-                            <p class="ml-8 mb-2">4. 선금 청구서 1부.</p>
-                            <p class="ml-8 mb-2">5. 계좌입금의뢰서 1부.</p>
-                            <p class="ml-8">6. 보증보험증권 각 1부. 끝.</p>
+                            <div id="advance-attach-out"></div>
                         </div>
                     </div>
 
@@ -751,8 +771,8 @@
                     <div class="border border-slate-800 rounded-lg p-6 w-[80%] mx-auto relative">
                         <div class="absolute -top-3 left-6 bg-white px-2 font-bold text-slate-600 text-sm">입금 계좌 정보</div>
                         <div class="space-y-4 text-[11pt]">
-                            <div class="flex"><div class="w-32 font-bold pl-4">은 행 명</div><div class="w-4">:</div><div class="flex-1 font-bold out-rep-bank"></div></div>
-                            <div class="flex"><div class="w-32 font-bold pl-4">계좌번호</div><div class="w-4">:</div><div class="flex-1 font-bold tracking-widest text-lg text-blue-700 out-rep-account"></div></div>
+                            <div class="flex"><div class="w-32 font-bold pl-4">은 행 명</div><div class="w-4">:</div><div class="flex-1 font-bold out-rep-bank out-advance-bank"></div></div>
+                            <div class="flex"><div class="w-32 font-bold pl-4">계좌번호</div><div class="w-4">:</div><div class="flex-1 font-bold tracking-widest text-lg text-blue-700 out-rep-account out-advance-account"></div></div>
                             <div class="flex"><div class="w-32 font-bold pl-4">예 금 주</div><div class="w-4">:</div><div class="flex-1 font-bold out-rep-holder"></div></div>
                         </div>
                     </div>
@@ -777,11 +797,11 @@
                         </tr>
                         <tr class="border-b border-slate-200">
                             <td class="font-bold text-center">금 융 기 관</td>
-                            <td class="pl-6 font-bold border-l border-slate-200 out-rep-bank"></td>
+                            <td class="pl-6 font-bold border-l border-slate-200 out-rep-bank out-advance-bank"></td>
                         </tr>
                         <tr class="border-b border-slate-200">
                             <td class="font-bold text-center">계 좌 번 호</td>
-                            <td class="pl-6 font-bold tracking-widest text-lg border-l border-slate-200 text-blue-700 out-rep-account"></td>
+                            <td class="pl-6 font-bold tracking-widest text-lg border-l border-slate-200 text-blue-700 out-rep-account out-advance-account"></td>
                         </tr>
                         <tr class="border-b border-slate-200">
                             <td class="font-bold text-center">입금요청일자</td>
@@ -1753,7 +1773,112 @@
         let currentClientType = 'school'; 
         let currentMode = 'advance'; 
         let isPlanManual = false;
-        let taxNoticeManual = false; 
+        let taxNoticeManual = false;
+
+        const DEFAULT_ADVANCE_ATTACHMENTS = [
+            '선금지급신청서 1부.',
+            '선금사용계획서 1부.',
+            '각서 1부.',
+            '선금 청구서 1부.',
+            '계좌입금의뢰서 1부.',
+            '보증보험증권 각 1부.'
+        ];
+        let advanceAttachments = DEFAULT_ADVANCE_ATTACHMENTS.slice();
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function cleanAttachText(text) {
+            return String(text || '').replace(/\s*끝\.?\s*$/g, '').trim();
+        }
+
+        function setAdvanceAttachments(list) {
+            const source = Array.isArray(list) ? list : DEFAULT_ADVANCE_ATTACHMENTS;
+            advanceAttachments = source.map(cleanAttachText);
+            renderAdvanceAttachmentEditor();
+        }
+
+        function renderAdvanceAttachmentDoc() {
+            const out = document.getElementById('advance-attach-out');
+            if (!out) return;
+            const items = advanceAttachments.map(cleanAttachText).filter(Boolean);
+            out.innerHTML = items.map((text, i) => {
+                const isLast = i === items.length - 1;
+                const line = /[.。]$/.test(text) ? text : `${text}.`;
+                const cls = isLast ? 'ml-8' : 'ml-8 mb-2';
+                return `<p class="${cls}">${i + 1}. ${escapeHtml(line)}${isLast ? ' 끝.' : ''}</p>`;
+            }).join('');
+        }
+
+        function renderAdvanceAttachmentEditor() {
+            const list = document.getElementById('advance-attach-list');
+            if (!list) return;
+            if (!advanceAttachments.length) {
+                list.innerHTML = '<p class="text-[10px] text-slate-500">붙임 항목이 없습니다. 아래에서 추가하세요.</p>';
+            } else {
+                list.innerHTML = advanceAttachments.map((text, i) => `
+                    <div class="flex items-center gap-1">
+                        <span class="text-[10px] font-bold text-slate-400 w-4 shrink-0 text-right">${i + 1}</span>
+                        <input type="text" value="${escapeHtml(text)}" class="flex-1 min-w-0 border border-slate-300 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-500 bg-white" oninput="updateAdvanceAttachment(${i}, this.value)">
+                        <button type="button" onclick="moveAdvanceAttachment(${i}, -1)" class="text-slate-400 hover:text-slate-700 px-0.5 ${i === 0 ? 'opacity-30' : ''}" title="위로" ${i === 0 ? 'disabled' : ''}><i class="fa-solid fa-chevron-up text-[10px]"></i></button>
+                        <button type="button" onclick="moveAdvanceAttachment(${i}, 1)" class="text-slate-400 hover:text-slate-700 px-0.5 ${i === advanceAttachments.length - 1 ? 'opacity-30' : ''}" title="아래로" ${i === advanceAttachments.length - 1 ? 'disabled' : ''}><i class="fa-solid fa-chevron-down text-[10px]"></i></button>
+                        <button type="button" onclick="removeAdvanceAttachment(${i})" class="text-red-500 hover:bg-red-50 px-1 rounded" title="삭제"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                `).join('');
+            }
+            renderAdvanceAttachmentDoc();
+        }
+
+        function updateAdvanceAttachment(index, value) {
+            if (index < 0 || index >= advanceAttachments.length) return;
+            advanceAttachments[index] = value;
+            renderAdvanceAttachmentDoc();
+        }
+
+        function removeAdvanceAttachment(index) {
+            advanceAttachments.splice(index, 1);
+            renderAdvanceAttachmentEditor();
+        }
+
+        function addAdvanceAttachment() {
+            advanceAttachments.push('첨부서류 1부.');
+            renderAdvanceAttachmentEditor();
+            const inputs = document.querySelectorAll('#advance-attach-list input');
+            const last = inputs[inputs.length - 1];
+            if (last) {
+                last.focus();
+                last.select();
+            }
+        }
+
+        function moveAdvanceAttachment(index, dir) {
+            const next = index + dir;
+            if (next < 0 || next >= advanceAttachments.length) return;
+            const [item] = advanceAttachments.splice(index, 1);
+            advanceAttachments.splice(next, 0, item);
+            renderAdvanceAttachmentEditor();
+        }
+
+        function resetAdvanceAttachments() {
+            setAdvanceAttachments(DEFAULT_ADVANCE_ATTACHMENTS);
+        }
+
+        function applyBankAccount() {
+            const rep = reps[currentRep] || reps.lee;
+            const bankInput = document.getElementById('in-bank-override');
+            const accountInput = document.getElementById('in-account-override');
+            const bank = (bankInput && bankInput.value.trim()) || rep.bank;
+            const account = (accountInput && accountInput.value.trim()) || rep.account;
+            document.querySelectorAll('.out-advance-bank').forEach(el => { el.innerText = bank; });
+            document.querySelectorAll('.out-advance-account').forEach(el => { el.innerText = account; });
+            if (bankInput) bankInput.placeholder = rep.bank;
+            if (accountInput) accountInput.placeholder = rep.account;
+        }
 
         function setRep(rep) {
             currentRep = rep;
@@ -1766,6 +1891,7 @@
             document.querySelectorAll('.out-rep-phone').forEach(el => el.innerText = reps[rep].phone);
             document.querySelectorAll('.out-rep-bank').forEach(el => el.innerText = reps[rep].bank);
             document.querySelectorAll('.out-rep-account').forEach(el => el.innerText = reps[rep].account);
+            applyBankAccount();
             document.querySelectorAll('.out-rep-holder').forEach(el => el.innerText = reps[rep].holder);
             document.querySelectorAll('.out-rep-birth').forEach(el => el.innerText = reps[rep].birth);
             document.querySelectorAll('.out-rep-joindate').forEach(el => el.innerText = reps[rep].joinDate);
@@ -2741,6 +2867,10 @@
                 // 서류 체크박스 표시 상태 저장 (1~7번)
                 docVisibility: [1,2,3,4,5,6,7].map(i => document.getElementById(`chk-doc-${i}`).checked),
 
+                advanceAttachments: advanceAttachments.slice(),
+                bankOverride: document.getElementById('in-bank-override') ? document.getElementById('in-bank-override').value : '',
+                accountOverride: document.getElementById('in-account-override') ? document.getElementById('in-account-override').value : '',
+
                 flight: document.getElementById('in-flight') ? parseNum(document.getElementById('in-flight').value) : '',
                 hotel: document.getElementById('in-hotel') ? parseNum(document.getElementById('in-hotel').value) : '',
                 bus: document.getElementById('in-bus') ? parseNum(document.getElementById('in-bus').value) : '',
@@ -2865,7 +2995,16 @@
                 if(data.tblDomestic) document.getElementById('tbody-domestic').innerHTML = data.tblDomestic;
                 if(data.tblDomOnly) document.getElementById('tbody-dom-only').innerHTML = data.tblDomOnly;
 
+                if (document.getElementById('in-bank-override')) {
+                    document.getElementById('in-bank-override').value = data.bankOverride || '';
+                }
+                if (document.getElementById('in-account-override')) {
+                    document.getElementById('in-account-override').value = data.accountOverride || '';
+                }
+                setAdvanceAttachments(Array.isArray(data.advanceAttachments) ? data.advanceAttachments : DEFAULT_ADVANCE_ATTACHMENTS);
+
                 if(data.rep) setRep(data.rep);
+                else applyBankAccount();
                 if(data.tripType) setTripType(data.tripType);
                 else setTripType('overseas'); 
                 
@@ -3030,7 +3169,8 @@
             updateRowspans('domestic');
             updateRowspansDom();
             
-            setClientType('school'); 
+            setClientType('school');
+            renderAdvanceAttachmentEditor();
             setMode('advance');
             setTripType('overseas'); 
             toggleStamp(); 
