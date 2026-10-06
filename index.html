@@ -418,6 +418,14 @@
                             </select>
                             <input type="number" id="in-rate-custom" class="w-1/3 hidden border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" placeholder="예: 45" oninput="updateDoc()">
                         </div>
+                        <label class="mt-2 flex items-start gap-2 cursor-pointer select-none">
+                            <input type="checkbox" id="in-advance-ones-truncate" checked class="mt-0.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" onchange="isPlanManual=false; updateDoc()">
+                            <span class="text-[11px] text-slate-600 leading-snug">
+                                <span class="font-bold text-slate-700">원단위 절사</span>
+                                <span class="text-slate-500"> (1의 자리 버림 · 입금 편의 · 기본 ON)</span><br>
+                                <span class="text-[10px] text-slate-400">예: 2,787,995원 → 2,787,990원</span>
+                            </span>
+                        </label>
                     </div>
 
                     <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
@@ -1956,6 +1964,25 @@
             return parseInt(str.toString().replace(/[^0-9-]/g, '')) || 0; 
         }
 
+        /** 원단위(1의 자리) 절사 → 10원 단위로 맞춤. 예: 2,787,995 → 2,787,990 */
+        function truncateOnesDigit(amount) {
+            const n = Math.trunc(Number(amount) || 0);
+            const sign = n < 0 ? -1 : 1;
+            return sign * Math.floor(Math.abs(n) / 10) * 10;
+        }
+
+        function isAdvanceOnesTruncateEnabled() {
+            const el = document.getElementById('in-advance-ones-truncate');
+            return el ? el.checked : true;
+        }
+
+        /** 계약금액 × 선금비율 후, 옵션에 따라 원단위 절사 */
+        function calcAdvanceAmount(total, rate) {
+            let amount = Math.floor((Number(total) || 0) * ((Number(rate) || 0) / 100));
+            if (isAdvanceOnesTruncateEnabled()) amount = truncateOnesDigit(amount);
+            return amount;
+        }
+
         function parseFxRate(str) {
             if (!str) return 0;
             const n = parseFloat(String(str).replace(/,/g, '').replace(/[^\d.-]/g, ''));
@@ -2374,7 +2401,7 @@
             
             let manualAdvance = document.getElementById('in-received-manual') ? document.getElementById('in-received-manual').value : '';
             
-            const reqAdvanceAmount = Math.floor(total * (rate / 100));
+            const reqAdvanceAmount = calcAdvanceAmount(total, rate);
             const receivedAdvanceAmount = manualAdvance !== "" ? parseNum(manualAdvance) : 0;
             
             const finalClaim = settle - receivedAdvanceAmount;
@@ -2546,7 +2573,7 @@
             if (rateVal === 'custom') rate = parseFloat(document.getElementById('in-rate-custom').value) || 0;
             else rate = parseFloat(rateVal) || 50;
             
-            const reqAdvanceAmount = Math.floor(total * (rate / 100));
+            const reqAdvanceAmount = calcAdvanceAmount(total, rate);
 
             const flight = parseNum(document.getElementById('in-flight').value);
             const hotel = parseNum(document.getElementById('in-hotel').value);
@@ -2734,7 +2761,7 @@
             }
 
             let manualAdvance = document.getElementById('in-received-manual') ? document.getElementById('in-received-manual').value : '';
-            const reqAdvanceAmount = Math.floor(total * (rate / 100));
+            const reqAdvanceAmount = calcAdvanceAmount(total, rate);
             const receivedAdvanceAmount = manualAdvance !== "" ? parseNum(manualAdvance) : 0;
 
             document.querySelectorAll('.out-school').forEach(el => el.innerText = school);
@@ -2850,6 +2877,7 @@
                 total: parseNum(document.getElementById('in-total').value),
                 rate: document.getElementById('in-rate').value,
                 rateCustom: document.getElementById('in-rate-custom') ? document.getElementById('in-rate-custom').value : '',
+                advanceOnesTruncate: isAdvanceOnesTruncateEnabled(),
                 
                 contractDate: document.getElementById('in-contract-date') ? document.getElementById('in-contract-date').value : '',
                 startDate: document.getElementById('in-start-date') ? document.getElementById('in-start-date').value : '',
@@ -2938,6 +2966,8 @@
                 document.getElementById('in-rate').value = data.rate || '50';
                 
                 if(data.rateCustom && document.getElementById('in-rate-custom')) document.getElementById('in-rate-custom').value = data.rateCustom;
+                const onesTruncateChk = document.getElementById('in-advance-ones-truncate');
+                if (onesTruncateChk) onesTruncateChk.checked = data.advanceOnesTruncate !== false;
                 
                 if(document.getElementById('in-contract-date')) document.getElementById('in-contract-date').value = data.contractDate || '';
                 if(document.getElementById('in-start-date')) document.getElementById('in-start-date').value = data.startDate || '';
