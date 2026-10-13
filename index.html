@@ -131,9 +131,32 @@
             margin: 0;
         }
         
-        /* 삭제 버튼 절대좌표 처리 */
-        .row-ctrl { position: absolute; right: -25px; top: 50%; transform: translateY(-50%); display: flex; gap: 4px; opacity: 0.3; transition: 0.2s; z-index: 20; }
+        /* 삭제·드래그 버튼 절대좌표 처리 */
+        .row-ctrl { position: absolute; right: -25px; top: 50%; transform: translateY(-50%); display: flex; gap: 4px; opacity: 0.3; transition: 0.2s; z-index: 20; align-items: center; }
         tr:hover .row-ctrl { opacity: 1; }
+        .col-desc-td { position: relative; padding-right: 14px !important; overflow: visible; }
+        .col-desc-td .col-desc { display: block; min-height: 1em; outline: none; }
+        .col-desc-td .row-grip {
+            position: absolute; right: 1px; top: 50%; transform: translateY(-50%);
+            width: 16px; height: 22px; padding: 0; border: none; background: transparent;
+            color: #94a3b8; font-size: 11px; font-weight: 800; letter-spacing: -2px; line-height: 1;
+            cursor: grab; touch-action: none; user-select: none; -webkit-user-drag: element; opacity: 0.45; z-index: 6;
+        }
+        tr:hover .col-desc-td .row-grip, tr:focus-within .col-desc-td .row-grip { opacity: 1; color: #475569; }
+        .row-grip:active, body.row-dragging .row-grip { cursor: grabbing; }
+        .item-row.drop-group .item-name,
+        .item-row.drop-group .col-item { outline: 2px solid #2563eb; outline-offset: -2px; background: #eff6ff; }
+        .item-row.drop-before .col-desc,
+        .item-row.drop-before .col-qty,
+        .item-row.drop-before .item-name,
+        .item-row.drop-before .col-remark { box-shadow: inset 0 3px 0 0 #2563eb; }
+        .item-row.drop-after .col-desc,
+        .item-row.drop-after .col-qty,
+        .item-row.drop-after .item-name,
+        .item-row.drop-after .col-remark { box-shadow: inset 0 -3px 0 0 #2563eb; }
+        .item-row.dragging-row { opacity: 0.55; }
+        body.row-dragging { cursor: grabbing; user-select: none; }
+        body.row-dragging [contenteditable] { caret-color: transparent; }
         
         /* 하단 고정 요소 */
         .footer-recipient { position: absolute; bottom: 25mm; left: 15mm; font-weight: bold; font-size: 12pt; }
@@ -142,7 +165,7 @@
         @media print {
             @page { size: A4 portrait; margin: 0; } 
             body { background-color: white !important; margin: 0; }
-            #sidebar, header, footer, .print-hidden, .row-ctrl { display: none !important; }
+            #sidebar, header, footer, .print-hidden, .row-ctrl, .row-grip { display: none !important; }
             #main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; display: block !important; }
             .a4-page { box-shadow: none; margin: 0; padding: 20mm 15mm; width: 210mm; height: 297mm; page-break-after: always; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; overflow: hidden; }
             .a4-page.hidden { display: none !important; page-break-after: auto; }
@@ -1579,7 +1602,7 @@
                                         <span class="font-bold col-sum text-right pr-1 block text-[8.5pt]">11,088,000</span>
                                         <div class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>
                                     </td>
-                                    <td contenteditable="true" class="bg-white text-[7.5pt] align-middle px-1">별첨1</td>
+                                    <td contenteditable="true" class="bg-white text-[7.5pt] align-middle px-1 col-remark">별첨1</td>
                                 </tr>
                             </tbody>
                             <!-- 총 합계 -->
@@ -2036,12 +2059,139 @@
             }
         });
 
+        function rowGripHtml() {
+            return `<button type="button" class="row-grip js-drag-row print-hidden" draggable="true" contenteditable="false" title="이 줄을 식비·입장료 같은 항목 위에 놓으면 그 항목에 합쳐집니다" aria-label="순서 변경">⋮⋮</button>`;
+        }
+
+        function settleDescCellHtml(text) {
+            const safe = String(text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return `<td class="text-left pl-2 col-desc bg-white col-desc-td"><div class="col-desc" contenteditable="true">${safe}</div>${rowGripHtml()}</td>`;
+        }
+
+        function rowCtrlHtml() {
+            return `<div class="row-ctrl print-hidden"><button type="button" onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>`;
+        }
+
+        function domCellKey(v) {
+            return String(v || '')
+                .replace(/[\u200B-\u200D\uFEFF\u00AD\u2060]/g, '')
+                .replace(/[\u00a0\u3000]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .normalize('NFC');
+        }
+
+        function domRowspanAttr(n) {
+            return n > 1 ? ` rowspan="${n}"` : '';
+        }
+
+        function domRs(list, i, key) {
+            const v = domCellKey(list[i][key]);
+            if (!v) return 1;
+            let r = 1;
+            for (let j = i + 1; j < list.length; j++) {
+                if (domCellKey(list[j][key]) === v) r++;
+                else break;
+            }
+            return r;
+        }
+
+        function domRsItem(list, i) {
+            const c = domCellKey(list[i].cat);
+            const it = domCellKey(list[i].item);
+            if (!c || !it) return 1;
+            let r = 1;
+            for (let j = i + 1; j < list.length; j++) {
+                if (domCellKey(list[j].cat) === c && domCellKey(list[j].item) === it) r++;
+                else break;
+            }
+            return r;
+        }
+
+        function domSpanFlags(list, i) {
+            const cat = domCellKey(list[i].cat);
+            const item = domCellKey(list[i].item);
+            const remark = domCellKey(list[i].remark);
+            const prevCat = i ? domCellKey(list[i - 1].cat) : null;
+            const prevItem = i ? domCellKey(list[i - 1].item) : null;
+            const prevRemark = i ? domCellKey(list[i - 1].remark) : null;
+            const showCat = i === 0 || !cat || cat !== prevCat;
+            const showItem = i === 0 || !item || cat !== prevCat || item !== prevItem;
+            const showRemark = i === 0 || !remark || remark !== prevRemark;
+            return {
+                showCat,
+                showItem,
+                showRemark,
+                catSpan: showCat ? domRs(list, i, 'cat') : 1,
+                itemSpan: showItem ? domRsItem(list, i) : 1,
+                remarkSpan: showRemark ? domRs(list, i, 'remark') : 1
+            };
+        }
+
+        function getDomRowData() {
+            let prevCat = '';
+            let prevItem = '';
+            let prevRemark = '';
+            return Array.from(document.querySelectorAll('#tbody-dom-only tr.item-row')).map(tr => {
+                const catEl = tr.querySelector('.col-cat');
+                const itemEl = tr.querySelector('.col-item');
+                const remarkEl = tr.querySelector('.col-remark');
+                const descEl = tr.querySelector('.col-desc-td .col-desc') || tr.querySelector('td.col-desc');
+                const hasCat = !!catEl;
+                const hasItem = !!itemEl;
+                const hasRemark = !!remarkEl;
+                const cat = hasCat ? domCellKey(catEl.innerText) : prevCat;
+                const item = hasItem ? domCellKey(itemEl.innerText) : prevItem;
+                const remark = hasRemark ? domCellKey(remarkEl.innerText) : prevRemark;
+                if (hasCat) prevCat = cat;
+                if (hasItem) prevItem = item;
+                if (hasRemark) prevRemark = remark;
+                return {
+                    cat,
+                    item,
+                    desc: descEl ? domCellKey(descEl.innerText) : '',
+                    qty: tr.querySelector('.col-qty') ? tr.querySelector('.col-qty').innerText.trim() : '1',
+                    krw: tr.querySelector('.col-krw') ? tr.querySelector('.col-krw').innerText.trim() : '0',
+                    remark
+                };
+            });
+        }
+
+        function buildDomItemRow(row, flags) {
+            const esc = t => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const { showCat, showItem, showRemark, catSpan, itemSpan, remarkSpan } = flags;
+            const catTd = showCat
+                ? `<td contenteditable="true" class="bg-white col-cat align-middle font-bold text-slate-700"${domRowspanAttr(catSpan)}>${esc(row.cat)}</td>`
+                : '';
+            const itemTd = showItem
+                ? `<td contenteditable="true" class="bg-white col-item align-middle text-left pl-2"${domRowspanAttr(itemSpan)}>${esc(row.item)}</td>`
+                : '';
+            const remarkTd = showRemark
+                ? `<td contenteditable="true" class="bg-white text-[7.5pt] align-middle px-1 col-remark"${domRowspanAttr(remarkSpan)}>${esc(row.remark)}</td>`
+                : '';
+            return `<tr class="item-row" data-section="dom-only">${catTd}${itemTd}${settleDescCellHtml(row.desc)}
+                <td contenteditable="true" class="col-qty bg-white">${esc(row.qty)}</td>
+                <td contenteditable="true" class="col-krw bg-white">${esc(row.krw)}</td>
+                <td class="bg-white relative">
+                    <span class="font-bold col-sum text-right pr-1 block text-[8.5pt]">0</span>
+                    ${rowCtrlHtml()}
+                </td>${remarkTd}</tr>`;
+        }
+
+        function rebuildDomOnly(rows) {
+            const tbody = document.getElementById('tbody-dom-only');
+            if (!tbody) return;
+            const list = (rows && rows.length) ? rows : [{ cat: '구분', item: '항목명', desc: '상세내용', qty: '1', krw: '0', remark: '' }];
+            tbody.innerHTML = list.map((row, i) => buildDomItemRow(row, domSpanFlags(list, i))).join('');
+        }
+
         function addRow(section) {
             if (!section) return;
             const tbody = document.getElementById(`tbody-${section}`);
             if (!tbody) return;
             const tr = document.createElement('tr');
             tr.className = "item-row";
+            tr.dataset.section = section;
             
             let foreignCell = '';
             if(section === 'flight' || section === 'domestic') {
@@ -2056,13 +2206,13 @@
 
             tr.innerHTML = `
                 <td contenteditable="true" class="bg-white item-name align-middle">항목명</td>
-                <td contenteditable="true" class="text-left pl-2 col-desc bg-white">상세내용</td>
+                ${settleDescCellHtml('상세내용')}
                 <td contenteditable="true" class="col-qty bg-white">1</td>
                 ${foreignCell}
                 <td contenteditable="true" class="col-krw bg-white">0</td>
                 <td class="bg-white relative">
                     <span class="font-bold col-sum text-right pr-1 block text-[8.5pt]">0</span>
-                    <div class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>
+                    ${rowCtrlHtml()}
                 </td>
                 ${remarkCell}
             `;
@@ -2073,26 +2223,9 @@
         }
 
         function addRowDom() {
-            const tbody = document.getElementById('tbody-dom-only');
-            if (!tbody) return;
-            const tr = document.createElement('tr');
-            tr.className = "item-row";
-            
-            tr.innerHTML = `
-                <td contenteditable="true" class="bg-white col-cat align-middle font-bold text-slate-700">구분</td>
-                <td contenteditable="true" class="bg-white col-item align-middle text-left pl-2">항목명</td>
-                <td contenteditable="true" class="text-left pl-2 col-desc bg-white">상세내용</td>
-                <td contenteditable="true" class="col-qty bg-white">1</td>
-                <td contenteditable="true" class="col-krw bg-white">0</td>
-                <td class="bg-white relative">
-                    <span class="font-bold col-sum text-right pr-1 block text-[8.5pt]">0</span>
-                    <div class="row-ctrl print-hidden"><button onclick="removeRow(this)" class="text-red-500 hover:bg-red-50 px-1 rounded"><i class="fa-solid fa-minus"></i></button></div>
-                </td>
-                <td contenteditable="true" class="bg-white text-[7.5pt] align-middle px-1"></td>
-            `;
-            
-            tbody.appendChild(tr);
-            updateRowspansDom();
+            const rows = getDomRowData();
+            rows.push({ cat: '구분', item: '항목명', desc: '상세내용', qty: '1', krw: '0', remark: '' });
+            rebuildDomOnly(rows);
             calcTable();
         }
 
@@ -2104,11 +2237,14 @@
                 alert('최소 1개의 항목은 남아있어야 합니다.');
                 return;
             }
-            
-            tr.remove();
+
             if (tbody.id === 'tbody-dom-only') {
-                updateRowspansDom();
+                const rows = getDomRowData();
+                const idx = Array.from(tbody.querySelectorAll('tr.item-row')).indexOf(tr);
+                if (idx >= 0) rows.splice(idx, 1);
+                rebuildDomOnly(rows);
             } else {
+                tr.remove();
                 const section = tbody.id.replace('tbody-', '');
                 updateRowspans(section);
             }
@@ -2176,40 +2312,7 @@
         }
 
         function updateRowspansDom() {
-            const tbody = document.getElementById('tbody-dom-only');
-            if (!tbody) return;
-            const rows = tbody.querySelectorAll('tr.item-row');
-            let prevCatCell = null;
-            let prevItemCell = null;
-
-            rows.forEach((row) => {
-                let catCell = row.querySelector('.col-cat');
-                let itemCell = row.querySelector('.col-item');
-
-                let isSameCat = false;
-                if (catCell) {
-                    catCell.style.display = '';
-                    catCell.rowSpan = 1;
-                    if (prevCatCell && prevCatCell.innerText.trim() === catCell.innerText.trim() && catCell.innerText.trim() !== '') {
-                        catCell.style.display = 'none';
-                        prevCatCell.rowSpan++;
-                        isSameCat = true;
-                    } else {
-                        prevCatCell = catCell;
-                    }
-                }
-
-                if (itemCell) {
-                    itemCell.style.display = '';
-                    itemCell.rowSpan = 1;
-                    if (prevItemCell && prevItemCell.innerText.trim() === itemCell.innerText.trim() && itemCell.innerText.trim() !== '' && isSameCat) {
-                        itemCell.style.display = 'none';
-                        prevItemCell.rowSpan++;
-                    } else {
-                        prevItemCell = itemCell;
-                    }
-                }
-            });
+            rebuildDomOnly(getDomRowData());
         }
 
         const DEFAULT_ADJ_LABEL = '백단위 절사 등 조정액';
@@ -2450,6 +2553,300 @@
             }
         }
 
+        const settleRowDrag = { active: false, moved: false, section: '', fromIndex: -1, insertAt: -1, adoptName: '', pointerId: null, startX: 0, startY: 0 };
+
+        function settleCellKey(v) {
+            return domCellKey(v);
+        }
+
+        function settleSectionFromTr(tr) {
+            const tbody = tr && tr.closest ? tr.closest('tbody') : null;
+            if (!tbody || !tbody.id) return '';
+            if (tbody.id === 'tbody-dom-only') return 'dom-only';
+            if (tbody.id.startsWith('tbody-')) return tbody.id.replace('tbody-', '');
+            return '';
+        }
+
+        function settleRows(section) {
+            const id = section === 'dom-only' ? 'tbody-dom-only' : `tbody-${section}`;
+            return Array.from(document.querySelectorAll(`#${id} tr.item-row`));
+        }
+
+        function ensureSettlementRowGrips() {
+            document.querySelectorAll('#doc-container tr.item-row').forEach(tr => {
+                const section = settleSectionFromTr(tr);
+                if (section) tr.dataset.section = section;
+                if (tr.querySelector('.js-drag-row')) return;
+                const descTd = tr.querySelector('td.col-desc:not(.col-desc-td)') || tr.querySelector('td[class*="col-desc"]:not(.col-desc-td)');
+                if (descTd && descTd.getAttribute('contenteditable') === 'true') {
+                    const text = descTd.innerText;
+                    descTd.removeAttribute('contenteditable');
+                    descTd.classList.add('col-desc-td', 'relative');
+                    descTd.innerHTML = `<div class="col-desc" contenteditable="true">${text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>${rowGripHtml()}`;
+                }
+            });
+        }
+
+        function flattenSettleSection(section) {
+            settleRows(section).forEach(row => {
+                if (section === 'dom-only') {
+                    row.querySelectorAll('.col-cat, .col-item, .col-remark').forEach(c => { c.style.display = ''; c.rowSpan = 1; });
+                } else {
+                    const n = row.querySelector('.item-name');
+                    if (n) { n.style.display = ''; n.rowSpan = 1; }
+                }
+            });
+        }
+
+        function settleRowItemName(section, row) {
+            if (section === 'dom-only') {
+                const rows = settleRows(section);
+                let idx = rows.indexOf(row);
+                while (idx >= 0) {
+                    const item = rows[idx].querySelector('.col-item');
+                    if (item && item.style.display !== 'none') return settleCellKey(item.innerText);
+                    idx--;
+                }
+                return '';
+            }
+            const rows = settleRows(section);
+            let idx = rows.indexOf(row);
+            while (idx >= 0) {
+                const el = rows[idx].querySelector('.item-name');
+                if (el && el.style.display !== 'none') return settleCellKey(el.innerText);
+                idx--;
+            }
+            return '';
+        }
+
+        function settleRowHitRect(tr) {
+            const el = tr.querySelector('.col-desc') || tr.querySelector('.col-qty') || tr;
+            return el.getBoundingClientRect();
+        }
+
+        function clearSettleDropMarks() {
+            document.querySelectorAll('.item-row.drop-before, .item-row.drop-after, .item-row.dragging-row, .item-row.drop-group').forEach(el => {
+                el.classList.remove('drop-before', 'drop-after', 'dragging-row', 'drop-group');
+            });
+        }
+
+        function settleGroupRange(section, index) {
+            const rows = settleRows(section);
+            const key = settleRowItemName(section, rows[index]);
+            if (!key) return { start: index, end: index + 1 };
+            let start = index;
+            let end = index + 1;
+            while (start > 0 && settleRowItemName(section, rows[start - 1]) === key) start--;
+            while (end < rows.length && settleRowItemName(section, rows[end]) === key) end++;
+            return { start, end };
+        }
+
+        function settleElemUnderDrag(section, x, y, fromIndex) {
+            const list = document.elementsFromPoint ? document.elementsFromPoint(x, y) : [document.elementFromPoint(x, y)];
+            for (let i = 0; i < list.length; i++) {
+                const el = list[i];
+                if (!el || !el.closest) continue;
+                if (el.closest('.row-grip, .row-ctrl')) continue;
+                const tr = el.closest('tr.item-row');
+                if (tr && settleSectionFromTr(tr) === section && settleRows(section).indexOf(tr) === fromIndex) continue;
+                if (el.closest('.group-category')) continue;
+                return el;
+            }
+            return null;
+        }
+
+        function settleDropFromPoint(section, x, y, fromIndex) {
+            const rows = settleRows(section);
+            if (!rows.length) return { insertAt: 0, adoptName: '' };
+            const el = settleElemUnderDrag(section, x, y, fromIndex);
+            const nameSel = section === 'dom-only' ? '.col-item' : '.item-name';
+            const nameCell = el && el.closest ? el.closest(nameSel) : null;
+            const itemRow = el && el.closest ? el.closest('tr.item-row') : null;
+            if (nameCell && nameCell.style.display !== 'none') {
+                const owner = nameCell.closest('tr.item-row');
+                if (owner && settleSectionFromTr(owner) === section) {
+                    const idx = rows.indexOf(owner);
+                    if (idx >= 0) {
+                        const g = settleGroupRange(section, idx);
+                        const adoptName = settleRowItemName(section, owner);
+                        for (let i = g.start; i < g.end; i++) {
+                            const r = settleRowHitRect(rows[i]);
+                            if (y < r.top + r.height / 2) return { insertAt: i, adoptName };
+                        }
+                        return { insertAt: g.end, adoptName };
+                    }
+                }
+            }
+            if (itemRow && settleSectionFromTr(itemRow) === section) {
+                const idx = rows.indexOf(itemRow);
+                if (idx >= 0) {
+                    const r = settleRowHitRect(itemRow);
+                    const insertAt = y < r.top + r.height / 2 ? idx : idx + 1;
+                    return { insertAt, adoptName: settleRowItemName(section, itemRow) };
+                }
+            }
+            for (let i = 0; i < rows.length; i++) {
+                const r = settleRowHitRect(rows[i]);
+                if (y < r.top + r.height / 2) return { insertAt: i, adoptName: settleRowItemName(section, rows[i]) };
+                if (y <= r.bottom) return { insertAt: i + 1, adoptName: settleRowItemName(section, rows[i]) };
+            }
+            return { insertAt: rows.length, adoptName: settleRowItemName(section, rows[rows.length - 1]) };
+        }
+
+        function applySettleDropMarks(section, insertAt, fromIndex, adoptName) {
+            clearSettleDropMarks();
+            const rows = settleRows(section);
+            if (fromIndex >= 0 && rows[fromIndex]) rows[fromIndex].classList.add('dragging-row');
+            if (settleCellKey(adoptName)) {
+                rows.forEach((tr, i) => {
+                    if (settleRowItemName(section, tr) !== settleCellKey(adoptName)) return;
+                    const g = settleGroupRange(section, i);
+                    if (insertAt >= g.start && insertAt <= g.end) tr.classList.add('drop-group');
+                });
+            }
+            if (!rows.length) return;
+            if (insertAt >= rows.length) rows[rows.length - 1].classList.add('drop-after');
+            else rows[insertAt].classList.add('drop-before');
+        }
+
+        function moveSettleRow(section, fromIndex, insertAt, adoptName) {
+            if (section === 'dom-only') {
+                const rows = getDomRowData();
+                if (fromIndex < 0 || fromIndex >= rows.length) return;
+                let target = insertAt;
+                if (fromIndex < target) target--;
+                if (target < 0) return;
+                const item = rows.splice(fromIndex, 1)[0];
+                const adoptKey = settleCellKey(adoptName);
+                if (adoptKey) {
+                    item.item = adoptName;
+                    for (let i = 0; i < rows.length; i++) {
+                        if (domCellKey(rows[i].item) === adoptKey) {
+                            item.cat = rows[i].cat;
+                            break;
+                        }
+                    }
+                }
+                rows.splice(target, 0, item);
+                rebuildDomOnly(rows);
+                calcTable();
+                return;
+            }
+            const tbody = document.getElementById(`tbody-${section}`);
+            if (!tbody) return;
+            flattenSettleSection(section);
+            const rows = settleRows(section);
+            if (fromIndex < 0 || fromIndex >= rows.length) return;
+            let target = insertAt;
+            if (fromIndex < target) target--;
+            if (target < 0 || (fromIndex === target && !settleCellKey(adoptName))) return;
+            const tr = rows[fromIndex];
+            tbody.removeChild(tr);
+            const after = settleRows(section);
+            if (target >= after.length) tbody.appendChild(tr);
+            else tbody.insertBefore(tr, after[target]);
+            if (settleCellKey(adoptName)) {
+                const name = tr.querySelector('.item-name');
+                if (name) name.innerText = adoptName;
+            }
+            updateRowspans(section);
+            calcTable();
+        }
+
+        function endSettleRowDrag() {
+            if (!settleRowDrag.active) return;
+            const { section, fromIndex, insertAt, adoptName, moved } = settleRowDrag;
+            settleRowDrag.active = false;
+            settleRowDrag.moved = false;
+            settleRowDrag.pointerId = null;
+            document.body.classList.remove('row-dragging');
+            clearSettleDropMarks();
+            if (!moved || !section) return;
+            moveSettleRow(section, fromIndex, insertAt, adoptName);
+        }
+
+        function initSettlementRowDrag() {
+            ensureSettlementRowGrips();
+            document.addEventListener('dragstart', e => {
+                const grip = e.target.closest('.js-drag-row');
+                if (!grip || !grip.closest('#doc-container')) return;
+                const tr = grip.closest('tr.item-row');
+                if (!tr) { e.preventDefault(); return; }
+                const section = settleSectionFromTr(tr);
+                settleRowDrag.active = true;
+                settleRowDrag.moved = true;
+                settleRowDrag.section = section;
+                settleRowDrag.fromIndex = settleRows(section).indexOf(tr);
+                settleRowDrag.insertAt = settleRowDrag.fromIndex;
+                settleRowDrag.adoptName = settleRowItemName(section, tr);
+                settleRowDrag.pointerId = null;
+                if (e.dataTransfer) {
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', `${section}:${settleRowDrag.fromIndex}`);
+                }
+                document.body.classList.add('row-dragging');
+                applySettleDropMarks(section, settleRowDrag.insertAt, settleRowDrag.fromIndex, settleRowDrag.adoptName);
+            });
+            document.addEventListener('dragover', e => {
+                if (!settleRowDrag.active || !settleRowDrag.section) return;
+                e.preventDefault();
+                if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+                const info = settleDropFromPoint(settleRowDrag.section, e.clientX, e.clientY, settleRowDrag.fromIndex);
+                settleRowDrag.insertAt = info.insertAt;
+                settleRowDrag.adoptName = info.adoptName || settleRowDrag.adoptName;
+                applySettleDropMarks(settleRowDrag.section, info.insertAt, settleRowDrag.fromIndex, settleRowDrag.adoptName);
+            });
+            document.addEventListener('drop', e => {
+                if (!settleRowDrag.active) return;
+                e.preventDefault();
+                const info = settleDropFromPoint(settleRowDrag.section, e.clientX, e.clientY, settleRowDrag.fromIndex);
+                settleRowDrag.insertAt = info.insertAt;
+                settleRowDrag.adoptName = info.adoptName || settleRowDrag.adoptName;
+                settleRowDrag.moved = true;
+                endSettleRowDrag();
+            });
+            document.addEventListener('dragend', () => { if (settleRowDrag.active) endSettleRowDrag(); });
+            document.addEventListener('pointerdown', e => {
+                const grip = e.target.closest('.js-drag-row');
+                if (!grip || !grip.closest('#doc-container') || e.pointerType === 'mouse') return;
+                const tr = grip.closest('tr.item-row');
+                if (!tr) return;
+                const section = settleSectionFromTr(tr);
+                settleRowDrag.active = true;
+                settleRowDrag.moved = false;
+                settleRowDrag.section = section;
+                settleRowDrag.fromIndex = settleRows(section).indexOf(tr);
+                settleRowDrag.insertAt = settleRowDrag.fromIndex;
+                settleRowDrag.adoptName = settleRowItemName(section, tr);
+                settleRowDrag.pointerId = e.pointerId;
+                settleRowDrag.startX = e.clientX;
+                settleRowDrag.startY = e.clientY;
+                e.preventDefault();
+                try { grip.setPointerCapture(e.pointerId); } catch (err) {}
+            });
+            document.addEventListener('pointermove', e => {
+                if (!settleRowDrag.active || settleRowDrag.pointerId == null || e.pointerId !== settleRowDrag.pointerId) return;
+                const dist = Math.abs(e.clientX - settleRowDrag.startX) + Math.abs(e.clientY - settleRowDrag.startY);
+                if (!settleRowDrag.moved && dist < 5) return;
+                settleRowDrag.moved = true;
+                document.body.classList.add('row-dragging');
+                const info = settleDropFromPoint(settleRowDrag.section, e.clientX, e.clientY, settleRowDrag.fromIndex);
+                settleRowDrag.insertAt = info.insertAt;
+                settleRowDrag.adoptName = info.adoptName || settleRowDrag.adoptName;
+                applySettleDropMarks(settleRowDrag.section, info.insertAt, settleRowDrag.fromIndex, settleRowDrag.adoptName);
+            });
+            document.addEventListener('pointerup', e => {
+                if (settleRowDrag.pointerId == null) return;
+                if (e.pointerId !== settleRowDrag.pointerId) return;
+                endSettleRowDrag();
+            });
+            document.addEventListener('pointercancel', e => {
+                if (settleRowDrag.pointerId == null) return;
+                if (e.pointerId !== settleRowDrag.pointerId) return;
+                endSettleRowDrag();
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const docContainer = document.getElementById('doc-container');
             if(docContainer) {
@@ -2463,7 +2860,7 @@
                     }
                     if(e.target.hasAttribute('contenteditable')) calcTable();
                     
-                    if (e.target.classList.contains('item-name') || e.target.classList.contains('col-cat') || e.target.classList.contains('col-item')) {
+                    if (e.target.classList.contains('item-name') || e.target.classList.contains('col-cat') || e.target.classList.contains('col-item') || e.target.classList.contains('col-remark')) {
                         let rowspan = e.target.rowSpan;
                         if (rowspan > 1) {
                             let tr = e.target.closest('tr');
@@ -2472,7 +2869,8 @@
                                 tr = tr.nextElementSibling;
                                 if (tr) {
                                     let targetClass = e.target.classList.contains('col-cat') ? '.col-cat' : 
-                                                      e.target.classList.contains('col-item') ? '.col-item' : '.item-name';
+                                                      e.target.classList.contains('col-item') ? '.col-item' :
+                                                      e.target.classList.contains('col-remark') ? '.col-remark' : '.item-name';
                                     let hiddenItem = tr.querySelector(targetClass);
                                     if (hiddenItem && hiddenItem.style.display === 'none') {
                                         hiddenItem.innerText = text;
@@ -2514,7 +2912,7 @@
                             updateRowspans(tbody.id.replace('tbody-', ''));
                         }
                     }
-                    if (e.target.classList.contains('col-cat') || e.target.classList.contains('col-item')) {
+                    if (e.target.classList.contains('col-cat') || e.target.classList.contains('col-item') || e.target.classList.contains('col-remark') || e.target.classList.contains('col-desc')) {
                         updateRowspansDom();
                     }
                 }, true);
@@ -3050,6 +3448,7 @@
                     updateRowspans('local');
                     updateRowspans('domestic');
                     updateRowspansDom();
+                    ensureSettlementRowGrips();
                     calcTable();
                 }, 50);
             }
@@ -3169,6 +3568,7 @@
             updateRowspans('local');
             updateRowspans('domestic');
             updateRowspansDom();
+            initSettlementRowDrag();
             
             setClientType('school');
             renderAdvanceAttachmentEditor();
