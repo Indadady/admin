@@ -2128,6 +2128,22 @@
             };
         }
 
+        function getDomRemarkEl(tr) {
+            const marked = tr.querySelector('.col-remark');
+            if (marked) return marked;
+            // 구버전 저장본: col-remark 클래스 없이 마지막 칸이 비고인 경우
+            const tds = Array.from(tr.children);
+            for (let i = tds.length - 1; i >= 0; i--) {
+                const td = tds[i];
+                if (td.querySelector('.col-sum, .row-ctrl')) continue;
+                if (td.classList.contains('col-qty') || td.classList.contains('col-krw')) continue;
+                if (td.classList.contains('col-cat') || td.classList.contains('col-item')) continue;
+                if (td.classList.contains('col-desc') || td.classList.contains('col-desc-td')) continue;
+                if (td.getAttribute('contenteditable') === 'true') return td;
+            }
+            return null;
+        }
+
         function getDomRowData() {
             let prevCat = '';
             let prevItem = '';
@@ -2135,7 +2151,7 @@
             return Array.from(document.querySelectorAll('#tbody-dom-only tr.item-row')).map(tr => {
                 const catEl = tr.querySelector('.col-cat');
                 const itemEl = tr.querySelector('.col-item');
-                const remarkEl = tr.querySelector('.col-remark');
+                const remarkEl = getDomRemarkEl(tr);
                 const descEl = tr.querySelector('.col-desc-td .col-desc') || tr.querySelector('td.col-desc');
                 const hasCat = !!catEl;
                 const hasItem = !!itemEl;
@@ -2160,6 +2176,7 @@
         function buildDomItemRow(row, flags) {
             const esc = t => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             const { showCat, showItem, showRemark, catSpan, itemSpan, remarkSpan } = flags;
+            const rowSum = formatNum(parseNum(row.qty) * parseNum(row.krw));
             const catTd = showCat
                 ? `<td contenteditable="true" class="bg-white col-cat align-middle font-bold text-slate-700"${domRowspanAttr(catSpan)}>${esc(row.cat)}</td>`
                 : '';
@@ -2173,7 +2190,7 @@
                 <td contenteditable="true" class="col-qty bg-white">${esc(row.qty)}</td>
                 <td contenteditable="true" class="col-krw bg-white">${esc(row.krw)}</td>
                 <td class="bg-white relative">
-                    <span class="font-bold col-sum text-right pr-1 block text-[8.5pt]">0</span>
+                    <span class="font-bold col-sum text-right pr-1 block text-[8.5pt]">${rowSum}</span>
                     ${rowCtrlHtml()}
                 </td>${remarkTd}</tr>`;
         }
@@ -2313,6 +2330,7 @@
 
         function updateRowspansDom() {
             rebuildDomOnly(getDomRowData());
+            calcTable();
         }
 
         const DEFAULT_ADJ_LABEL = '백단위 절사 등 조정액';
@@ -2858,7 +2876,13 @@
                         const krwEl = e.target.closest('tr') && e.target.closest('tr').querySelector('.col-krw');
                         if (krwEl) delete krwEl.dataset.krwManual;
                     }
-                    if(e.target.hasAttribute('contenteditable')) calcTable();
+                    // 비고·구분·항목·내용 입력은 금액과 무관 — 재계산하면 표 재구성 직후 0이 보이거나 불필요하게 깜빡임
+                    const affectsAmount = e.target.classList.contains('col-qty')
+                        || e.target.classList.contains('col-krw')
+                        || e.target.classList.contains('col-foreign')
+                        || e.target.id === 'manual-settle-input'
+                        || e.target.id === 'manual-settle-input-dom';
+                    if (e.target.hasAttribute('contenteditable') && affectsAmount) calcTable();
                     
                     if (e.target.classList.contains('item-name') || e.target.classList.contains('col-cat') || e.target.classList.contains('col-item') || e.target.classList.contains('col-remark')) {
                         let rowspan = e.target.rowSpan;
@@ -2912,6 +2936,7 @@
                             updateRowspans(tbody.id.replace('tbody-', ''));
                         }
                     }
+                    // 비고/구분/항목/내용 수정 후 병합 재적용 — updateRowspansDom 안에서 calcTable까지 수행
                     if (e.target.classList.contains('col-cat') || e.target.classList.contains('col-item') || e.target.classList.contains('col-remark') || e.target.classList.contains('col-desc')) {
                         updateRowspansDom();
                     }
