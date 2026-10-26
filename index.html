@@ -163,13 +163,54 @@
         .footer-logo { position: absolute; bottom: 20mm; right: 15mm; width: 120px; opacity: 0.9; }
 
         @media print {
-            @page { size: A4 portrait; margin: 0; } 
+            @page { size: A4 portrait; margin: 0; }
+            /* 정산내역서만 길면 다음 장으로. 용지 여백은 쪽마다 다시 적용 */
+            @page settle-flow { size: A4 portrait; margin: 12mm 12mm 14mm 12mm; }
             body { background-color: white !important; margin: 0; }
             #sidebar, header, footer, .print-hidden, .row-ctrl, .row-grip { display: none !important; }
-            #main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; display: block !important; }
+            #main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; display: block !important; height: auto !important; max-height: none !important; overflow: visible !important; }
+            #doc-container { height: auto !important; max-height: none !important; overflow: visible !important; }
             .a4-page { box-shadow: none; margin: 0; padding: 20mm 15mm; width: 210mm; height: 297mm; page-break-after: always; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; overflow: hidden; }
             .a4-page.hidden { display: none !important; page-break-after: auto; }
             .a4-page:last-child { page-break-after: auto; }
+            #page-settle-overseas:not(.hidden),
+            #page-settle-domestic:not(.hidden) {
+                page: settle-flow;
+                display: block !important;
+                width: auto !important;
+                height: auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                overflow: visible !important;
+                break-inside: auto !important;
+                page-break-inside: auto !important;
+            }
+            #page-settle-overseas:not(.hidden) > div,
+            #page-settle-domestic:not(.hidden) > div {
+                display: block !important;
+                flex: none !important;
+                height: auto !important;
+                min-height: 0 !important;
+                overflow: visible !important;
+            }
+            #settlement-table,
+            #settlement-table-dom,
+            #settlement-table tbody,
+            #settlement-table-dom tbody {
+                break-inside: auto;
+                page-break-inside: auto;
+            }
+            #settlement-table thead,
+            #settlement-table-dom thead { display: table-header-group; }
+            #settlement-table tr,
+            #settlement-table-dom tr,
+            #tax-notice-overseas-wrap,
+            #tax-notice-domestic-wrap {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
             [contenteditable="true"] { box-shadow: none !important; background-color: transparent !important; }
             .date-editable {
                 padding: 0 !important;
@@ -3565,6 +3606,78 @@
             };
             reader.readAsText(file);
         }
+
+        let settlePrintBackup = null;
+
+        function expandOverseasRowsForPrint(table) {
+            ['flight', 'local', 'domestic'].forEach(section => {
+                const tbody = table.querySelector('#tbody-' + section);
+                if (!tbody) return;
+                const rows = [...tbody.querySelectorAll('tr.item-row')];
+                if (!rows.length) return;
+                const catHtml = rows[0].querySelector('.group-category') ? rows[0].querySelector('.group-category').innerHTML : '';
+                const remarkHtml = rows[0].querySelector('.group-remark') ? rows[0].querySelector('.group-remark').innerHTML : '';
+                rows.forEach(row => {
+                    let cat = row.querySelector('.group-category');
+                    if (!cat && catHtml) {
+                        cat = document.createElement('td');
+                        cat.className = 'font-bold text-slate-700 bg-white group-category align-middle';
+                        cat.innerHTML = catHtml;
+                        row.insertBefore(cat, row.firstChild);
+                    }
+                    if (cat) {
+                        cat.rowSpan = 1;
+                        cat.classList.remove('border-b-0');
+                        cat.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+                    }
+                    const item = row.querySelector('.item-name');
+                    if (item) {
+                        item.style.display = '';
+                        item.rowSpan = 1;
+                    }
+                    let remark = row.querySelector('.group-remark');
+                    if (!remark && remarkHtml) {
+                        remark = document.createElement('td');
+                        remark.className = 'font-bold text-slate-700 bg-white group-remark align-middle px-1';
+                        remark.innerHTML = remarkHtml;
+                        row.appendChild(remark);
+                    }
+                    if (remark) {
+                        remark.rowSpan = 1;
+                        remark.classList.remove('border-b-0');
+                        remark.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+                    }
+                });
+            });
+        }
+
+        function expandDomesticRowsForPrint() {
+            const tbody = document.getElementById('tbody-dom-only');
+            if (!tbody) return;
+            const rows = getDomRowData();
+            const flags = { showCat: true, showItem: true, showRemark: true, catSpan: 1, itemSpan: 1, remarkSpan: 1 };
+            tbody.innerHTML = rows.map(row => buildDomItemRow(row, flags)).join('');
+        }
+
+        function prepareSettlementPrint() {
+            if (settlePrintBackup) return;
+            const tables = ['settlement-table', 'settlement-table-dom']
+                .map(id => document.getElementById(id))
+                .filter(Boolean);
+            settlePrintBackup = tables.map(table => ({ table, html: table.innerHTML }));
+            const overseas = document.getElementById('settlement-table');
+            if (overseas) expandOverseasRowsForPrint(overseas);
+            expandDomesticRowsForPrint();
+        }
+
+        function restoreSettlementPrint() {
+            if (!settlePrintBackup) return;
+            settlePrintBackup.forEach(({ table, html }) => { table.innerHTML = html; });
+            settlePrintBackup = null;
+        }
+
+        window.addEventListener('beforeprint', prepareSettlementPrint);
+        window.addEventListener('afterprint', restoreSettlementPrint);
 
         document.addEventListener('DOMContentLoaded', () => {
             initPreviewDateEditors();
