@@ -162,6 +162,30 @@
         .footer-recipient { position: absolute; bottom: 25mm; left: 15mm; font-weight: bold; font-size: 12pt; }
         .footer-logo { position: absolute; bottom: 20mm; right: 15mm; width: 120px; opacity: 0.9; }
 
+        /* 인쇄 직전에 화면에서도 인쇄 폭으로 줄 높이를 재기 위한 상태 */
+        body.settle-print-measure #page-settle-overseas:not(.hidden),
+        body.settle-print-measure #page-settle-domestic:not(.hidden) {
+            width: 186mm;
+            height: auto;
+            min-height: 0;
+            max-height: none;
+            padding: 0;
+            margin: 0;
+            overflow: visible;
+            box-shadow: none;
+        }
+        body.settle-print-measure #page-settle-overseas:not(.hidden) > div,
+        body.settle-print-measure #page-settle-domestic:not(.hidden) > div {
+            display: block;
+            flex: none;
+            height: auto;
+            min-height: 0;
+            overflow: visible;
+        }
+        body.settle-print-measure .print-hidden,
+        body.settle-print-measure .row-ctrl,
+        body.settle-print-measure .row-grip { display: none !important; }
+
         @media print {
             @page { size: A4 portrait; margin: 0; }
             /* 정산내역서만 길면 다음 장으로. 용지 여백은 쪽마다 다시 적용 */
@@ -3609,54 +3633,100 @@
 
         let settlePrintBackup = null;
 
-        function expandOverseasRowsForPrint(table) {
-            ['flight', 'local', 'domestic'].forEach(section => {
-                const tbody = table.querySelector('#tbody-' + section);
-                if (!tbody) return;
-                const rows = [...tbody.querySelectorAll('tr.item-row')];
-                if (!rows.length) return;
-                const catHtml = rows[0].querySelector('.group-category') ? rows[0].querySelector('.group-category').innerHTML : '';
-                const remarkHtml = rows[0].querySelector('.group-remark') ? rows[0].querySelector('.group-remark').innerHTML : '';
-                rows.forEach(row => {
-                    let cat = row.querySelector('.group-category');
-                    if (!cat && catHtml) {
-                        cat = document.createElement('td');
-                        cat.className = 'font-bold text-slate-700 bg-white group-category align-middle';
-                        cat.innerHTML = catHtml;
-                        row.insertBefore(cat, row.firstChild);
+        function settleVisibleCell(row, selector) {
+            return [...row.children].find(td => td.matches(selector) && td.style.display !== 'none') || null;
+        }
+
+        function settlePlaceSpanCell(row, cell, place) {
+            if (place === 'first') {
+                row.insertBefore(cell, row.firstChild);
+                return;
+            }
+            if (place === 'last') {
+                row.appendChild(cell);
+                return;
+            }
+            const desc = row.querySelector('.col-desc-td, td.col-desc');
+            if (desc) row.insertBefore(cell, desc);
+            else row.insertBefore(cell, row.children[1] || null);
+        }
+
+        // 구분·항목·비고 병합은 유지한다. 쪽 경계에서만 잘라 다음 장 첫 줄에 같은 칸을 다시 만든다.
+        function splitMergedCellsAtPageBreak(rows, rowPage) {
+            if (!rows.length) return;
+            const specs = [
+                ['.group-category, .col-cat', 'first'],
+                ['.item-name, .col-item', 'item'],
+                ['.group-remark, .col-remark', 'last']
+            ];
+            specs.forEach(([selector, place]) => {
+                let i = 0;
+                while (i < rows.length) {
+                    const cell = settleVisibleCell(rows[i], selector);
+                    if (!cell) { i++; continue; }
+                    let span = cell.rowSpan || 1;
+                    for (let k = 1; k < span && i + k < rows.length; k++) {
+                        if (settleVisibleCell(rows[i + k], selector)) { span = k; break; }
                     }
-                    if (cat) {
-                        cat.rowSpan = 1;
-                        cat.classList.remove('border-b-0');
-                        cat.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+                    span = Math.min(span, rows.length - i);
+                    const segments = [];
+                    let start = i;
+                    let page = rowPage.get(rows[i]) || 0;
+                    for (let k = i; k < i + span; k++) {
+                        const p = rowPage.get(rows[k]) || 0;
+                        if (p !== page) {
+                            segments.push([start, k]);
+                            start = k;
+                            page = p;
+                        }
                     }
-                    const item = row.querySelector('.item-name');
-                    if (item) {
-                        item.style.display = '';
-                        item.rowSpan = 1;
+                    segments.push([start, i + span]);
+                    cell.rowSpan = segments[0][1] - segments[0][0];
+                    for (let s = 1; s < segments.length; s++) {
+                        const [a, b] = segments[s];
+                        const clone = cell.cloneNode(true);
+                        clone.rowSpan = b - a;
+                        clone.style.display = '';
+                        clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+                        const hidden = rows[a].querySelector(selector);
+                        if (hidden) hidden.remove();
+                        settlePlaceSpanCell(rows[a], clone, place);
                     }
-                    let remark = row.querySelector('.group-remark');
-                    if (!remark && remarkHtml) {
-                        remark = document.createElement('td');
-                        remark.className = 'font-bold text-slate-700 bg-white group-remark align-middle px-1';
-                        remark.innerHTML = remarkHtml;
-                        row.appendChild(remark);
+                    for (let k = 1; k < span; k++) {
+                        const extra = rows[i + k].querySelector(selector);
+                        if (extra && extra.style.display === 'none') extra.remove();
                     }
-                    if (remark) {
-                        remark.rowSpan = 1;
-                        remark.classList.remove('border-b-0');
-                        remark.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
-                    }
-                });
+                    i += span;
+                }
             });
         }
 
-        function expandDomesticRowsForPrint() {
-            const tbody = document.getElementById('tbody-dom-only');
-            if (!tbody) return;
-            const rows = getDomRowData();
-            const flags = { showCat: true, showItem: true, showRemark: true, catSpan: 1, itemSpan: 1, remarkSpan: 1 };
-            tbody.innerHTML = rows.map(row => buildDomItemRow(row, flags)).join('');
+        function paginateMergedSettlement(pageEl) {
+            if (!pageEl || pageEl.classList.contains('hidden')) return;
+            const table = pageEl.querySelector('table.calc-table');
+            if (!table) return;
+            const pageH = (297 - 12 - 14) * (96 / 25.4) - 8;
+            const pageTop = pageEl.getBoundingClientRect().top;
+            const tableTop = table.getBoundingClientRect().top - pageTop;
+            const theadH = table.tHead ? table.tHead.getBoundingClientRect().height : 0;
+            const bodyRows = [...table.querySelectorAll('tr')].filter(tr => !tr.closest('thead'));
+            const rowPage = new Map();
+            let pageIndex = 0;
+            let used = tableTop + theadH;
+            bodyRows.forEach(tr => {
+                const h = tr.getBoundingClientRect().height || 0;
+                const floor = pageIndex === 0 ? tableTop : theadH;
+                if (h > 0 && used + h > pageH && used > floor + 1) {
+                    pageIndex += 1;
+                    used = theadH;
+                }
+                rowPage.set(tr, pageIndex);
+                used += h;
+            });
+            pageEl.querySelectorAll('tbody').forEach(tbody => {
+                const rows = [...tbody.querySelectorAll('tr.item-row')];
+                if (rows.length > 1) splitMergedCellsAtPageBreak(rows, rowPage);
+            });
         }
 
         function prepareSettlementPrint() {
@@ -3665,12 +3735,14 @@
                 .map(id => document.getElementById(id))
                 .filter(Boolean);
             settlePrintBackup = tables.map(table => ({ table, html: table.innerHTML }));
-            const overseas = document.getElementById('settlement-table');
-            if (overseas) expandOverseasRowsForPrint(overseas);
-            expandDomesticRowsForPrint();
+            document.body.classList.add('settle-print-measure');
+            void document.body.offsetHeight;
+            paginateMergedSettlement(document.getElementById('page-settle-overseas'));
+            paginateMergedSettlement(document.getElementById('page-settle-domestic'));
         }
 
         function restoreSettlementPrint() {
+            document.body.classList.remove('settle-print-measure');
             if (!settlePrintBackup) return;
             settlePrintBackup.forEach(({ table, html }) => { table.innerHTML = html; });
             settlePrintBackup = null;
