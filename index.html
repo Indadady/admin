@@ -437,6 +437,13 @@
                                 </div>
                             </div>
 
+                            <div class="border-b border-amber-200 pb-3 mb-2">
+                                <label class="flex items-start gap-2 cursor-pointer">
+                                    <input type="checkbox" id="toggle-vat-include-chk" onchange="vatIncludeManual = true; applyVatIncludeVisibility()" class="w-3.5 h-3.5 mt-0.5 text-amber-600 rounded border-slate-300 cursor-pointer shrink-0">
+                                    <span class="text-[10px] font-bold text-slate-700 leading-snug">계약금액에 (VAT 포함) 표기<br><span class="font-normal text-slate-500">해외·알선수수료(순액) 계약은 끄세요. 전체 계약금 VAT 오해 방지. 착수계·완료계에 함께 적용됩니다. 해외는 기본 숨김, 국내는 기본 표시.</span></span>
+                                </label>
+                            </div>
+
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 mb-1">계약일자</label>
@@ -944,7 +951,7 @@
                         </tr>
                         <tr>
                             <td class="font-bold text-center bg-slate-50 border-r border-slate-300">계약금액</td>
-                            <td class="font-bold">금 <span class="out-total-korean"></span>원 (₩<span class="out-total-num"></span>, VAT 포함)</td>
+                            <td class="font-bold">금 <span class="out-total-korean"></span>원 (₩<span class="out-total-num"></span><span class="vat-include-label">, VAT 포함</span>)</td>
                         </tr>
                         <tr>
                             <td class="font-bold text-center bg-slate-50 border-r border-slate-300">계약일자</td>
@@ -1233,7 +1240,7 @@
                         </tr>
                         <tr>
                             <td class="font-bold text-center bg-slate-50 border-r border-slate-300">계약금액</td>
-                            <td class="font-bold text-blue-800">₩ <span class="out-total-num"></span> (VAT 포함)</td>
+                            <td class="font-bold text-blue-800">₩ <span class="out-total-num"></span><span class="vat-include-label"> (VAT 포함)</span></td>
                         </tr>
                         <tr>
                             <td class="font-bold text-center bg-slate-50 border-r border-slate-300">계약일자</td>
@@ -1868,6 +1875,7 @@
         let currentClientType = 'school'; 
         let currentMode = 'advance'; 
         let taxNoticeManual = false;
+        let vatIncludeManual = false;
 
         const DEFAULT_ADVANCE_ATTACHMENTS = [
             '선금지급신청서 1부.',
@@ -2020,7 +2028,21 @@
                 document.getElementById('page-settle-domestic').classList.remove('hidden');
                 document.getElementById('page-settle-domestic').classList.add('flex');
             }
+            // 해외·알선수수료 순액 계약은 VAT 표기 기본 OFF, 국내는 기본 ON (수동 지정 시 유지)
+            if (!vatIncludeManual) {
+                const vatChk = document.getElementById('toggle-vat-include-chk');
+                if (vatChk) vatChk.checked = (type !== 'overseas');
+                applyVatIncludeVisibility();
+            }
             calcTable();
+        }
+
+        function applyVatIncludeVisibility() {
+            const vatChk = document.getElementById('toggle-vat-include-chk');
+            const show = vatChk ? vatChk.checked : false;
+            document.querySelectorAll('.vat-include-label').forEach(el => {
+                el.classList.toggle('hidden', !show);
+            });
         }
 
         // 문서 출력 토글 (우측 상단 x버튼 & 좌측 체크박스 연동)
@@ -3320,6 +3342,7 @@
             const adjLabelChk = document.getElementById('toggle-adj-label-chk');
             const adjLabelInput = document.getElementById('in-adj-label-text');
             const taxNoticeChk = document.getElementById('toggle-tax-notice-chk');
+            const vatIncludeChk = document.getElementById('toggle-vat-include-chk');
 
             const manualInputEl = document.getElementById('manual-settle-input');
             const manualInputDomEl = document.getElementById('manual-settle-input-dom');
@@ -3370,6 +3393,8 @@
                 adjustmentLabelText: adjLabelInput ? adjLabelInput.value : DEFAULT_ADJ_LABEL,
                 showTaxNotice: taxNoticeChk ? taxNoticeChk.checked : true,
                 taxNoticeManual: taxNoticeManual,
+                showVatInclude: vatIncludeChk ? vatIncludeChk.checked : false,
+                vatIncludeManual: vatIncludeManual,
                 manualSettleInput: manualInputEl ? manualInputEl.innerText : '',
                 isManual: manualInputEl ? (manualInputEl.dataset.manual === 'true') : false,
                 manualSettleInputDom: manualInputDomEl ? manualInputDomEl.innerText : '',
@@ -3495,8 +3520,23 @@
 
                 if(data.rep) setRep(data.rep);
                 else applyBankAccount();
+
+                // VAT 표기: setTripType 전에 복원해 해외 기본값에 덮어씌워지지 않게 함
+                vatIncludeManual = data.vatIncludeManual === true;
+                const vatIncludeChk = document.getElementById('toggle-vat-include-chk');
+                if (vatIncludeChk) {
+                    if (data.showVatInclude !== undefined) {
+                        vatIncludeChk.checked = data.showVatInclude;
+                        if (data.vatIncludeManual === undefined) vatIncludeManual = true;
+                    } else {
+                        // 구버전 JSON: 해외는 숨김, 국내는 표시
+                        vatIncludeChk.checked = (data.tripType || 'overseas') !== 'overseas';
+                    }
+                }
+
                 if(data.tripType) setTripType(data.tripType);
-                else setTripType('overseas'); 
+                else setTripType('overseas');
+                applyVatIncludeVisibility();
                 
                 const showStampVal = data.showStamp !== undefined ? data.showStamp : true;
                 document.getElementById('toggle-stamp-chk').checked = showStampVal;
